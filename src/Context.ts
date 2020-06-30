@@ -6,4 +6,13 @@ class Context {
         this.scope = scope;
         this.parent = parent;
     }
+
+    public getScope(identifier: string) : any {
+        if (identifier in this.scope) {
+            return this.scope[identifier];
+        } else if (this.parent !== undefined) {
+            return this.parent.getScope(identifier);
+        }
+    }
+
 }
