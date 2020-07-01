@@ -1,4 +1,4 @@
-class Context {
+export class Context {
     private scope: any;
     private parent: any;
 
