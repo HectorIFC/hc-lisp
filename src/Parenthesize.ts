@@ -1,4 +1,4 @@
-import { categorize } from './Categorize'
+import { categorize } from "./Categorize";
 
 export function parenthesize(input: any, list: any): any {
     if (list === undefined) {
