@@ -1,6 +1,6 @@
 [![Run on Repl.it](https://repl.it/badge/github/HectorIFC/hc-lisp)](https://repl.it/github/HectorIFC/hc-lisp)
 
-![HC LISP](https://lh6.googleusercontent.com/X_MwkMVlcaafTeCCaZy0IDCiBNh9DmfsgbQvJV_D-HTeYgy4MWatbyWeLjPMVMLPHHkG-efK470qfA=w1920-h937-rw)
+![HC LISP](https://i.ibb.co/rchyKBy/hc-lisp-example.gif)
 
 # HC LISP
 
