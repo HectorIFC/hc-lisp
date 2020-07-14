@@ -28,9 +28,17 @@ function iff(input: any, context: any) {
     interpret(input[3], context);
 }
 
+interface IKeywords {
+    [key: string]: any;
+    lett: (input: any, context: any) => any;
+    lambda: (input: any, context: any) => any;
+    iff: (input: any, context: any) => any;
+}
 
-export default {
+const keywords: IKeywords = {
     lett,
     lambda,
     iff
-};
+}
+
+export { keywords };
