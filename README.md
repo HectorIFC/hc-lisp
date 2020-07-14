@@ -1,3 +1,5 @@
+[![Run on Repl.it](https://repl.it/badge/github/HectorIFC/hc-lisp)](https://repl.it/github/HectorIFC/hc-lisp)
+
 # HC LISP
 
 A mini Lisp interpreter in TypeScript.  
