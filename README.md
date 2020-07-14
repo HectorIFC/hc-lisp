@@ -12,7 +12,7 @@ and the library functions `first`, `rest` and `print`.
 
 # Repl
 
-$ ./node_modules/.bin/ts-node repl.ts
+$ npm start
 
 # Some runnable programs
 
@@ -32,7 +32,7 @@ $ cd hc-lisp
 
 $ npm i
 
-$ ./node_modules/.bin/ts-node repl.ts
+$ npm start
 
 # #TODO
 
