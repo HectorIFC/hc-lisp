@@ -1,3 +1,11 @@
 import HcLisp from "./hc-lisp"
+import repl from "repl"
 
-console.log(HcLisp.interpret(HcLisp.parse("(add 1 1 2)"), undefined));
+repl.start({
+    prompt: "> ",
+    eval: (cmd, context, filename, callback) => {
+        const result = HcLisp.interpret(HcLisp.parse(cmd), undefined)
+        callback(null, result)
+    }
+})
+
