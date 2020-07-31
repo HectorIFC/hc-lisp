@@ -1,7 +1,7 @@
 import HcLisp from "./hc-lisp"
 import repl from "repl"
 
-// teste 
+// mais dois testes
 
 repl.start({
     prompt: "> ",
