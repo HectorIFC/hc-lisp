@@ -1,4 +1,4 @@
-[![Run on Repl.it](https://repl.it/badge/github/HectorIFC/hc-lisp)](https://repl.it/github/HectorIFC/hc-lisp)
+[![Run on Repl.it](https://repl.it/badge/github/HectorIFC/hc-lisp)](https://replit.com/@hectorcardoso/hc-lisp)
 
 ![HC LISP](https://i.ibb.co/rchyKBy/hc-lisp-example.gif)
 
