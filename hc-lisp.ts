@@ -20,8 +20,76 @@ class HCLisp {
     }
 
     eval(input: string): HCValue {
-        const ast = this.parse(input);
-        return this.interpret(ast);
+        // Handle multiline input with multiple expressions
+        const cleanInput = input.trim();
+        if (!cleanInput) {
+            return { type: "nil", value: null };
+        }
+
+        // Split into individual expressions by tracking parentheses
+        const expressions = this.splitExpressions(cleanInput);
+        let lastResult: HCValue = { type: "nil", value: null };
+        
+        for (const expr of expressions) {
+            if (expr.trim()) {
+                const ast = this.parse(expr);
+                lastResult = this.interpret(ast);
+            }
+        }
+        
+        return lastResult;
+    }
+
+    private splitExpressions(input: string): string[] {
+        const expressions: string[] = [];
+        let currentExpr = '';
+        let parenCount = 0;
+        let inString = false;
+        let i = 0;
+        
+        while (i < input.length) {
+            const char = input[i];
+            
+            // Handle string boundaries
+            if (char === '"' && (i === 0 || input[i-1] !== '\\')) {
+                inString = !inString;
+            }
+            
+            // Only count parentheses outside of strings
+            if (!inString) {
+                if (char === '(' || char === '[') {
+                    parenCount++;
+                    currentExpr += char;
+                } else if (char === ')' || char === ']') {
+                    parenCount--;
+                    currentExpr += char;
+                    
+                    // If we have a complete expression, save it
+                    if (parenCount === 0 && currentExpr.trim()) {
+                        expressions.push(currentExpr.trim());
+                        currentExpr = '';
+                        
+                        // Skip whitespace after complete expression
+                        while (i + 1 < input.length && /\s/.test(input[i + 1])) {
+                            i++;
+                        }
+                    }
+                } else {
+                    currentExpr += char;
+                }
+            } else {
+                currentExpr += char;
+            }
+            
+            i++;
+        }
+        
+        // Handle any remaining expression
+        if (currentExpr.trim()) {
+            expressions.push(currentExpr.trim());
+        }
+        
+        return expressions;
     }
 
     // Reset the global environment to its initial state

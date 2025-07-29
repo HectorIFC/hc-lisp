@@ -44,13 +44,17 @@ npm run run-hc <file.hc>
 
 ## Testing
 
-HC-Lisp uses **Jest** as the modern test framework. The test suite includes:
+HC-Lisp uses **Jest** as the modern test framework with complete integration. The test suite includes:
 
-- **40 test cases** covering all language features
-- **~65% code coverage** across the codebase
+- **45 test cases** covering all language features  
+- **Unit tests** for TypeScript modules (Jest)
+- **Integration tests** for .hc files (Jest)
 - **Type-safe tests** written in TypeScript
-- **Error handling validation**
-- **Console output mocking**
+- **Error handling validation** with proper exception testing
+- **Console output mocking** for I/O testing
+- **Multiline expression support** in the language core
+
+All tests are unified under Jest - no legacy test runners needed!
 
 For detailed testing information, see [TESTING.md](TESTING.md)
 
@@ -157,12 +161,13 @@ For more details, see [SYNTAX-HIGHLIGHTING.md](SYNTAX-HIGHLIGHTING.md)
 
 ## Test Files
 
-- `tests/basic-test.hc` - Basic functionality tests
-- `tests/pi-test.hc` - Pi calculation
-- `tests/sqrt-test.hc` - Square root calculation
-- `tests/first-element-test.hc` - First element function test
-- `tests/basic-tests.ts` - Basic unit tests in TypeScript
-- `tests/advanced-tests.ts` - Advanced tests in TypeScript
+- `tests/basic-test.hc` - Basic functionality tests in HC-Lisp
+- `tests/pi-test.hc` - Pi calculation demonstration
+- `tests/sqrt-test.hc` - Square root calculation tests
+- `tests/first-element-test.hc` - First element function tests
+- `tests/hc-lisp.test.ts` - Basic unit tests (Jest/TypeScript)
+- `tests/hc-lisp-advanced.test.ts` - Advanced unit tests (Jest/TypeScript)  
+- `tests/hc-files.test.ts` - Integration tests for .hc files (Jest/TypeScript)
 
 ## Running Specific Tests
 
