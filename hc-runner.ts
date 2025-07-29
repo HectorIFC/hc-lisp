@@ -1,15 +1,16 @@
 import HcLisp from "./hc-lisp";
 import * as fs from "fs";
 
-// Simple HC-Lisp file executor
+// Simple HC-Lisp file executor with improved expression parsing
 function executeHCFile(filePath: string): void {
     try {
         const content = fs.readFileSync(filePath, 'utf-8');
         
-        // Simple expression splitting - handles basic cases
+        // Better expression parsing that handles multi-line expressions
         const lines = content.split('\n');
         let currentExpr = '';
         let parenCount = 0;
+        let inString = false;
         
         for (const line of lines) {
             const trimmedLine = line.trim();
@@ -19,12 +20,23 @@ function executeHCFile(filePath: string): void {
                 continue;
             }
             
-            currentExpr += ' ' + trimmedLine;
+            // Add line to current expression
+            currentExpr += (currentExpr ? ' ' : '') + trimmedLine;
             
             // Count parentheses to determine complete expressions
-            for (const char of trimmedLine) {
-                if (char === '(') parenCount++;
-                if (char === ')') parenCount--;
+            for (let i = 0; i < trimmedLine.length; i++) {
+                const char = trimmedLine[i];
+                
+                // Handle string boundaries
+                if (char === '"' && (i === 0 || trimmedLine[i-1] !== '\\')) {
+                    inString = !inString;
+                }
+                
+                // Only count parentheses outside of strings
+                if (!inString) {
+                    if (char === '(' || char === '[') parenCount++;
+                    if (char === ')' || char === ']') parenCount--;
+                }
             }
             
             // If we have a complete expression, evaluate it

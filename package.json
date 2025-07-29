@@ -9,6 +9,7 @@
     "test:basic": "./node_modules/.bin/ts-node tests/basic-tests.ts",
     "test:advanced": "./node_modules/.bin/ts-node tests/advanced-tests.ts",
     "test:hc": "./node_modules/.bin/ts-node -e \"require('./tests/run-all-tests.ts')\"",
+    "test:verify": "./node_modules/.bin/ts-node tests/verification-summary.ts",
     "run-hc": "./node_modules/.bin/ts-node hc-runner.ts"
   },
   "author": "Hector Cardoso",

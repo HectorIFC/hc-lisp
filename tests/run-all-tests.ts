@@ -8,23 +8,59 @@ function executeHCFile(filePath: string): void {
     try {
         const content = fs.readFileSync(filePath, 'utf-8');
         
-        // Split the content into expressions (basic approach)
-        const expressions = content
-            .split('\n')
-            .map(line => line.trim())
-            .filter(line => line && !line.startsWith(';;'))
-            .join(' ')
-            .split(/(?<=\))\s+(?=\()/);
+        // Better expression parsing that handles multi-line expressions
+        const lines = content.split('\n');
+        let currentExpr = '';
+        let parenCount = 0;
+        let inString = false;
         
-        for (const expr of expressions) {
-            if (expr.trim()) {
-                try {
-                    HcLisp.eval(expr.trim());
-                } catch (error) {
-                    console.log(`Error executing "${expr.trim()}": ${(error as Error).message}`);
+        for (const line of lines) {
+            const trimmedLine = line.trim();
+            
+            // Skip comments and empty lines
+            if (!trimmedLine || trimmedLine.startsWith(';;')) {
+                continue;
+            }
+            
+            // Add line to current expression
+            currentExpr += (currentExpr ? ' ' : '') + trimmedLine;
+            
+            // Count parentheses to determine complete expressions
+            for (let i = 0; i < trimmedLine.length; i++) {
+                const char = trimmedLine[i];
+                
+                // Handle string boundaries
+                if (char === '"' && (i === 0 || trimmedLine[i-1] !== '\\')) {
+                    inString = !inString;
+                }
+                
+                // Only count parentheses outside of strings
+                if (!inString) {
+                    if (char === '(' || char === '[') parenCount++;
+                    if (char === ')' || char === ']') parenCount--;
                 }
             }
+            
+            // If we have a complete expression, evaluate it
+            if (parenCount === 0 && currentExpr.trim()) {
+                try {
+                    HcLisp.eval(currentExpr.trim());
+                } catch (error) {
+                    console.log(`Error executing "${currentExpr.trim()}": ${(error as Error).message}`);
+                }
+                currentExpr = '';
+            }
         }
+        
+        // Handle any remaining expression
+        if (currentExpr.trim()) {
+            try {
+                HcLisp.eval(currentExpr.trim());
+            } catch (error) {
+                console.log(`Error executing "${currentExpr.trim()}": ${(error as Error).message}`);
+            }
+        }
+        
     } catch (error) {
         console.log(`Error reading file ${filePath}: ${(error as Error).message}`);
     }
