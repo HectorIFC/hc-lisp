@@ -24,6 +24,11 @@ class HCLisp {
         return this.interpret(ast);
     }
 
+    // Reset the global environment to its initial state
+    resetContext(): void {
+        this.globalEnv = createGlobalEnvironment();
+    }
+
     // Helper method to format output for display
     formatOutput(value: HCValue): string {
         switch (value.type) {
@@ -60,5 +65,6 @@ export default {
     parse: (input: string) => hcLisp.parse(input),
     interpret: (expr: HCValue, env?: Environment) => hcLisp.interpret(expr, env),
     eval: (input: string) => hcLisp.eval(input),
-    formatOutput: (value: HCValue) => hcLisp.formatOutput(value)
+    formatOutput: (value: HCValue) => hcLisp.formatOutput(value),
+    resetContext: () => hcLisp.resetContext()
 };

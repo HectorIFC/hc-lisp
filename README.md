@@ -12,7 +12,7 @@ HC-Lisp is a functional programming language that supports:
 - **Data structures**: lists and vectors
 - **Functions**: function definition with `defn` and anonymous functions with `fn`
 - **Control flow**: `if`, `let`, `loop`/`recur` for tail recursion
-- **Mathematical operations**: +, -, *, /, comparisons
+- **Mathematical operations**: +, -, *, /, comparisons, sqrt
 - **List operations**: `first`, `rest`, `count`, `map`, `reduce`, `range`
 - **Predicates**: `even?`, `nil?`, `empty?`
 - **I/O**: `println`, `print`
@@ -26,18 +26,33 @@ npm install
 # Start the REPL
 npm start
 
-# Run all tests
+# Run all tests (Jest)
 npm test
 
-# Run basic tests
-npm run test:basic
+# Run tests with coverage
+npm run test:coverage
 
-# Run advanced tests
-npm run test:advanced
+# Run tests in watch mode
+npm run test:watch
+
+# Run legacy test suite
+npm run test:legacy
 
 # Execute a .hc file
 npm run run-hc <file.hc>
 ```
+
+## Testing
+
+HC-Lisp uses **Jest** as the modern test framework. The test suite includes:
+
+- **40 test cases** covering all language features
+- **~65% code coverage** across the codebase
+- **Type-safe tests** written in TypeScript
+- **Error handling validation**
+- **Console output mocking**
+
+For detailed testing information, see [TESTING.md](TESTING.md)
 
 ## VS Code Configuration
 
