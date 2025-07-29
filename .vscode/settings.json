@@ -1,0 +1,22 @@
+{
+    "files.associations": {
+        "*.hc": "lisp"
+    },
+    "workbench.editorAssociations": {
+        "*.hc": "default"
+    },
+    "editor.wordWrap": "on",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": "active",
+    "[lisp]": {
+        "editor.autoIndent": "advanced",
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.bracketPairColorization.enabled": true,
+        "editor.guides.bracketPairs": "active",
+        "editor.matchBrackets": "always"
+    }
+}
