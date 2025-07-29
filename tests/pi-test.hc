@@ -1,23 +1,23 @@
-;; Teste de cálculo de Pi usando série de Leibniz
-(println "=== Teste de Cálculo de Pi ===")
+;; Pi calculation test using Leibniz series
+(println "=== Pi Calculation Test ===")
 
 (defn leibniz-pi
-  "Calcula uma aproximação de pi usando a série de Leibniz"
+  "Calculates a pi approximation using the Leibniz series"
   [n]
   (let [terms (map (fn [k] (/ (if (even? k) 1.0 -1.0) (+ (* 2 k) 1)))
                    (range n))]
     (* 4 (reduce + 0 terms))))
 
-;; Exemplo de uso com diferentes números de termos
-(println "Pi aproximado com 100 termos:")
+;; Usage examples with different numbers of terms
+(println "Pi approximated with 100 terms:")
 (println (leibniz-pi 100))
 
-(println "Pi aproximado com 1000 termos:")
+(println "Pi approximated with 1000 terms:")
 (println (leibniz-pi 1000))
 
-(println "Pi aproximado com 10000 termos:")
+(println "Pi approximated with 10000 terms:")
 (println (leibniz-pi 10000))
 
-(println "Pi real (para comparação): 3.141592653589793")
+(println "Actual Pi (for comparison): 3.141592653589793")
 
-(println "=== Fim do Teste de Pi ===")
+(println "=== End of Pi Test ===")

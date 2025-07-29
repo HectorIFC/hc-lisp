@@ -88,23 +88,23 @@ runTest("Square root calculation using Newton-Raphson", () => {
 // Test 3: First element function
 runTest("First element function", () => {
     const firstElementFn = `
-    (defn primeiro-elemento
-      [lista]
-      (first lista))
+    (defn first-element
+      [list]
+      (first list))
     `;
     
     HcLisp.eval(firstElementFn);
     
     // Test with numeric vector
-    const result1 = HcLisp.eval("(primeiro-elemento [1 2 3 4])");
+    const result1 = HcLisp.eval("(first-element [1 2 3 4])");
     assertEqual(result1, { type: "number", value: 1 }, "First element of [1 2 3 4]");
     
     // Test with keyword list
-    const result2 = HcLisp.eval("(primeiro-elemento [:a :b :c])");
+    const result2 = HcLisp.eval("(first-element [:a :b :c])");
     assertEqual(result2, { type: "keyword", value: "a" }, "First element of [:a :b :c]");
     
     // Test with empty list
-    const result3 = HcLisp.eval("(primeiro-elemento [])");
+    const result3 = HcLisp.eval("(first-element [])");
     assertEqual(result3, { type: "nil", value: null }, "First element of empty list");
 });
 

@@ -2,7 +2,7 @@ import HcLisp from "./hc-lisp";
 import repl from "repl";
 
 console.log("Welcome to HC-Lisp REPL!");
-console.log("A Lisp dialect.");
+console.log("A Lisp dialect inspired by Clojure");
 console.log("Type (exit) or Ctrl+C to quit\n");
 
 repl.start({

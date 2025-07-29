@@ -1,30 +1,30 @@
-;; Teste de obtenção do primeiro elemento de listas
-(println "=== Teste de Primeiro Elemento ===")
+;; Test for getting the first element of lists
+(println "=== First Element Test ===")
 
-(defn primeiro-elemento
-  "Retorna o primeiro elemento de uma lista qualquer"
-  [lista]
-  (first lista))
+(defn first-element
+  "Returns the first element of any list"
+  [list]
+  (first list))
 
-;; Exemplos de uso
-(println "Primeiro elemento de [1 2 3 4]:")
-(println (primeiro-elemento [1 2 3 4]))     ;; => 1
+;; Usage examples
+(println "First element of [1 2 3 4]:")
+(println (first-element [1 2 3 4]))     ;; => 1
 
-(println "Primeiro elemento de [:a :b :c]:")
-(println (primeiro-elemento [:a :b :c]))   ;; => :a
+(println "First element of [:a :b :c]:")
+(println (first-element [:a :b :c]))   ;; => :a
 
-(println "Primeiro elemento de lista vazia []:")
-(println (primeiro-elemento []))           ;; => nil
+(println "First element of empty list []:")
+(println (first-element []))           ;; => nil
 
-(println "Primeiro elemento de [\"hello\" \"world\"]:")
-(println (primeiro-elemento ["hello" "world"]))
+(println "First element of [\"hello\" \"world\"]:")
+(println (first-element ["hello" "world"]))
 
-(println "Primeiro elemento de [true false]:")
-(println (primeiro-elemento [true false]))
+(println "First element of [true false]:")
+(println (first-element [true false]))
 
-;; Teste com diferentes tipos de sequências
-(println "Primeiro elemento usando first diretamente:")
+;; Test with different types of sequences
+(println "First element using first directly:")
 (println "first [10 20 30] =>" (first [10 20 30]))
 (println "first [] =>" (first []))
 
-(println "=== Fim do Teste de Primeiro Elemento ===")
+(println "=== End of First Element Test ===")

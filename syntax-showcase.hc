@@ -1,30 +1,30 @@
 ;; ===========================================
-;; HC-LISP - Exemplo Complexo de Syntax Highlighting
+;; HC-LISP - Complex Syntax Highlighting Example
 ;; ===========================================
 
-;; Este arquivo demonstra vários elementos da linguagem
-;; que devem ter cores diferentes no editor
+;; This file demonstrates various language elements
+;; that should have different colors in the editor
 
 ;; -------------------------------------------
-;; 1. COMENTÁRIOS
+;; 1. COMMENTS
 ;; -------------------------------------------
-;; Comentários de linha única começam com ;;
-;; Eles devem aparecer em uma cor mais clara (verde/cinza)
+;; Single-line comments start with ;;
+;; They should appear in a lighter color (green/gray)
 
 ;; -------------------------------------------
-;; 2. DEFINIÇÕES DE FUNÇÕES
+;; 2. FUNCTION DEFINITIONS
 ;; -------------------------------------------
 
 (defn fibonacci
-  "Calcula o n-ésimo número de Fibonacci usando recursão"
+  "Calculates the nth Fibonacci number using recursion"
   [n]
   (if (<= n 1)
     n
     (+ (fibonacci (- n 1))
        (fibonacci (- n 2)))))
 
-(defn fatorial
-  "Calcula o fatorial de um número"
+(defn factorial
+  "Calculates the factorial of a number"
   [n]
   (loop [i n acc 1]
     (if (<= i 1)
@@ -32,71 +32,71 @@
       (recur (- i 1) (* acc i)))))
 
 ;; -------------------------------------------
-;; 3. TIPOS DE DADOS
+;; 3. DATA TYPES
 ;; -------------------------------------------
 
-;; Números (devem aparecer em azul)
+;; Numbers (should appear in blue)
 123
 -456
 78.90
 1e-10
 3.14159
 
-;; Strings (devem aparecer em vermelho/laranja)
-"Olá, mundo!"
-"Esta é uma string com espaços"
-"String com 'aspas simples' internas"
+;; Strings (should appear in red/orange)
+"Hello, world!"
+"This is a string with spaces"
+"String with 'single quotes' inside"
 
-;; Booleans (devem ter cor especial)
+;; Booleans (should have special color)
 true
 false
 
-;; Nil (deve ter cor especial)
+;; Nil (should have special color)
 nil
 
-;; Keywords (devem aparecer em roxo/azul)
-:nome
-:idade
-:ativo
-:tipo-usuario
+;; Keywords (should appear in purple/blue)
+:name
+:age
+:active
+:user-type
 
-;; Símbolos (cor padrão)
+;; Symbols (default color)
 x
 y
-contador
-resultado
+counter
+result
 
 ;; -------------------------------------------
-;; 4. ESTRUTURAS DE DADOS
+;; 4. DATA STRUCTURES
 ;; -------------------------------------------
 
-;; Listas (parênteses devem ter cores diferentes por nível)
+;; Lists (parentheses should have different colors by level)
 (list 1 2 3 4 5)
 '(a b c d e)
 
-;; Vetores (colchetes devem ter cores diferentes)
+;; Vectors (brackets should have different colors)
 [1 2 3 4 5]
 [:a :b :c]
 ["string1" "string2" "string3"]
 
 ;; -------------------------------------------
-;; 5. OPERAÇÕES E FUNÇÕES BUILT-IN
+;; 5. OPERATIONS AND BUILT-IN FUNCTIONS
 ;; -------------------------------------------
 
-;; Operações matemáticas
+;; Mathematical operations
 (+ 1 2 3 4 5)
 (- 100 25)
 (* 2 3 4)
 (/ 12 3)
 
-;; Comparações
+;; Comparisons
 (= 3 3)
 (< 5 10)
 (> 15 10)
 (<= 5 5)
 (>= 10 9)
 
-;; Operações em listas
+;; List operations
 (first [1 2 3])
 (rest [1 2 3])
 (count [1 2 3 4])
@@ -104,92 +104,92 @@ resultado
 (reduce + 0 [1 2 3 4 5])
 
 ;; -------------------------------------------
-;; 6. ESTRUTURAS DE CONTROLE
+;; 6. CONTROL STRUCTURES
 ;; -------------------------------------------
 
 ;; If statements
 (if (> 5 3)
-  "maior"
-  "menor ou igual")
+  "greater"
+  "less or equal")
 
 ;; Let bindings
 (let [x 10
       y 20
-      soma (+ x y)]
-  (println "A soma é:" soma))
+      sum (+ x y)]
+  (println "The sum is:" sum))
 
-;; Loop com recur
+;; Loop with recur
 (loop [i 0
-       resultado []]
+       result []]
   (if (< i 5)
-    (recur (+ i 1) (conj resultado i))
-    resultado))
+    (recur (+ i 1) (conj result i))
+    result))
 
 ;; -------------------------------------------
-;; 7. FUNÇÕES ANÔNIMAS
+;; 7. ANONYMOUS FUNCTIONS
 ;; -------------------------------------------
 
-;; Função lambda simples
+;; Simple lambda function
 (fn [x] (* x x))
 
-;; Função lambda com múltiplos parâmetros
+;; Lambda function with multiple parameters
 (fn [a b c] (+ a b c))
 
-;; Aplicação de função anônima
+;; Anonymous function application
 ((fn [x y] (+ x y)) 10 20)
 
 ;; -------------------------------------------
-;; 8. EXEMPLO COMPLEXO - QUICKSORT
+;; 8. COMPLEX EXAMPLE - QUICKSORT
 ;; -------------------------------------------
 
 (defn quicksort
-  "Implementação do algoritmo quicksort"
-  [lista]
-  (if (empty? lista)
+  "Implementation of the quicksort algorithm"
+  [list]
+  (if (empty? list)
     []
-    (let [pivot (first lista)
-          resto (rest lista)
-          menores (filter (fn [x] (< x pivot)) resto)
-          maiores (filter (fn [x] (>= x pivot)) resto)]
-      (concat (quicksort menores)
+    (let [pivot (first list)
+          rest (rest list)
+          smaller (filter (fn [x] (< x pivot)) rest)
+          larger (filter (fn [x] (>= x pivot)) rest)]
+      (concat (quicksort smaller)
               [pivot]
-              (quicksort maiores)))))
+              (quicksort larger)))))
 
 ;; -------------------------------------------
-;; 9. TESTES E DEMONSTRAÇÕES
+;; 9. TESTS AND DEMONSTRATIONS
 ;; -------------------------------------------
 
-;; Teste do fibonacci
+;; Fibonacci test
 (println "Fibonacci(10):" (fibonacci 10))
 
-;; Teste do fatorial
-(println "Fatorial(5):" (fatorial 5))
+;; Factorial test
+(println "Factorial(5):" (factorial 5))
 
-;; Teste do quicksort
-(println "Ordenação:" (quicksort [3 1 4 1 5 9 2 6 5]))
+;; Quicksort test
+(println "Sorting:" (quicksort [3 1 4 1 5 9 2 6 5]))
 
-;; Exemplo de uso de keywords e maps (se implementado)
-(def pessoa {:nome "João" :idade 30 :ativo true})
+;; Example using keywords and maps (if implemented)
+(def person {:name "John" :age 30 :active true})
 
 ;; -------------------------------------------
-;; 10. PARÊNTESES ANINHADOS (teste de colorização)
+;; 10. NESTED PARENTHESES (colorization test)
 ;; -------------------------------------------
 
-(defn exemplo-aninhado []
-  (let [resultado (+ (* 2 3) 
-                     (- 10 5)
-                     (/ 20 4))]
-    (if (> resultado 10)
+(defn nested-example []
+  (let [result (+ (* 2 3) 
+                  (- 10 5)
+                  (/ 20 4))]
+    (if (> result 10)
       (do
-        (println "Resultado maior que 10")
+        (println "Result greater than 10")
         (map (fn [x] 
-               (let [quadrado (* x x)]
-                 (if (even? quadrado)
-                   (+ quadrado 1)
-                   quadrado)))
+               (let [square (* x x)]
+                 (if (even? square)
+                   (+ square 1)
+                   square)))
              (range 1 6)))
-      (println "Resultado menor ou igual a 10"))))
+      (println "Result less than or equal to 10"))))
 
 ;; ===========================================
-;; FIM DO ARQUIVO DE DEMONSTRAÇÃO
+;; END OF DEMONSTRATION FILE
 ;; ===========================================

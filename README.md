@@ -1,109 +1,121 @@
 # HC-Lisp
 
-Uma implementação de um dialeto Lisp em TypeScript, inspirado em Clojure e no projeto Lispy de Peter Norvig.
+A Lisp dialect implementation in TypeScript, inspired by Clojure and Peter Norvig's Lispy project.
 
-## Características
+![HC LISP](https://i.ibb.co/rchyKBy/hc-lisp-example.gif)
 
-HC-Lisp é uma linguagem de programação funcional que suporta:
+## Features
 
-- **Tipos de dados básicos**: números, strings, booleans, nil, keywords, símbolos
-- **Estruturas de dados**: listas e vetores
-- **Funções**: definição de funções com `defn` e funções anônimas com `fn`
-- **Controle de fluxo**: `if`, `let`, `loop`/`recur` para recursão de cauda
-- **Operações matemáticas**: +, -, *, /, comparações
-- **Operações em listas**: `first`, `rest`, `count`, `map`, `reduce`, `range`
-- **Predicados**: `even?`, `nil?`, `empty?`
+HC-Lisp is a functional programming language that supports:
+
+- **Basic data types**: numbers, strings, booleans, nil, keywords, symbols
+- **Data structures**: lists and vectors
+- **Functions**: function definition with `defn` and anonymous functions with `fn`
+- **Control flow**: `if`, `let`, `loop`/`recur` for tail recursion
+- **Mathematical operations**: +, -, *, /, comparisons
+- **List operations**: `first`, `rest`, `count`, `map`, `reduce`, `range`
+- **Predicates**: `even?`, `nil?`, `empty?`
 - **I/O**: `println`, `print`
 
-## Instalação e Execução
+## Installation and Execution
 
 ```bash
-# Instalar dependências
+# Install dependencies
 npm install
 
-# Iniciar o REPL
+# Start the REPL
 npm start
 
-# Executar todos os testes
+# Run all tests
 npm test
 
-# Executar testes básicos
+# Run basic tests
 npm run test:basic
 
-# Executar testes avançados
+# Run advanced tests
 npm run test:advanced
 
-# Executar um arquivo .hc
-npm run run-hc <arquivo.hc>
+# Execute a .hc file
+npm run run-hc <file.hc>
 ```
 
-## Exemplos de Uso
+## VS Code Configuration
 
-### Operações Básicas
+The project includes configurations for syntax highlighting of `.hc` files:
+
+1. The "Lisp" extension will be installed automatically
+2. `.hc` files are associated with the Lisp language
+3. Indentation and colors are pre-configured
+
+For more details, see [SYNTAX-HIGHLIGHTING.md](SYNTAX-HIGHLIGHTING.md)
+
+## Usage Examples
+
+### Basic Operations
 ```lisp
-;; Aritmética
+;; Arithmetic
 (+ 1 2 3)        ; => 6
 (* 2 3 4)        ; => 24
 (/ 12 3)         ; => 4
 
-;; Comparações
+;; Comparisons
 (< 3 5)          ; => true
 (= 3 3)          ; => true
 
-;; Listas
+;; Lists
 (first [1 2 3])  ; => 1
 (count [1 2 3])  ; => 3
 ```
 
-### Definição de Variáveis e Funções
+### Variable and Function Definition
 ```lisp
-;; Variáveis
+;; Variables
 (def x 42)
 
-;; Funções
-(defn quadrado [x] (* x x))
-(quadrado 5)     ; => 25
+;; Functions
+(defn square [x] (* x x))
+(square 5)     ; => 25
 
-;; Funções com docstring
-(defn soma
-  "Soma dois números"
+;; Functions with docstring
+(defn sum
+  "Adds two numbers"
   [a b]
   (+ a b))
 ```
 
-### Estruturas de Controle
+### Control Structures
 ```lisp
 ;; If
-(if (> 5 3) "maior" "menor")  ; => "maior"
+(if (> 5 3) "greater" "less")  ; => "greater"
 
-;; Let (binding local)
+;; Let (local binding)
 (let [x 10 y 20] (+ x y))     ; => 30
 
-;; Loop com recursão de cauda
+;; Loop with tail recursion
 (loop [i 0 acc 1]
   (if (< i 5)
     (recur (+ i 1) (* acc i))
     acc))
 ```
 
-## Testes Incluídos
+## Included Tests
 
-### 1. Cálculo de Pi usando Série de Leibniz
+### 1. Pi Calculation using Leibniz Series
 ```lisp
 (defn leibniz-pi
-  "Calcula uma aproximação de pi usando a série de Leibniz"
+  "Calculates a pi approximation using the Leibniz series"
   [n]
   (let [terms (map (fn [k] (/ (if (even? k) 1.0 -1.0) (+ (* 2 k) 1)))
                    (range n))]
     (* 4 (reduce + 0 terms))))
 
-(leibniz-pi 1000)  ; => aproximação de π
+(leibniz-pi 1000)  ; => π approximation
 ```
 
-### 2. Raiz Quadrada usando Newton-Raphson
+### 2. Square Root using Newton-Raphson
 ```lisp
 (defn sqrt
-  "Calcula a raiz quadrada de x usando o método de Newton-Raphson"
+  "Calculates the square root of x using the Newton-Raphson method"
   [x]
   (let [epsilon 1e-10]
     (loop [guess x]
@@ -116,74 +128,78 @@ npm run run-hc <arquivo.hc>
 (sqrt 2)    ; => 1.414213562373095
 ```
 
-### 3. Primeiro Elemento de uma Lista
+### 3. First Element of a List
 ```lisp
-(defn primeiro-elemento
-  "Retorna o primeiro elemento de uma lista qualquer"
-  [lista]
-  (first lista))
+(defn first-element
+  "Returns the first element of any list"
+  [list]
+  (first list))
 
-(primeiro-elemento [1 2 3 4])     ; => 1
-(primeiro-elemento [:a :b :c])    ; => :a
-(primeiro-elemento [])            ; => nil
+(first-element [1 2 3 4])     ; => 1
+(first-element [:a :b :c])    ; => :a
+(first-element [])            ; => nil
 ```
 
-## Arquivos de Teste
+## Test Files
 
-- `tests/basic-test.hc` - Testes básicos de funcionalidade
-- `tests/pi-test.hc` - Cálculo de Pi
-- `tests/sqrt-test.hc` - Cálculo de raiz quadrada
-- `tests/first-element-test.hc` - Teste da função primeiro elemento
-- `tests/basic-tests.ts` - Testes unitários básicos em TypeScript
-- `tests/advanced-tests.ts` - Testes avançados em TypeScript
+- `tests/basic-test.hc` - Basic functionality tests
+- `tests/pi-test.hc` - Pi calculation
+- `tests/sqrt-test.hc` - Square root calculation
+- `tests/first-element-test.hc` - First element function test
+- `tests/basic-tests.ts` - Basic unit tests in TypeScript
+- `tests/advanced-tests.ts` - Advanced tests in TypeScript
 
-## Executando Testes Específicos
+## Running Specific Tests
 
 ```bash
-# Teste de Pi
+# Pi test
 npm run run-hc tests/pi-test.hc
 
-# Teste de raiz quadrada
+# Square root test
 npm run run-hc tests/sqrt-test.hc
 
-# Teste de primeiro elemento
+# First element test
 npm run run-hc tests/first-element-test.hc
 
-# Teste básico completo
+# Complete basic test
 npm run run-hc tests/basic-test.hc
 ```
 
-## REPL Interativo
+## Interactive REPL
 
-Execute `npm start` para iniciar o REPL:
+Run `npm start` to start the REPL:
 
 ```
 Welcome to HC-Lisp REPL!
-A Lisp dialect.
+A Lisp dialect inspired by Clojure
 Type (exit) or Ctrl+C to quit
 
 hc-lisp> (+ 1 2 3)
 6
-hc-lisp> (defn dobro [x] (* x 2))
+hc-lisp> (defn double [x] (* x 2))
 <closure>
-hc-lisp> (dobro 21)
+hc-lisp> (double 21)
 42
 hc-lisp> (exit)
 ```
 
-## Arquitetura
+## Architecture
 
-O projeto está estruturado em módulos:
+The project is structured in modules:
 
-- `Tokenizer.ts` - Análise léxica (tokenização)
-- `Categorize.ts` - Classificação de tokens
-- `Parenthesize.ts` - Análise sintática (parsing)
-- `Interpret.ts` - Interpretador principal
-- `Library.ts` - Biblioteca de funções básicas
-- `Keywords.ts` - Formas especiais (def, defn, if, let, etc.)
-- `Context.ts` - Gerenciamento de ambiente/escopo
-- `hc-lisp.ts` - Interface principal
+- `Tokenizer.ts` - Lexical analysis (tokenization)
+- `Categorize.ts` - Token classification
+- `Parenthesize.ts` - Syntactic analysis (parsing)
+- `Interpret.ts` - Main interpreter
+- `Library.ts` - Basic function library
+- `Keywords.ts` - Special forms (def, defn, if, let, etc.)
+- `Context.ts` - Environment/scope management
+- `hc-lisp.ts` - Main interface
 
-## Licença
+## Target
+
+Understanding how a Lisp works.
+
+## License
 
 MIT License

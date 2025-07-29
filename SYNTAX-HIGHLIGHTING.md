@@ -1,64 +1,64 @@
-# Configuração do VS Code para HC-Lisp
+# VS Code Configuration for HC-Lisp
 
 ## Syntax Highlighting
 
-Para obter syntax highlighting adequado para arquivos `.hc` no VS Code:
+To get proper syntax highlighting for `.hc` files in VS Code:
 
-### Método 1: Configuração Automática (Recomendado)
+### Method 1: Automatic Configuration (Recommended)
 
-1. A extensão "Lisp" já foi instalada automaticamente no workspace
-2. As configurações em `.vscode/settings.json` já associam arquivos `.hc` à linguagem Lisp
-3. Reinicie o VS Code ou recarregue a janela (`Ctrl+Shift+P` → "Developer: Reload Window")
+1. The "Lisp" extension has been automatically installed in the workspace
+2. Settings in `.vscode/settings.json` already associate `.hc` files with the Lisp language
+3. Restart VS Code or reload the window (`Ctrl+Shift+P` → "Developer: Reload Window")
 
-### Método 2: Configuração Manual
+### Method 2: Manual Configuration
 
-1. Abra um arquivo `.hc`
-2. Pressione `Ctrl+Shift+P` (ou `Cmd+Shift+P` no Mac)
-3. Digite "Change Language Mode" e selecione a opção
-4. Digite "Lisp" e selecione
+1. Open a `.hc` file
+2. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
+3. Type "Change Language Mode" and select the option
+4. Type "Lisp" and select
 
-### Método 3: Configuração Via Barra de Status
+### Method 3: Configuration Via Status Bar
 
-1. Abra um arquivo `.hc`
-2. Clique no indicador de linguagem na barra de status (canto inferior direito)
-3. Selecione "Lisp" na lista de linguagens
+1. Open a `.hc` file
+2. Click the language indicator in the status bar (bottom right corner)
+3. Select "Lisp" from the language list
 
-## Recursos de Edição
+## Editing Features
 
-Com o syntax highlighting configurado, você terá:
+With syntax highlighting configured, you'll have:
 
-- **Cores para diferentes elementos**:
-  - Comentários (`;; texto`) em verde/cinza
-  - Strings (`"texto"`) em vermelho/laranja
-  - Keywords (`:keyword`) em roxo/azul
-  - Números (`123`, `45.67`, `1e-10`) em azul
-  - Parênteses coloridos para facilitar visualização
+- **Colors for different elements**:
+  - Comments (`;; text`) in green/gray
+  - Strings (`"text"`) in red/orange
+  - Keywords (`:keyword`) in purple/blue
+  - Numbers (`123`, `45.67`, `1e-10`) in blue
+  - Colored parentheses for easy visualization
 
-- **Indentação automática** configurada para 2 espaços
-- **Destaque de parênteses correspondentes**
-- **Guias visuais para parênteses**
+- **Automatic indentation** configured for 2 spaces
+- **Matching parentheses highlighting**
+- **Visual guides for parentheses**
 
-## Arquivo de Demonstração
+## Demonstration File
 
-Abra o arquivo `demo-syntax.hc` para ver exemplos de como o syntax highlighting deve aparecer.
+Open the `demo-syntax.hc` file to see examples of how syntax highlighting should appear.
 
-## Extensões Recomendadas
+## Recommended Extensions
 
-Além da extensão "Lisp" já instalada, considere instalar:
+Besides the "Lisp" extension already installed, consider installing:
 
-- **Bracket Pair Colorizer** (já habilitado nas configurações)
-- **Rainbow Brackets** para melhor visualização de parênteses aninhados
-- **Calva** se você quiser recursos mais avançados similares ao Clojure
+- **Bracket Pair Colorizer** (already enabled in settings)
+- **Rainbow Brackets** for better visualization of nested parentheses
+- **Calva** if you want more advanced features similar to Clojure
 
-## Solução de Problemas
+## Troubleshooting
 
-Se o syntax highlighting não estiver funcionando:
+If syntax highlighting is not working:
 
-1. Verifique se a extensão "Lisp" está instalada
-2. Recarregue o VS Code
-3. Tente mudar manualmente a linguagem para "Lisp"
-4. Verifique se o arquivo `.vscode/settings.json` contém as configurações corretas
+1. Check if the "Lisp" extension is installed
+2. Reload VS Code
+3. Try manually changing the language to "Lisp"
+4. Verify that the `.vscode/settings.json` file contains the correct settings
 
-## Configurações Personalizadas
+## Custom Settings
 
-Você pode personalizar as cores editando seu tema do VS Code ou usando as configurações de `editor.tokenColorCustomizations` no seu `settings.json` pessoal.
+You can customize colors by editing your VS Code theme or using `editor.tokenColorCustomizations` settings in your personal `settings.json`.

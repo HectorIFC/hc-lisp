@@ -1,48 +1,48 @@
-;; Este é um arquivo de demonstração da linguagem HC-Lisp
-;; Ele deve ter syntax highlighting de Lisp aplicado
+;; This is a demonstration file for the HC-Lisp language
+;; It should have Lisp syntax highlighting applied
 
-;; Definição de função
-(defn saudacao
-  "Função que retorna uma saudação"
-  [nome]
-  (str "Olá, " nome "!"))
+;; Function definition
+(defn greeting
+  "Function that returns a greeting"
+  [name]
+  (str "Hello, " name "!"))
 
-;; Chamada da função
-(println (saudacao "Mundo"))
+;; Function call
+(println (greeting "World"))
 
-;; Operações matemáticas
+;; Mathematical operations
 (+ 1 2 3 4 5)
 (* 2 3 4)
 (/ 10 2)
 
-;; Estruturas de controle
+;; Control structures
 (if true
-  "verdadeiro"
-  "falso")
+  "true"
+  "false")
 
 ;; Let binding
 (let [x 10
       y 20]
   (+ x y))
 
-;; Loop recursivo
-(loop [contador 0
-       acumulador 0]
-  (if (< contador 10)
-    (recur (+ contador 1) (+ acumulador contador))
-    acumulador))
+;; Recursive loop
+(loop [counter 0
+       accumulator 0]
+  (if (< counter 10)
+    (recur (+ counter 1) (+ accumulator counter))
+    accumulator))
 
-;; Função de alta ordem
+;; Higher-order function
 (map (fn [x] (* x x)) [1 2 3 4 5])
 
-;; Keywords e símbolos
+;; Keywords and symbols
 :keyword
-'simbolo
+'symbol
 
-;; Strings e números
-"Esta é uma string"
+;; Strings and numbers
+"This is a string"
 123
 45.67
 1e-10
 
-;; Comentários deveriam aparecer em cor diferente
+;; Comments should appear in different color
