@@ -263,15 +263,3 @@ export function createGlobalEnvironment(): Environment {
     
     return globalEnv;
 }
-
-// Legacy export for backward compatibility
-export default {
-    first: (value: any) => value[0],
-    rest: (value: any) => value.slice(1),
-    print: (value: any) => {
-        console.log(value);
-        return undefined;
-    },
-    add: (...args: any) => args.reduce((previous: any, current: any) => previous + current),
-    dec: (...args: any) => args.reduce((previous: any, current: any) => previous - current)
-};

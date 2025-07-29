@@ -225,16 +225,3 @@ export const specialForms: { [key: string]: SpecialForm } = {
         return result;
     }
 };
-
-// Legacy keywords export for backward compatibility
-export const keywords = {
-    lett: (input: any, context: any) => {
-        throw new Error("Legacy lett not supported. Use 'let' instead.");
-    },
-    lambda: (input: any, context: any) => {
-        throw new Error("Legacy lambda not supported. Use 'fn' instead.");
-    },
-    iff: (input: any, context: any) => {
-        throw new Error("Legacy iff not supported. Use 'if' instead.");
-    }
-};
