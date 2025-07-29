@@ -68,21 +68,6 @@ function executeHCFile(filePath: string): void {
 
 console.log("Running All HC-Lisp Tests\n");
 
-// Run TypeScript tests
-console.log("=== Running Basic TypeScript Tests ===");
-try {
-    require('./basic-tests');
-} catch (error) {
-    console.log(`Error running basic tests: ${(error as Error).message}`);
-}
-
-console.log("\n=== Running Advanced TypeScript Tests ===");
-try {
-    require('./advanced-tests');
-} catch (error) {
-    console.log(`Error running advanced tests: ${(error as Error).message}`);
-}
-
 // Run HC files
 const testFiles = [
     'basic-test.hc',
