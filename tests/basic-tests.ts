@@ -116,4 +116,25 @@ runTest("Range function", () => {
     assertEqual(result, { type: "number", value: 5 });
 });
 
+// Test sqrt function
+runTest("Square root function", () => {
+    const result1 = HcLisp.eval("(sqrt 9)");
+    assertEqual(result1, { type: "number", value: 3 });
+    
+    const result2 = HcLisp.eval("(sqrt 4)");
+    assertEqual(result2, { type: "number", value: 2 });
+    
+    const result3 = HcLisp.eval("(sqrt 0)");
+    assertEqual(result3, { type: "number", value: 0 });
+    
+    const result4 = HcLisp.eval("(sqrt 2)");
+    // Check if close to Math.sqrt(2)
+    if (result4.type !== "number") {
+        throw new Error(`Expected number, got ${result4.type}`);
+    }
+    if (Math.abs(result4.value - Math.sqrt(2)) > 0.000001) {
+        throw new Error(`sqrt(2) should be ${Math.sqrt(2)}, got ${result4.value}`);
+    }
+});
+
 console.log("\nBasic tests completed!");

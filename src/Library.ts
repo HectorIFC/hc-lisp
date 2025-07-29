@@ -165,6 +165,12 @@ const coreFunctions = {
         return { type: "number", value: Math.abs(n.value) };
     },
 
+    "sqrt": (n: HCValue): HCValue => {
+        if (!isNumber(n)) throw new Error("sqrt requires a number");
+        if (n.value < 0) throw new Error("sqrt requires a non-negative number");
+        return { type: "number", value: Math.sqrt(n.value) };
+    },
+
     // I/O
     "println": (...args: HCValue[]): HCValue => {
         const output = args.map(arg => {
