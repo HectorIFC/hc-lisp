@@ -1,8 +1,10 @@
 # HC-Lisp
 
-A Lisp dialect implementation in TypeScript, inspired by Clojure and Peter Norvig's Lispy project.
+A modern Lisp dialect implementation in TypeScript, inspired by Clojure and Peter Norvig's Lispy project.
 
 ![HC LISP](https://i.ibb.co/rchyKBy/hc-lisp-example.gif)
+
+🌐 **[Live Website](https://hectorifc.github.io/hc-lisp)** | 📚 **[Documentation](https://hectorifc.github.io/hc-lisp)** | 🚀 **[Try Examples](https://hectorifc.github.io/hc-lisp#examples)**
 
 ## Features
 
@@ -16,6 +18,13 @@ HC-Lisp is a functional programming language that supports:
 - **List operations**: `first`, `rest`, `count`, `map`, `reduce`, `range`
 - **Predicates**: `even?`, `nil?`, `empty?`
 - **I/O**: `println`, `print`
+
+## Quick Links
+
+- 🌐 **[Website & Documentation](https://hectorifc.github.io/hc-lisp)**
+- 📖 **[API Reference](https://hectorifc.github.io/hc-lisp#docs)**
+- 🎯 **[Live Examples](https://hectorifc.github.io/hc-lisp#examples)**
+- 🧪 **[Testing Info](https://hectorifc.github.io/hc-lisp#testing)**
 
 ## Installation and Execution
 
