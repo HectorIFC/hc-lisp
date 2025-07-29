@@ -195,16 +195,8 @@ const coreFunctions = {
         }
         if (!isSeq(seq)) throw new Error("map requires a sequence as second argument");
         
-        const items = seq.value;
-        const mapped = items.map(item => {
-            if (fn.type === "function") {
-                return fn.value(item);
-            } else {
-                // Handle closure - this will be implemented in the interpreter
-                throw new Error("Closure mapping not implemented in core functions");
-            }
-        });
-        return { type: "list", value: mapped };
+        // This will be handled by mapWithClosure in the interpreter
+        throw new Error("map with closures should be handled by the interpreter");
     },
 
     "reduce": (fn: HCValue, initial: HCValue, seq: HCValue): HCValue => {
@@ -213,18 +205,8 @@ const coreFunctions = {
         }
         if (!isSeq(seq)) throw new Error("reduce requires a sequence as third argument");
         
-        const items = seq.value;
-        let acc = initial;
-        
-        for (const item of items) {
-            if (fn.type === "function") {
-                acc = fn.value(acc, item);
-            } else {
-                // Handle closure - this will be implemented in the interpreter
-                throw new Error("Closure reduction not implemented in core functions");
-            }
-        }
-        return acc;
+        // This will be handled by reduceWithClosure in the interpreter
+        throw new Error("reduce with closures should be handled by the interpreter");
     },
 
     "range": (...args: HCValue[]): HCValue => {

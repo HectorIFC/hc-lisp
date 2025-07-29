@@ -13,8 +13,8 @@ export type HCValue =
     | { type: "recur"; values: HCValue[] };
 
 export function categorize(token: string): HCValue {
-    // Handle numbers (including floats and negatives)
-    if (/^-?\d+(\.\d+)?$/.test(token)) {
+    // Handle numbers (including floats, negatives, and scientific notation)
+    if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(token)) {
         return { type: "number", value: parseFloat(token) };
     }
     

@@ -44,6 +44,22 @@ function evaluateExpression(expr: HCValue, env: Environment): HCValue {
                 return specialForms[first.value](rest, env, evaluateExpression);
             }
             
+            // Handle special built-in functions that need custom evaluation
+            if (first.type === "symbol") {
+                if (first.value === "map" && rest.length === 2) {
+                    const fn = evaluateExpression(rest[0], env);
+                    const seq = evaluateExpression(rest[1], env);
+                    return mapWithClosure(fn, seq, env);
+                }
+                
+                if (first.value === "reduce" && rest.length === 3) {
+                    const fn = evaluateExpression(rest[0], env);
+                    const initial = evaluateExpression(rest[1], env);
+                    const seq = evaluateExpression(rest[2], env);
+                    return reduceWithClosure(fn, initial, seq, env);
+                }
+            }
+            
             // Regular function call
             const fn = evaluateExpression(first, env);
             const args = rest.map(arg => evaluateExpression(arg, env));
