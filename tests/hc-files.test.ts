@@ -23,8 +23,8 @@ describe('HC-Lisp File Integration Tests', () => {
         return filePath;
     }
 
-    test('should execute basic-test.hc without errors', () => {
-        const filePath = getTestFilePath('basic-test.hc');
+    test('should execute basic-test.hclisp without errors', () => {
+        const filePath = getTestFilePath('basic-test.hclisp');
         
         // Capture console output
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
@@ -41,8 +41,8 @@ describe('HC-Lisp File Integration Tests', () => {
         consoleSpy.mockRestore();
     });
 
-    test('should execute pi-test.hc without errors', () => {
-        const filePath = getTestFilePath('pi-test.hc');
+    test('should execute pi-test.hclisp without errors', () => {
+        const filePath = getTestFilePath('pi-test.hclisp');
         
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
         
@@ -57,8 +57,8 @@ describe('HC-Lisp File Integration Tests', () => {
         consoleSpy.mockRestore();
     });
 
-    test('should execute sqrt-test.hc without errors', () => {
-        const filePath = getTestFilePath('sqrt-test.hc');
+    test('should execute sqrt-test.hclisp without errors', () => {
+        const filePath = getTestFilePath('sqrt-test.hclisp');
         
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
         
@@ -73,8 +73,8 @@ describe('HC-Lisp File Integration Tests', () => {
         consoleSpy.mockRestore();
     });
 
-    test('should execute first-element-test.hc without errors', () => {
-        const filePath = getTestFilePath('first-element-test.hc');
+    test('should execute first-element-test.hclisp without errors', () => {
+        const filePath = getTestFilePath('first-element-test.hclisp');
         
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
         
@@ -91,10 +91,10 @@ describe('HC-Lisp File Integration Tests', () => {
 
     test('should execute all HC files in sequence', () => {
         const testFiles = [
-            'basic-test.hc',
-            'pi-test.hc', 
-            'sqrt-test.hc',
-            'first-element-test.hc'
+            'basic-test.hclisp',
+            'pi-test.hclisp', 
+            'sqrt-test.hclisp',
+            'first-element-test.hclisp'
         ];
 
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();

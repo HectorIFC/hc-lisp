@@ -4,7 +4,18 @@ A modern Lisp dialect implementation in TypeScript, inspired by Clojure and Pete
 
 ![HC LISP](https://i.ibb.co/rchyKBy/hc-lisp-example.gif)
 
-🌐 **[Live Website](https://hectorifc.github.io/hc-lisp)** | 📚 **[Documentation](https://hectorifc.github.io/hc-lisp)** | 🚀 **[Try Examples](https://hectorifc.github.io/hc-lisp#examples)**
+🌐 **```bash
+# Pi test
+npm run hclisp tests/pi-test.hclisp
+
+# Square root test  
+npm run hclisp tests/sqrt-test.hclisp
+
+# First element test
+npm run hclisp tests/first-element-test.hclisp
+
+# Basic test
+npm run hclisp tests/basic-test.hclispe](https://hectorifc.github.io/hc-lisp)** | 📚 **[Documentation](https://hectorifc.github.io/hc-lisp)** | 🚀 **[Try Examples](https://hectorifc.github.io/hc-lisp#examples)**
 
 ## Features
 
@@ -47,8 +58,8 @@ npm run test:watch
 # Run legacy test suite
 npm run test:legacy
 
-# Execute a .hc file
-npm run run-hc <file.hc>
+# Execute a .hclisp file
+npm run hclisp <file.hclisp>
 ```
 
 ## Testing
@@ -57,7 +68,7 @@ HC-Lisp uses **Jest** as the modern test framework with complete integration. Th
 
 - **45 test cases** covering all language features  
 - **Unit tests** for TypeScript modules (Jest)
-- **Integration tests** for .hc files (Jest)
+- **Integration tests** for .hclisp files (Jest)
 - **Type-safe tests** written in TypeScript
 - **Error handling validation** with proper exception testing
 - **Console output mocking** for I/O testing
@@ -69,11 +80,10 @@ For detailed testing information, see [TESTING.md](TESTING.md)
 
 ## VS Code Configuration
 
-The project includes configurations for syntax highlighting of `.hc` files:
+The project includes configurations for syntax highlighting of `.hclisp` files:
 
-1. The "Lisp" extension will be installed automatically
-2. `.hc` files are associated with the Lisp language
-3. Indentation and colors are pre-configured
+1. VS Code settings in `.vscode/settings.json`
+2. `.hclisp` files are associated with the Lisp language
 
 For more details, see [SYNTAX-HIGHLIGHTING.md](SYNTAX-HIGHLIGHTING.md)
 
@@ -170,13 +180,13 @@ For more details, see [SYNTAX-HIGHLIGHTING.md](SYNTAX-HIGHLIGHTING.md)
 
 ## Test Files
 
-- `tests/basic-test.hc` - Basic functionality tests in HC-Lisp
-- `tests/pi-test.hc` - Pi calculation demonstration
-- `tests/sqrt-test.hc` - Square root calculation tests
-- `tests/first-element-test.hc` - First element function tests
+- `tests/basic-test.hclisp` - Basic functionality tests in HC-Lisp
+- `tests/pi-test.hclisp` - Pi calculation demonstration
+- `tests/sqrt-test.hclisp` - Square root calculation tests
+- `tests/first-element-test.hclisp` - First element function tests
 - `tests/hc-lisp.test.ts` - Basic unit tests (Jest/TypeScript)
 - `tests/hc-lisp-advanced.test.ts` - Advanced unit tests (Jest/TypeScript)  
-- `tests/hc-files.test.ts` - Integration tests for .hc files (Jest/TypeScript)
+- `tests/hc-files.test.ts` - Integration tests for .hclisp files (Jest/TypeScript)
 
 ## Running Specific Tests
 

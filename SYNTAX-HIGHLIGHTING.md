@@ -2,24 +2,24 @@
 
 ## Syntax Highlighting
 
-To get proper syntax highlighting for `.hc` files in VS Code:
+To get proper syntax highlighting for `.hclisp` files in VS Code:
 
 ### Method 1: Automatic Configuration (Recommended)
 
 1. The "Lisp" extension has been automatically installed in the workspace
-2. Settings in `.vscode/settings.json` already associate `.hc` files with the Lisp language
+2. Settings in `.vscode/settings.json` already associate `.hclisp` files with the Lisp language
 3. Restart VS Code or reload the window (`Ctrl+Shift+P` → "Developer: Reload Window")
 
 ### Method 2: Manual Configuration
 
-1. Open a `.hc` file
+1. Open a `.hclisp` file
 2. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
 3. Type "Change Language Mode" and select the option
 4. Type "Lisp" and select
 
 ### Method 3: Configuration Via Status Bar
 
-1. Open a `.hc` file
+1. Open a `.hclisp` file
 2. Click the language indicator in the status bar (bottom right corner)
 3. Select "Lisp" from the language list
 
@@ -40,7 +40,7 @@ With syntax highlighting configured, you'll have:
 
 ## Demonstration File
 
-Open the `demo-syntax.hc` file to see examples of how syntax highlighting should appear.
+Open the `demo-syntax.hclisp` file to see examples of how syntax highlighting should appear.
 
 ## Recommended Extensions
 

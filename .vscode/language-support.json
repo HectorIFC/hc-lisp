@@ -4,7 +4,7 @@
             {
                 "id": "hc-lisp",
                 "aliases": ["HC-Lisp", "hc-lisp"],
-                "extensions": [".hc"],
+                "extensions": [".hclisp"],
                 "configuration": "./language-configuration.json"
             }
         ],

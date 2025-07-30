@@ -140,7 +140,7 @@ test('should calculate pi using Leibniz series', () => {
 The legacy test suite is still available for comparison and verification:
 
 - Original tests: `npm run test:legacy`
-- .hc file tests: Still executed by the legacy runner
+- .hclisp file tests: Still executed by the legacy runner
 - TypeScript tests: Available as `npm run test:basic-legacy` and `npm run test:advanced-legacy`
 
 This dual approach ensures backward compatibility while providing modern testing capabilities.

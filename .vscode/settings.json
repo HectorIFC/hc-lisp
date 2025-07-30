@@ -1,9 +1,9 @@
 {
     "files.associations": {
-        "*.hc": "lisp"
+        "*.hclisp": "lisp"
     },
     "workbench.editorAssociations": {
-        "*.hc": "default"
+        "*.hclisp": "default"
     },
     "editor.wordWrap": "on",
     "editor.tabSize": 2,
