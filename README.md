@@ -2,20 +2,9 @@
 
 A modern Lisp dialect implementation in TypeScript, inspired by Clojure and Peter Norvig's Lispy project.
 
-![HC LISP](https://i.ibb.co/rchyKBy/hc-lisp-example.gif)
+> ⚠️ **Development Status**: HC-Lisp is currently in active development and is **not ready for production use**. This is an experimental project intended for educational purposes and learning how Lisp interpreters work. APIs may change, features may be incomplete, and there may be bugs. Use at your own discretion for learning and experimentation.
 
-🌐 **```bash
-# Pi test
-npm run hclisp tests/pi-test.hclisp
-
-# Square root test  
-npm run hclisp tests/sqrt-test.hclisp
-
-# First element test
-npm run hclisp tests/first-element-test.hclisp
-
-# Basic test
-npm run hclisp tests/basic-test.hclispe](https://hectorifc.github.io/hc-lisp)** | 📚 **[Documentation](https://hectorifc.github.io/hc-lisp)** | 🚀 **[Try Examples](https://hectorifc.github.io/hc-lisp#examples)**
+🌐 **[Site](https://hectorifc.github.io/hc-lisp)** | 📚 **[Documentation](https://hectorifc.github.io/hc-lisp)** | 🚀 **[Try Examples](https://hectorifc.github.io/hc-lisp#examples)**
 
 ## Features
 
@@ -77,6 +66,32 @@ HC-Lisp uses **Jest** as the modern test framework with complete integration. Th
 All tests are unified under Jest - no legacy test runners needed!
 
 For detailed testing information, see [TESTING.md](TESTING.md)
+
+## Project Status
+
+HC-Lisp is an **experimental educational project** currently in active development. 
+
+### Current State
+- ✅ Core language features implemented and working
+- ✅ Comprehensive test suite (45 tests) with 100% pass rate
+- ✅ REPL interface for interactive development
+- ✅ File execution support (.hclisp files)
+- ✅ Modern development tooling (TypeScript, Jest, etc.)
+
+### Limitations & Considerations
+- 🚧 **Not production-ready**: This is a learning/research project
+- 🚧 **API stability**: Language syntax and APIs may change
+- 🚧 **Performance**: Not optimized for production workloads
+- 🚧 **Error handling**: May not be robust for all edge cases
+- 🚧 **Standard library**: Limited compared to mature Lisp implementations
+
+### Intended Use Cases
+- 📚 **Learning**: Understanding how Lisp interpreters work
+- 🎓 **Education**: Teaching functional programming concepts
+- 🔬 **Experimentation**: Trying out language design ideas
+- 🛠️ **Research**: Exploring interpreter implementation techniques
+
+**Recommendation**: Use HC-Lisp for learning, experimentation, and educational purposes. For production applications, consider mature Lisp implementations like Clojure, Common Lisp, or Scheme.
 
 ## VS Code Configuration
 
@@ -235,9 +250,17 @@ The project is structured in modules:
 - `Context.ts` - Environment/scope management
 - `hc-lisp.ts` - Main interface
 
-## Target
+## Project Goals
 
-Understanding how a Lisp works.
+**Primary Objective**: Understanding how a Lisp interpreter works from the ground up.
+
+This project serves as:
+- A hands-on exploration of interpreter design and implementation
+- A practical study of functional programming language concepts  
+- An educational resource for learning about lexical analysis, parsing, and evaluation
+- A foundation for experimenting with language features and design decisions
+
+**Educational Focus**: Every component is implemented to be readable and understandable, prioritizing clarity over performance optimization.
 
 ## License
 

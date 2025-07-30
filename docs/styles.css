@@ -141,6 +141,35 @@ body {
     flex-wrap: wrap;
 }
 
+/* Development Notice */
+.development-notice {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin: 1.5rem auto;
+    max-width: 600px;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.notice-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.notice-content {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.notice-content strong {
+    color: #ffc107;
+}
+
 .btn {
     padding: 0.75rem 2rem;
     border-radius: 0.5rem;
