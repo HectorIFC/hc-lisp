@@ -1,7 +1,7 @@
 {
   "name": "hc-lisp",
   "version": "1.0.0",
-  "description": "HC-Lisp: A Lisp dialect inspired by Clojure, written in TypeScript",
+  "description": "HC-Lisp: A Lisp dialect.",
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/.bin/ts-node repl.ts",

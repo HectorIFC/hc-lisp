@@ -44,9 +44,6 @@ npm run test:coverage
 # Run tests in watch mode
 npm run test:watch
 
-# Run legacy test suite
-npm run test:legacy
-
 # Execute a .hclisp file
 npm run hclisp <file.hclisp>
 ```
@@ -207,16 +204,16 @@ For more details, see [SYNTAX-HIGHLIGHTING.md](SYNTAX-HIGHLIGHTING.md)
 
 ```bash
 # Pi test
-npm run run-hc tests/pi-test.hc
+npm run hclisp tests/pi-test.hclisp
 
 # Square root test
-npm run run-hc tests/sqrt-test.hc
+npm run hclisp tests/sqrt-test.hclisp
 
 # First element test
-npm run run-hc tests/first-element-test.hc
+npm run hclisp tests/first-element-test.hclisp
 
 # Complete basic test
-npm run run-hc tests/basic-test.hc
+npm run hclisp tests/basic-test.hclisp
 ```
 
 ## Interactive REPL
@@ -225,7 +222,7 @@ Run `npm start` to start the REPL:
 
 ```
 Welcome to HC-Lisp REPL!
-A Lisp dialect inspired by Clojure
+A Lisp dialect.
 Type (exit) or Ctrl+C to quit
 
 hc-lisp> (+ 1 2 3)
