@@ -1,5 +1,4 @@
 import HcLisp from "../hc-lisp";
-import * as fs from "fs";
 import * as path from "path";
 
 describe('HC-Lisp File Integration Tests', () => {
@@ -8,19 +7,9 @@ describe('HC-Lisp File Integration Tests', () => {
         HcLisp.resetContext();
     });
 
-    // Helper function to execute HC-Lisp files
-    function executeHCFile(filePath: string): void {
-        const content = fs.readFileSync(filePath, 'utf-8');
-        HcLisp.eval(content);
-    }
-
-    // Helper function to check if file exists
+    // Helper function to get test file path
     function getTestFilePath(filename: string): string {
-        const filePath = path.join(__dirname, filename);
-        if (!fs.existsSync(filePath)) {
-            throw new Error(`Test file ${filename} not found`);
-        }
-        return filePath;
+        return path.join(__dirname, filename);
     }
 
     test('should execute basic-test.hclisp without errors', () => {
@@ -29,7 +18,7 @@ describe('HC-Lisp File Integration Tests', () => {
         // Capture console output
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
         
-        expect(() => executeHCFile(filePath)).not.toThrow();
+        expect(() => HcLisp.evalFile(filePath)).not.toThrow();
         
         // Verify that basic tests ran successfully
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
@@ -46,7 +35,7 @@ describe('HC-Lisp File Integration Tests', () => {
         
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
         
-        expect(() => executeHCFile(filePath)).not.toThrow();
+        expect(() => HcLisp.evalFile(filePath)).not.toThrow();
         
         // Verify that pi calculation ran
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
@@ -62,7 +51,7 @@ describe('HC-Lisp File Integration Tests', () => {
         
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
         
-        expect(() => executeHCFile(filePath)).not.toThrow();
+        expect(() => HcLisp.evalFile(filePath)).not.toThrow();
         
         // Verify that sqrt tests ran
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
@@ -78,7 +67,7 @@ describe('HC-Lisp File Integration Tests', () => {
         
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
         
-        expect(() => executeHCFile(filePath)).not.toThrow();
+        expect(() => HcLisp.evalFile(filePath)).not.toThrow();
         
         // Verify that first element tests ran
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
@@ -102,7 +91,7 @@ describe('HC-Lisp File Integration Tests', () => {
         // Execute all files
         testFiles.forEach(testFile => {
             const filePath = getTestFilePath(testFile);
-            expect(() => executeHCFile(filePath)).not.toThrow();
+            expect(() => HcLisp.evalFile(filePath)).not.toThrow();
         });
         
         // Verify all tests ran

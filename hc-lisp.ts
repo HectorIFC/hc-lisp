@@ -3,6 +3,7 @@ import { interpret } from "./src/Interpret";
 import { HCValue } from "./src/Categorize";
 import { Environment } from "./src/Context";
 import { createGlobalEnvironment } from "./src/Library";
+import * as fs from "fs";
 
 class HCLisp {
     private globalEnv: Environment;
@@ -37,6 +38,79 @@ class HCLisp {
             }
         }
         
+        return lastResult;
+    }
+
+    evalFile(filePath: string): HCValue {
+        try {
+            if (!fs.existsSync(filePath)) {
+                throw new Error(`File not found: ${filePath}`);
+            }
+
+            const content = fs.readFileSync(filePath, 'utf-8');
+            return this.evalFileContent(content);
+        } catch (error) {
+            throw new Error(`Error reading file ${filePath}: ${(error as Error).message}`);
+        }
+    }
+
+    private evalFileContent(content: string): HCValue {
+        // Better expression parsing that handles multi-line expressions and comments
+        const lines = content.split('\n');
+        let currentExpr = '';
+        let parenCount = 0;
+        let inString = false;
+        let lastResult: HCValue = { type: "nil", value: null };
+        
+        for (const line of lines) {
+            const trimmedLine = line.trim();
+            
+            // Skip comments and empty lines
+            if (!trimmedLine || trimmedLine.startsWith(';;')) {
+                continue;
+            }
+            
+            // Add line to current expression
+            currentExpr += (currentExpr ? ' ' : '') + trimmedLine;
+            
+            // Count parentheses to determine complete expressions
+            for (let i = 0; i < trimmedLine.length; i++) {
+                const char = trimmedLine[i];
+                
+                // Handle string boundaries
+                if (char === '"' && (i === 0 || trimmedLine[i-1] !== '\\')) {
+                    inString = !inString;
+                }
+                
+                // Only count parentheses outside of strings
+                if (!inString) {
+                    if (char === '(' || char === '[') parenCount++;
+                    if (char === ')' || char === ']') parenCount--;
+                }
+            }
+            
+            // If we have a complete expression, evaluate it
+            if (parenCount === 0 && currentExpr.trim()) {
+                try {
+                    const ast = this.parse(currentExpr.trim());
+                    lastResult = this.interpret(ast);
+                } catch (error) {
+                    throw new Error(`Error evaluating expression "${currentExpr.trim()}": ${(error as Error).message}`);
+                }
+                currentExpr = '';
+            }
+        }
+        
+        // Handle any remaining expression
+        if (currentExpr.trim()) {
+            try {
+                const ast = this.parse(currentExpr.trim());
+                lastResult = this.interpret(ast);
+            } catch (error) {
+                throw new Error(`Error evaluating expression "${currentExpr.trim()}": ${(error as Error).message}`);
+            }
+        }
+
         return lastResult;
     }
 
@@ -133,6 +207,7 @@ export default {
     parse: (input: string) => hcLisp.parse(input),
     interpret: (expr: HCValue, env?: Environment) => hcLisp.interpret(expr, env),
     eval: (input: string) => hcLisp.eval(input),
+    evalFile: (filePath: string) => hcLisp.evalFile(filePath),
     formatOutput: (value: HCValue) => hcLisp.formatOutput(value),
     resetContext: () => hcLisp.resetContext()
 };
