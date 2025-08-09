@@ -1,10 +1,10 @@
-import { parse } from "./src/Parse";
-import { interpret } from "./src/Interpret";
-import { HCValue } from "./src/Categorize";
-import { Environment } from "./src/Context";
-import { createGlobalEnvironment } from "./src/Library";
-import { NamespaceManager } from "./src/Namespace";
-import * as fs from "fs";
+import { parse } from './src/Parse';
+import { interpret } from './src/Interpret';
+import { HCValue } from './src/Categorize';
+import { Environment } from './src/Context';
+import { createGlobalEnvironment } from './src/Library';
+import { NamespaceManager } from './src/Namespace';
+import * as fs from 'fs';
 
 class HCLisp {
     private globalEnv: Environment;
@@ -27,20 +27,20 @@ class HCLisp {
         // Handle multiline input with multiple expressions
         const cleanInput = input.trim();
         if (!cleanInput) {
-            return { type: "nil", value: null };
+            return { type: 'nil', value: null };
         }
 
         // Split into individual expressions by tracking parentheses
         const expressions = this.splitExpressions(cleanInput);
-        let lastResult: HCValue = { type: "nil", value: null };
-        
+        let lastResult: HCValue = { type: 'nil', value: null };
+
         for (const expr of expressions) {
             if (expr.trim()) {
                 const ast = this.parse(expr);
                 lastResult = this.interpret(ast);
             }
         }
-        
+
         return lastResult;
     }
 
@@ -63,35 +63,35 @@ class HCLisp {
         let currentExpr = '';
         let parenCount = 0;
         let inString = false;
-        let lastResult: HCValue = { type: "nil", value: null };
-        
+        let lastResult: HCValue = { type: 'nil', value: null };
+
         for (const line of lines) {
             const trimmedLine = line.trim();
-            
+
             // Skip comments and empty lines
             if (!trimmedLine || trimmedLine.startsWith(';;')) {
                 continue;
             }
-            
+
             // Add line to current expression
             currentExpr += (currentExpr ? ' ' : '') + trimmedLine;
-            
+
             // Count parentheses to determine complete expressions
             for (let i = 0; i < trimmedLine.length; i++) {
                 const char = trimmedLine[i];
-                
+
                 // Handle string boundaries
-                if (char === '"' && (i === 0 || trimmedLine[i-1] !== '\\')) {
+                if (char === '"' && (i === 0 || trimmedLine[i - 1] !== '\\')) {
                     inString = !inString;
                 }
-                
+
                 // Only count parentheses outside of strings
                 if (!inString) {
-                    if (char === '(' || char === '[') parenCount++;
-                    if (char === ')' || char === ']') parenCount--;
+                    if (char === '(' || char === '[') { parenCount++; }
+                    if (char === ')' || char === ']') { parenCount--; }
                 }
             }
-            
+
             // If we have a complete expression, evaluate it
             if (parenCount === 0 && currentExpr.trim()) {
                 try {
@@ -103,7 +103,7 @@ class HCLisp {
                 currentExpr = '';
             }
         }
-        
+
         // Handle any remaining expression
         if (currentExpr.trim()) {
             try {
@@ -123,15 +123,15 @@ class HCLisp {
         let parenCount = 0;
         let inString = false;
         let i = 0;
-        
+
         while (i < input.length) {
             const char = input[i];
-            
+
             // Handle string boundaries
-            if (char === '"' && (i === 0 || input[i-1] !== '\\')) {
+            if (char === '"' && (i === 0 || input[i - 1] !== '\\')) {
                 inString = !inString;
             }
-            
+
             // Only count parentheses outside of strings
             if (!inString) {
                 if (char === '(' || char === '[') {
@@ -140,12 +140,12 @@ class HCLisp {
                 } else if (char === ')' || char === ']') {
                     parenCount--;
                     currentExpr += char;
-                    
+
                     // If we have a complete expression, save it
                     if (parenCount === 0 && currentExpr.trim()) {
                         expressions.push(currentExpr.trim());
                         currentExpr = '';
-                        
+
                         // Skip whitespace after complete expression
                         while (i + 1 < input.length && /\s/.test(input[i + 1])) {
                             i++;
@@ -157,15 +157,15 @@ class HCLisp {
             } else {
                 currentExpr += char;
             }
-            
+
             i++;
         }
-        
+
         // Handle any remaining expression
         if (currentExpr.trim()) {
             expressions.push(currentExpr.trim());
         }
-        
+
         return expressions;
     }
 
@@ -178,27 +178,27 @@ class HCLisp {
     // Helper method to format output for display
     formatOutput(value: HCValue): string {
         switch (value.type) {
-            case "nil":
-                return "nil";
-            case "string":
+            case 'nil':
+                return 'nil';
+            case 'string':
                 return `"${value.value}"`;
-            case "keyword":
+            case 'keyword':
                 return `:${value.value}`;
-            case "boolean":
-            case "number":
+            case 'boolean':
+            case 'number':
                 return String(value.value);
-            case "symbol":
+            case 'symbol':
                 return value.value;
-            case "list":
-                const listItems = value.value.map(item => this.formatOutput(item)).join(" ");
+            case 'list':
+                const listItems = value.value.map(item => this.formatOutput(item)).join(' ');
                 return `(${listItems})`;
-            case "vector":
-                const vectorItems = value.value.map(item => this.formatOutput(item)).join(" ");
+            case 'vector':
+                const vectorItems = value.value.map(item => this.formatOutput(item)).join(' ');
                 return `[${vectorItems}]`;
-            case "function":
-                return "<function>";
-            case "closure":
-                return "<closure>";
+            case 'function':
+                return '<function>';
+            case 'closure':
+                return '<closure>';
             default:
                 return String(value);
         }

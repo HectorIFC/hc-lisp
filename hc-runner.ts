@@ -1,4 +1,4 @@
-import HcLisp from "./hc-lisp";
+import HcLisp from './hc-lisp';
 
 // Simple HC-Lisp file executor
 function executeHCFile(filePath: string): void {
@@ -15,7 +15,7 @@ function executeHCFile(filePath: string): void {
 const filePath = process.argv[2];
 
 if (!filePath) {
-    console.log("Usage: npx ts-node hc-runner.ts <file.hclisp>");
+    console.log('Usage: npx ts-node hc-runner.ts <file.hclisp>');
     process.exit(1);
 }
 

@@ -16,15 +16,15 @@ describe('HC-Lisp Advanced Features', () => {
                                   (range n)))]
             (* 4 series-sum)))
       `;
-      
+
       HcLisp.eval(piFunction);
-      
+
       const pi100 = HcLisp.eval('(leibniz-pi 100)');
       const pi1000 = HcLisp.eval('(leibniz-pi 1000)');
-      
+
       expect(pi100.type).toBe('number');
       expect(pi1000.type).toBe('number');
-      
+
       if (pi100.type === 'number' && pi1000.type === 'number') {
         expect(pi100.value).toBeCloseTo(Math.PI, 1);
         expect(pi1000.value).toBeCloseTo(Math.PI, 2);
@@ -70,7 +70,7 @@ describe('HC-Lisp Advanced Features', () => {
       HcLisp.eval('(def data [[1 2 3] [4 5 6]])');
       const firstRow = HcLisp.eval('(first data)');
       const firstElement = HcLisp.eval('(first (first data))');
-      
+
       expect(firstElement).toEqual({ type: 'number', value: 1 });
     });
   });
@@ -97,9 +97,9 @@ describe('HC-Lisp Advanced Features', () => {
               1
               (* n (factorial (- n 1)))))
       `;
-      
+
       HcLisp.eval(factorial);
-      
+
       expect(HcLisp.eval('(factorial 5)')).toEqual({ type: 'number', value: 120 });
       expect(HcLisp.eval('(factorial 0)')).toEqual({ type: 'number', value: 1 });
     });
@@ -111,9 +111,9 @@ describe('HC-Lisp Advanced Features', () => {
               n
               (+ (fib (- n 1)) (fib (- n 2)))))
       `;
-      
+
       HcLisp.eval(fibonacci);
-      
+
       expect(HcLisp.eval('(fib 6)')).toEqual({ type: 'number', value: 8 });
       expect(HcLisp.eval('(fib 10)')).toEqual({ type: 'number', value: 55 });
     });

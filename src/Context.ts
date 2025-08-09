@@ -1,4 +1,4 @@
-import { HCValue } from "./Categorize";
+import { HCValue } from './Categorize';
 
 export class Environment {
     private bindings: Map<string, HCValue>;
@@ -38,7 +38,7 @@ export class Environment {
     extend(params: string[], args: HCValue[]): Environment {
         const newEnv = new Environment(this);
         for (let i = 0; i < params.length; i++) {
-            newEnv.define(params[i], args[i] || { type: "nil", value: null });
+            newEnv.define(params[i], args[i] || { type: 'nil', value: null });
         }
         return newEnv;
     }

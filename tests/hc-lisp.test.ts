@@ -31,7 +31,7 @@ describe('HC-Lisp Basic Operations', () => {
       expect(HcLisp.eval('(sqrt 9)')).toEqual({ type: 'number', value: 3 });
       expect(HcLisp.eval('(sqrt 4)')).toEqual({ type: 'number', value: 2 });
       expect(HcLisp.eval('(sqrt 0)')).toEqual({ type: 'number', value: 0 });
-      
+
       const result = HcLisp.eval('(sqrt 2)');
       expect(result.type).toBe('number');
       if (result.type === 'number') {
@@ -183,12 +183,12 @@ describe('HC-Lisp Basic Operations', () => {
   describe('I/O Functions', () => {
     test('should handle println function', () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-      
+
       const result = HcLisp.eval('(println "Hello, World!")');
-      
+
       expect(consoleSpy).toHaveBeenCalledWith('Hello, World!');
       expect(result).toEqual({ type: 'nil', value: null });
-      
+
       consoleSpy.mockRestore();
     });
   });
