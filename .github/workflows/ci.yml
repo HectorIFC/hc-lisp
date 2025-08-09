@@ -1,0 +1,160 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-22.04
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Check commit message
+      if: github.event_name == 'push'
+      run: |
+        # Make script executable and run it
+        chmod +x scripts/check-commit.sh
+        ./scripts/check-commit.sh
+
+    - name: Run TypeScript linting
+      run: |
+        echo "Running TypeScript linting..."
+        npm run lint
+        echo "✅ TypeScript linting passed"
+
+    - name: Type checking
+      run: |
+        echo "Running TypeScript type checking..."
+        npm run type-check
+        echo "✅ TypeScript type checking passed"
+
+    - name: Run tests
+      run: |
+        echo "Running all tests..."
+        npm test -- --verbose --coverage --coverageReporters=text --coverageReporters=json-summary
+        echo "✅ All tests passed"
+
+    - name: Test coverage check
+      run: |
+        echo "Checking test coverage..."
+        COVERAGE=$(node -p "JSON.parse(require('fs').readFileSync('coverage/coverage-summary.json', 'utf8')).total.lines.pct")
+        echo "Current coverage: ${COVERAGE}%"
+        
+        if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
+          echo "✅ Coverage is acceptable (${COVERAGE}% >= 80%)"
+        else
+          echo "❌ Coverage is too low (${COVERAGE}% < 80%)"
+          exit 1
+        fi
+
+    - name: Update README badges
+      if: github.ref == 'refs/heads/master' && matrix.node-version == '20.x'
+      run: |
+        echo "Updating README with latest test statistics..."
+        
+        # Get test results
+        TEST_RESULTS=$(npm test -- --verbose --passWithNoTests 2>&1 | tail -10)
+        TESTS_PASSED=$(echo "$TEST_RESULTS" | grep -o "Tests:.*passed" | head -1 | grep -o "[0-9]\+" | head -1)
+        TESTS_TOTAL=$(echo "$TEST_RESULTS" | grep -o "Tests:.*total" | head -1 | grep -o "[0-9]\+" | tail -1)
+        SUITES_PASSED=$(echo "$TEST_RESULTS" | grep -o "Test Suites:.*passed" | head -1 | grep -o "[0-9]\+" | head -1)
+        SUITES_TOTAL=$(echo "$TEST_RESULTS" | grep -o "Test Suites:.*total" | head -1 | grep -o "[0-9]\+" | tail -1)
+        
+        # Get coverage
+        if [ -f coverage/coverage-summary.json ]; then
+          COVERAGE=$(node -p "JSON.parse(require('fs').readFileSync('coverage/coverage-summary.json', 'utf8')).total.lines.pct")
+        else
+          COVERAGE="N/A"
+        fi
+        
+        # Update or add badges to README
+        if grep -q "!\[Tests\]" README.md; then
+          # Update existing badges
+          sed -i "s/!\[Tests\]([^)]*)$/![Tests](https:\/\/img.shields.io\/badge\/Tests-${TESTS_PASSED}\/${TESTS_TOTAL}%20passed-brightgreen)/" README.md
+          sed -i "s/!\[Test Suites\]([^)]*)$/![Test Suites](https:\/\/img.shields.io\/badge\/Test%20Suites-${SUITES_PASSED}\/${SUITES_TOTAL}%20passed-brightgreen)/" README.md
+          sed -i "s/!\[Coverage\]([^)]*)$/![Coverage](https:\/\/img.shields.io\/badge\/Coverage-${COVERAGE}%25-brightgreen)/" README.md
+        else
+          # Add badges after title
+          sed -i '1s/^/![Tests](https:\/\/img.shields.io\/badge\/Tests-'${TESTS_PASSED}'\/'${TESTS_TOTAL}'%20passed-brightgreen) ![Test Suites](https:\/\/img.shields.io\/badge\/Test%20Suites-'${SUITES_PASSED}'\/'${SUITES_TOTAL}'%20passed-brightgreen) ![Coverage](https:\/\/img.shields.io\/badge\/Coverage-'${COVERAGE}'%25-brightgreen) ![Node.js](https:\/\/img.shields.io\/badge\/Node.js-18%20|%2020-brightgreen) ![TypeScript](https:\/\/img.shields.io\/badge\/TypeScript-5.0-blue)\n\n/' README.md
+        fi
+        
+        echo "✅ README updated with latest statistics"
+
+    - name: Generate test report
+      if: always()
+      run: |
+        echo "Generating test report..."
+        npm test -- --verbose --json --outputFile=test-results.json --coverage --coverageReporters=json || true
+        
+        if [ -f test-results.json ]; then
+          echo "📊 Test Report Generated"
+          echo "Test results saved to test-results.json"
+        fi
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-node-${{ matrix.node-version }}
+        path: |
+          test-results.json
+          coverage/
+        retention-days: 30
+
+  security-check:
+    runs-on: ubuntu-22.04
+    needs: quality-check
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run security audit
+      run: |
+        echo "Running security audit..."
+        npm audit --audit-level moderate
+        echo "✅ Security audit passed"
+
+  deploy-docs:
+    runs-on: ubuntu-22.04
+    needs: [quality-check, security-check]
+    if: github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
+        cname: hc-lisp.dev

@@ -5,10 +5,31 @@
     ],
     "jsRules": {},
     "rules": {
-        "eofline": false,
-        "quotemark": [
+        "no-console": false,
+        "object-literal-sort-keys": false,
+        "quotemark": [true, "single"],
+        "semicolon": [true, "always"],
+        "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
+        "no-var-requires": false,
+        "interface-name": false,
+        "ordered-imports": false,
+        "max-line-length": [true, 120],
+        "no-empty": false,
+        "no-unused-expression": false,
+        "prefer-const": true,
+        "no-var-keyword": true,
+        "curly": true,
+        "eofline": true,
+        "indent": [true, "spaces", 4],
+        "no-trailing-whitespace": true,
+        "one-line": [true, "check-open-brace", "check-whitespace"],
+        "whitespace": [
             true,
-            "double"
+            "check-branch",
+            "check-decl",
+            "check-operator",
+            "check-separator",
+            "check-type"
         ]
     },
     "rulesDirectory": []

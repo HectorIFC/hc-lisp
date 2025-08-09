@@ -1,6 +1,6 @@
 {
   "name": "hc-lisp",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "HC-Lisp: A Lisp dialect.",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,13 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:verbose": "jest --verbose",
-    "hclisp": "./node_modules/.bin/ts-node hc-runner.ts"
+    "hclisp": "./node_modules/.bin/ts-node hc-runner.ts",
+    "lint": "tslint --project . --format verbose",
+    "lint:fix": "tslint --project . --format verbose --fix",
+    "type-check": "tsc --noEmit",
+    "quality": "npm run lint && npm run type-check && npm test",
+    "quality:fix": "npm run lint:fix && npm run type-check && npm test",
+    "ci": "npm run quality && npm run test:coverage"
   },
   "author": "Hector Cardoso",
   "license": "MIT",
