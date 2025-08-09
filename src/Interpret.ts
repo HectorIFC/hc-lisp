@@ -2,16 +2,17 @@ import { HCValue } from "./Categorize";
 import { Environment } from "./Context";
 import { createGlobalEnvironment } from "./Library";
 import { specialForms } from "./Keywords";
+import { NamespaceManager } from "./Namespace";
 
-export function interpret(input: HCValue, env?: Environment): HCValue {
+export function interpret(input: HCValue, env?: Environment, nsManager?: NamespaceManager): HCValue {
     if (!env) {
         env = createGlobalEnvironment();
     }
     
-    return evaluateExpression(input, env);
+    return evaluateExpression(input, env, nsManager);
 }
 
-function evaluateExpression(expr: HCValue, env: Environment): HCValue {
+function evaluateExpression(expr: HCValue, env: Environment, nsManager?: NamespaceManager): HCValue {
     switch (expr.type) {
         case "number":
         case "string":
@@ -22,6 +23,10 @@ function evaluateExpression(expr: HCValue, env: Environment): HCValue {
             
         case "symbol":
             try {
+                // If we have a namespace manager, try to resolve symbol through it
+                if (nsManager) {
+                    return nsManager.resolveSymbol(expr.value, env);
+                }
                 return env.get(expr.value);
             } catch (error) {
                 throw new Error(`Undefined symbol: ${expr.value}`);
@@ -29,7 +34,7 @@ function evaluateExpression(expr: HCValue, env: Environment): HCValue {
             
         case "vector":
             // Vectors evaluate their elements
-            const evaluatedVector = expr.value.map(item => evaluateExpression(item, env));
+            const evaluatedVector = expr.value.map(item => evaluateExpression(item, env, nsManager));
             return { type: "vector", value: evaluatedVector };
             
         case "list":
@@ -41,37 +46,37 @@ function evaluateExpression(expr: HCValue, env: Environment): HCValue {
             
             // Check if it's a special form
             if (first.type === "symbol" && specialForms[first.value]) {
-                return specialForms[first.value](rest, env, evaluateExpression);
+                return specialForms[first.value](rest, env, (e: HCValue, env: Environment) => evaluateExpression(e, env, nsManager), nsManager);
             }
             
             // Handle special built-in functions that need custom evaluation
             if (first.type === "symbol") {
                 if (first.value === "map" && rest.length === 2) {
-                    const fn = evaluateExpression(rest[0], env);
-                    const seq = evaluateExpression(rest[1], env);
-                    return mapWithClosure(fn, seq, env);
+                    const fn = evaluateExpression(rest[0], env, nsManager);
+                    const seq = evaluateExpression(rest[1], env, nsManager);
+                    return mapWithClosure(fn, seq, env, nsManager);
                 }
                 
                 if (first.value === "reduce" && rest.length === 3) {
-                    const fn = evaluateExpression(rest[0], env);
-                    const initial = evaluateExpression(rest[1], env);
-                    const seq = evaluateExpression(rest[2], env);
-                    return reduceWithClosure(fn, initial, seq, env);
+                    const fn = evaluateExpression(rest[0], env, nsManager);
+                    const initial = evaluateExpression(rest[1], env, nsManager);
+                    const seq = evaluateExpression(rest[2], env, nsManager);
+                    return reduceWithClosure(fn, initial, seq, env, nsManager);
                 }
             }
             
             // Regular function call
-            const fn = evaluateExpression(first, env);
-            const args = rest.map(arg => evaluateExpression(arg, env));
+            const fn = evaluateExpression(first, env, nsManager);
+            const args = rest.map(arg => evaluateExpression(arg, env, nsManager));
             
-            return callFunction(fn, args, env);
+            return callFunction(fn, args, env, nsManager);
             
         default:
             throw new Error(`Cannot evaluate expression of type: ${expr.type}`);
     }
 }
 
-function callFunction(fn: HCValue, args: HCValue[], env: Environment): HCValue {
+function callFunction(fn: HCValue, args: HCValue[], env: Environment, nsManager?: NamespaceManager): HCValue {
     switch (fn.type) {
         case "function":
             try {
@@ -90,7 +95,7 @@ function callFunction(fn: HCValue, args: HCValue[], env: Environment): HCValue {
             const callEnv = closureEnv.extend(params, args);
             
             try {
-                return evaluateExpression(body, callEnv);
+                return evaluateExpression(body, callEnv, nsManager);
             } catch (error) {
                 // Handle recur for tail recursion
                 if ((error as any).type === "recur") {
@@ -101,7 +106,7 @@ function callFunction(fn: HCValue, args: HCValue[], env: Environment): HCValue {
                     
                     // Create a new environment with updated parameters
                     const recurEnv = closureEnv.extend(params, newValues);
-                    return evaluateExpression(body, recurEnv);
+                    return evaluateExpression(body, recurEnv, nsManager);
                 } else {
                     throw error;
                 }
@@ -113,7 +118,7 @@ function callFunction(fn: HCValue, args: HCValue[], env: Environment): HCValue {
 }
 
 // Enhanced map and reduce that work with closures
-export function mapWithClosure(fn: HCValue, seq: HCValue, env: Environment): HCValue {
+export function mapWithClosure(fn: HCValue, seq: HCValue, env: Environment, nsManager?: NamespaceManager): HCValue {
     if (fn.type !== "function" && fn.type !== "closure") {
         throw new Error("map requires a function as first argument");
     }
@@ -127,14 +132,14 @@ export function mapWithClosure(fn: HCValue, seq: HCValue, env: Environment): HCV
         if (fn.type === "function") {
             return fn.value(item);
         } else {
-            return callFunction(fn, [item], env);
+            return callFunction(fn, [item], env, nsManager);
         }
     });
     
     return { type: "list", value: mapped };
 }
 
-export function reduceWithClosure(fn: HCValue, initial: HCValue, seq: HCValue, env: Environment): HCValue {
+export function reduceWithClosure(fn: HCValue, initial: HCValue, seq: HCValue, env: Environment, nsManager?: NamespaceManager): HCValue {
     if (fn.type !== "function" && fn.type !== "closure") {
         throw new Error("reduce requires a function as first argument");
     }
@@ -150,7 +155,7 @@ export function reduceWithClosure(fn: HCValue, initial: HCValue, seq: HCValue, e
         if (fn.type === "function") {
             acc = fn.value(acc, item);
         } else {
-            acc = callFunction(fn, [acc, item], env);
+            acc = callFunction(fn, [acc, item], env, nsManager);
         }
     }
     

@@ -39,7 +39,7 @@
                         <span class="gradient-text">A Modern Lisp Dialect</span>
                     </h1>
                     <p class="hero-subtitle">
-                        Inspired by Clojure, built with TypeScript. Powerful, elegant, and thoroughly tested.
+                        Inspired by Node.js integration, built with TypeScript. Powerful, elegant, and thoroughly tested.
                     </p>
                     <div class="development-notice">
                         <div class="notice-icon">⚠️</div>
@@ -75,18 +75,19 @@
                             <div class="terminal-output">6</div>
                             <div class="terminal-line">
                                 <span class="prompt">hc-lisp></span>
-                                <span class="code">(defn factorial [n]</span>
+                                <span class="code">(ns demo (:import [crypto]))</span>
                             </div>
-                            <div class="terminal-line">
-                                <span class="prompt">       </span>
-                                <span class="code">  (if (<= n 1) 1 (* n (factorial (- n 1)))))</span>
-                            </div>
-                            <div class="terminal-output">#&lt;function&gt;</div>
+                            <div class="terminal-output">nil</div>
                             <div class="terminal-line">
                                 <span class="prompt">hc-lisp></span>
-                                <span class="code">(factorial 5)</span>
+                                <span class="code">(crypto/randomUUID)</span>
                             </div>
-                            <div class="terminal-output">120</div>
+                            <div class="terminal-output">"a1b2c3d4-e5f6-7890-abcd-ef1234567890"</div>
+                            <div class="terminal-line">
+                                <span class="prompt">hc-lisp></span>
+                                <span class="code">(str/upper-case "node.js rocks!")</span>
+                            </div>
+                            <div class="terminal-output">"NODE.JS ROCKS!"</div>
                             <div class="terminal-cursor">_</div>
                         </div>
                     </div>
@@ -105,13 +106,13 @@
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🎯</div>
-                        <h3>Clojure-Inspired</h3>
-                        <p>Familiar syntax and semantics for developers coming from Clojure</p>
+                        <h3>Node.js Integration</h3>
+                        <p>Built-in namespace system with import/require for Node.js modules</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🧪</div>
                         <h3>Thoroughly Tested</h3>
-                        <p>45 test cases with Jest, including unit and integration tests</p>
+                        <p>50 test cases with Jest, including individual isolated tests for each .hclisp file</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">📊</div>
@@ -185,6 +186,24 @@
 (abs -5)                    ; => 5</code></pre>
                         </div>
                     </div>
+                    <div class="example-card">
+                        <h3>🆕 Namespace & Node.js</h3>
+                        <div class="code-block">
+                            <pre><code class="language-lisp">;; Create namespace and import modules
+(ns my-app
+  (:import [crypto]
+   :require [fs path]))
+
+;; Use Node.js modules
+(crypto/randomUUID)           ; => Generate UUID
+(fs/existsSync "file.txt")    ; => Check file
+(path/join "src" "main.ts")   ; => Join paths
+
+;; Built-in functions
+(str/upper-case "hello")      ; => "HELLO"
+(json/stringify {:key "val"}) ; => JSON string</code></pre>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -221,6 +240,24 @@ npm start</code></pre>
 (greet "World")</code></pre>
                         </div>
                     </div>
+                    
+                    <div class="namespace-section">
+                        <h3>🆕 Namespace System</h3>
+                        <div class="code-block">
+                            <pre><code class="language-lisp">;; Create namespace with Node.js integration
+(ns my-app
+  (:import [crypto]
+   :require [fs]))
+
+;; Use imported modules
+(println "UUID:" (crypto/randomUUID))
+(println "File exists:" (fs/existsSync "package.json"))
+
+;; Built-in string functions
+(println (str/upper-case "hello world"))  ; => "HELLO WORLD"
+(println (json/stringify {:name "HC-Lisp"}))  ; => JSON</code></pre>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -231,7 +268,7 @@ npm start</code></pre>
                 <div class="testing-grid">
                     <div class="test-stats">
                         <div class="stat">
-                            <div class="stat-number">45</div>
+                            <div class="stat-number">50</div>
                             <div class="stat-label">Test Cases</div>
                         </div>
                         <div class="stat">
@@ -247,16 +284,26 @@ npm start</code></pre>
                         <h3>Comprehensive Testing</h3>
                         <ul>
                             <li>Unit tests for all language features</li>
-                            <li>Integration tests for .hclisp files</li>
+                            <li>🆕 Individual isolated tests for each .hclisp file</li>
+                            <li>🆕 Namespace and Node.js integration tests</li>
                             <li>Error handling validation</li>
                             <li>Type safety with TypeScript</li>
                             <li>Jest framework for modern testing</li>
                         </ul>
                         <div class="code-block">
-                            <pre><code class="language-bash"># Run all tests
+                            <pre><code class="language-bash"># Run all tests (50 tests across 3 suites)
 npm test
 
-# Run with coverage
+# Run specific test suites
+npm test tests/hc-lisp.test.ts           # Core language (25 tests)
+npm test tests/hc-lisp-advanced.test.ts  # Advanced features (15 tests) 
+npm test tests/hc-files.test.ts          # File integration (10 tests)
+
+# Test individual .hclisp files
+npm run hclisp tests/namespace-test.hclisp  # Node.js integration
+npm run hclisp tests/import-test.hclisp     # Import/require tests
+
+# Test with coverage
 npm run test:coverage
 
 # Watch mode for development

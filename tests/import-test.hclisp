@@ -1,0 +1,30 @@
+;; Test of Imports and Requires with Node.js
+(ns test.imports
+  (:import
+    (node.crypto randomUUID randomBytes)
+    (node.fs existsSync)
+    (node.path join basename)))
+
+;; Basic tests
+(println "=== Test of Imports and Requires with Node.js ===")
+
+;; Node.js crypto UUID test
+(def id (crypto/randomUUID))
+(println "Generated UUID:" id)
+
+;; String functions test
+(println "Uppercase:" (str/upper-case "uppercase test"))
+(println "Lowercase:" (str/lower-case "LOWERCASE TEST"))
+
+;; JSON test
+(def data ["HC-Lisp" 1 "Node.js"])
+(println "JSON:" (json/stringify data))
+
+;; Path functions test
+(println "Path join:" (path/join "src" "main" "file.js"))
+(println "Basename:" (path/basename "/home/user/project/file.js"))
+
+;; Crypto test
+(println "Random bytes:" (crypto/randomBytes 4))
+
+(println "=== End of Tests ===")

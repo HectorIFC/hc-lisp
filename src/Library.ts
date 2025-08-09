@@ -42,6 +42,34 @@ function toJSValue(value: HCValue): any {
     }
 }
 
+function jsonToHcValue(json: any): HCValue {
+    if (json === null) {
+        return { type: "nil", value: null };
+    }
+    if (typeof json === "boolean") {
+        return { type: "boolean", value: json };
+    }
+    if (typeof json === "number") {
+        return { type: "number", value: json };
+    }
+    if (typeof json === "string") {
+        return { type: "string", value: json };
+    }
+    if (Array.isArray(json)) {
+        return { type: "vector", value: json.map(item => jsonToHcValue(item)) };
+    }
+    if (typeof json === "object") {
+        // Convert object to vector of [key value] pairs
+        const pairs: HCValue[] = [];
+        for (const [key, value] of Object.entries(json)) {
+            pairs.push({ type: "keyword", value: key });
+            pairs.push(jsonToHcValue(value));
+        }
+        return { type: "vector", value: pairs };
+    }
+    return { type: "string", value: String(json) };
+}
+
 // Core functions
 const coreFunctions = {
     // Arithmetic
@@ -165,10 +193,80 @@ const coreFunctions = {
         return { type: "number", value: Math.abs(n.value) };
     },
 
+    "Math/sqrt": (n: HCValue): HCValue => {
+        if (!isNumber(n)) throw new Error("Math/sqrt requires a number");
+        if (n.value < 0) throw new Error("Math/sqrt requires a non-negative number");
+        return { type: "number", value: Math.sqrt(n.value) };
+    },
+
     "sqrt": (n: HCValue): HCValue => {
         if (!isNumber(n)) throw new Error("sqrt requires a number");
         if (n.value < 0) throw new Error("sqrt requires a non-negative number");
         return { type: "number", value: Math.sqrt(n.value) };
+    },
+
+    // Date functions
+    "Date/now": (): HCValue => {
+        return { type: "number", value: Date.now() };
+    },
+
+    "Date": (...args: HCValue[]): HCValue => {
+        const date = new Date();
+        return { type: "string", value: date.toISOString() };
+    },
+
+    // Process functions  
+    "process/cwd": (): HCValue => {
+        return { type: "string", value: process.cwd() };
+    },
+
+    "process/env": (key: HCValue): HCValue => {
+        if (key.type === "string") {
+            const value = process.env[key.value];
+            return value ? { type: "string", value } : { type: "nil", value: null };
+        }
+        throw new Error("process/env requires a string key");
+    },
+
+    // String functions - using native Node.js
+    "str/upper-case": (s: HCValue): HCValue => {
+        if (s.type !== "string") throw new Error("str/upper-case requires a string");
+        return { type: "string", value: s.value.toUpperCase() };
+    },
+
+    "str/lower-case": (s: HCValue): HCValue => {
+        if (s.type !== "string") throw new Error("str/lower-case requires a string");
+        return { type: "string", value: s.value.toLowerCase() };
+    },
+
+    "str/trim": (s: HCValue): HCValue => {
+        if (s.type !== "string") throw new Error("str/trim requires a string");
+        return { type: "string", value: s.value.trim() };
+    },
+
+    // JSON functions - using native Node.js
+    "json/stringify": (...args: HCValue[]): HCValue => {
+        if (args.length !== 1) {
+            throw new Error("json/stringify expects one argument");
+        }
+        try {
+            const jsonValue = toJSValue(args[0]);
+            return { type: "string", value: JSON.stringify(jsonValue) };
+        } catch (error) {
+            throw new Error(`Error generating JSON: ${(error as Error).message}`);
+        }
+    },
+
+    "json/parse": (s: HCValue): HCValue => {
+        if (s.type !== "string") {
+            throw new Error("json/parse expects a string argument");
+        }
+        try {
+            const parsed = JSON.parse(s.value);
+            return jsonToHcValue(parsed);
+        } catch (error) {
+            throw new Error(`Error parsing JSON: ${(error as Error).message}`);
+        }
     },
 
     // I/O

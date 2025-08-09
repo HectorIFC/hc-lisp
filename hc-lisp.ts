@@ -3,13 +3,16 @@ import { interpret } from "./src/Interpret";
 import { HCValue } from "./src/Categorize";
 import { Environment } from "./src/Context";
 import { createGlobalEnvironment } from "./src/Library";
+import { NamespaceManager } from "./src/Namespace";
 import * as fs from "fs";
 
 class HCLisp {
     private globalEnv: Environment;
+    private nsManager: NamespaceManager;
 
     constructor() {
         this.globalEnv = createGlobalEnvironment();
+        this.nsManager = new NamespaceManager();
     }
 
     parse(input: string): HCValue {
@@ -17,7 +20,7 @@ class HCLisp {
     }
 
     interpret(expr: HCValue, env?: Environment): HCValue {
-        return interpret(expr, env || this.globalEnv);
+        return interpret(expr, env || this.globalEnv, this.nsManager);
     }
 
     eval(input: string): HCValue {
@@ -169,6 +172,7 @@ class HCLisp {
     // Reset the global environment to its initial state
     resetContext(): void {
         this.globalEnv = createGlobalEnvironment();
+        this.nsManager = new NamespaceManager();
     }
 
     // Helper method to format output for display
