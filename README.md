@@ -312,6 +312,58 @@ npm run test:coverage
 npm run test:watch
 ```
 
+## 📊 Code Quality & Analysis
+
+### SonarCloud Integration ☁️
+
+HC-Lisp uses **SonarCloud** for continuous code quality analysis:
+
+**🔗 Live Dashboard**: [View on SonarCloud](https://sonarcloud.io/project/overview?id=HectorIFC_hc-lisp)
+
+**Automated Analysis**:
+- ✅ **Every commit** to master triggers analysis
+- ✅ **Pull requests** get automatic quality feedback  
+- ✅ **Coverage tracking** with historical trends
+- ✅ **Security scanning** for vulnerabilities
+- ✅ **Quality gates** enforce code standards
+
+**Setup & Usage**:
+```bash
+# Quick setup guide
+npm run sonarcloud:setup
+
+# Verify configuration
+npm run sonarcloud:verify
+
+# Generate coverage for SonarCloud
+npm run coverage:sonar
+```
+
+**Key Metrics Tracked**:
+- **Coverage**: Test coverage percentage (target: 80%+)
+- **Maintainability**: Technical debt and code smells
+- **Reliability**: Bug detection and error patterns
+- **Security**: Vulnerability and hotspot analysis
+- **Duplications**: Code duplication detection (target: <3%)
+
+For detailed setup instructions, see [SONARCLOUD_README.md](./SONARCLOUD_README.md).
+
+### Local SonarQube
+
+For local development analysis:
+```bash
+# Complete local analysis
+npm run sonar
+
+# Docker setup (recommended)
+npm run sonar:docker:start
+
+# Manual setup guide
+./quick-start-sonar.sh
+```
+
+For local setup details, see [SONAR_README.md](./SONAR_README.md).
+
 ## Interactive REPL
 
 Run `npm start` to start the REPL:

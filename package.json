@@ -15,7 +15,11 @@
     "type-check": "tsc --noEmit",
     "quality": "npm run lint && npm run type-check && npm test",
     "quality:fix": "npm run lint:fix && npm run type-check && npm test",
-    "ci": "npm run quality && npm run test:coverage"
+    "ci": "npm run quality && npm run test:coverage",
+    "sonarcloud:setup": "./setup-sonarcloud.sh",
+    "sonarcloud:verify": "./setup-sonarcloud.sh --verify",
+    "sonarcloud:test": "./setup-sonarcloud.sh --test",
+    "coverage:sonar": "npm test -- --coverage --coverageReporters=lcov --coverageReporters=text"
   },
   "author": "Hector Cardoso",
   "license": "MIT",

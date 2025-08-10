@@ -51,8 +51,14 @@ jobs:
     - name: Run tests
       run: |
         echo "Running all tests..."
-        npm test -- --verbose --coverage --coverageReporters=text --coverageReporters=json-summary
+        npm test -- --verbose --coverage --coverageReporters=text --coverageReporters=json-summary --coverageReporters=lcov
         echo "✅ All tests passed"
+
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: Test coverage check
       run: |

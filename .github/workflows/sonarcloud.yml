@@ -1,0 +1,86 @@
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ master ]
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Shallow clones should be disabled for better analysis
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests with coverage
+      run: |
+        npm test -- --coverage --coverageReporters=lcov --coverageReporters=text --coverageReporters=json-summary
+        echo "✅ Tests completed with coverage"
+
+    - name: Verify coverage file
+      run: |
+        if [ -f coverage/lcov.info ]; then
+          echo "✅ LCOV coverage file found"
+          echo "Coverage file size: $(wc -c < coverage/lcov.info) bytes"
+        else
+          echo "❌ LCOV coverage file not found"
+          ls -la coverage/
+          exit 1
+        fi
+
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}     # Generate a token on SonarCloud
+
+    - name: SonarCloud Quality Gate check
+      uses: sonarqube-quality-gate-action@master
+      timeout-minutes: 5
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      continue-on-error: true  # Don't fail the build on quality gate failure initially
+
+    - name: Upload coverage to artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage/
+        retention-days: 30
+
+    - name: Comment PR with SonarCloud results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const projectKey = 'HectorIFC_hc-lisp';
+          const sonarUrl = `https://sonarcloud.io/project/overview?id=${projectKey}`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## 📊 SonarCloud Analysis
+            
+            The SonarCloud analysis has been completed for this PR.
+            
+            🔍 **[View detailed results on SonarCloud](${sonarUrl})**
+            
+            Key metrics will be available after the analysis completes.`
+          });
