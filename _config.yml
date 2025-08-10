@@ -1,0 +1,9 @@
+theme: jekyll-theme-minimal
+title: HC-Lisp
+description: A Modern Lisp Dialect inspired by Clojure, built with TypeScript
+url: https://hectorifc.github.io/hc-lisp
+baseurl: /hc-lisp
+author: Hector Cardoso
+plugins:
+  - jekyll-sitemap
+  - jekyll-feed
