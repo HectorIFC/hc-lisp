@@ -18,5 +18,9 @@
         "editor.bracketPairColorization.enabled": true,
         "editor.guides.bracketPairs": "active",
         "editor.matchBrackets": "always"
-    }
+    },
+    "coverage-gutters.lcovname": "coverage/lcov.info",
+    "coverage-gutters.showGutterCoverage": true,
+    "coverage-gutters.showLineCoverage": true,
+    "coverage-gutters.refreshOnSave": true
 }

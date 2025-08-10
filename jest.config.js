@@ -18,5 +18,6 @@ module.exports = {
   verbose: true,
   clearMocks: true,
   coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html']
+  coverageReporters: ['text', 'lcov', 'html'],
+  collectCoverage: true,
 };
