@@ -281,15 +281,24 @@ export const specialForms: { [key: string]: SpecialForm } = {
 function processImport(importClauses: HCValue[], nsManager: NamespaceManager): void {
     for (const clause of importClauses) {
         if (clause.type === 'list') {
-            // (node.crypto randomUUID randomBytes)
             const packageName = clause.value[0];
             if (packageName.type === 'symbol') {
-                // Automatically create requires for Node.js namespaces
-                if (packageName.value.startsWith('node.')) {
-                    const alias = packageName.value.split('.')[1]; // e.g., "crypto" from "node.crypto"
-                    nsManager.addRequire(packageName.value, alias);
+                const moduleName = packageName.value;
+
+                // Handle different types of imports
+                if (moduleName.startsWith('node.')) {
+                    // Built-in Node.js modules: (node.crypto randomUUID randomBytes)
+                    const alias = moduleName.split('.')[1]; // e.g., "crypto" from "node.crypto"
+                    nsManager.addRequire(moduleName, alias);
+                } else {
+                    // NPM packages or built-in modules: (crypto), (fs), (express)
+                    // For built-in Node modules, map them to node.* format
+                    const builtinModules = ['crypto', 'fs', 'path', 'http', 'url', 'os', 'util', 'events'];
+                    const finalModuleName = builtinModules.includes(moduleName) ? `node.${moduleName}` : moduleName;
+                    nsManager.addRequire(finalModuleName, moduleName);
                 }
 
+                // Process individual function imports if specified
                 for (let i = 1; i < clause.value.length; i++) {
                     const functionName = clause.value[i];
                     if (functionName.type === 'symbol') {

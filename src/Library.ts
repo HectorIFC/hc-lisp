@@ -269,6 +269,20 @@ const coreFunctions = {
         }
     },
 
+    // String concatenation
+    'str': (...args: HCValue[]): HCValue => {
+        const result = args.map(arg => {
+            if (arg.type === 'string') { return arg.value; }
+            if (arg.type === 'number') { return String(arg.value); }
+            if (arg.type === 'boolean') { return String(arg.value); }
+            if (arg.type === 'nil') { return ''; }
+            if (arg.type === 'keyword') { return `:${arg.value}`; }
+            // For other types, convert to string representation
+            return JSON.stringify(toJSValue(arg));
+        }).join('');
+        return { type: 'string', value: result };
+    },
+
     // I/O
     'println': (...args: HCValue[]): HCValue => {
         const output = args.map(arg => {

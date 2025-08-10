@@ -11,10 +11,12 @@ export interface NamespaceInfo {
 export class NamespaceManager {
     private namespaces: Map<string, NamespaceInfo>;
     private currentNamespace: string;
+    private nodeModulesCache: Map<string, any>; // Cache for loaded modules
 
     constructor() {
         this.namespaces = new Map();
         this.currentNamespace = 'user';
+        this.nodeModulesCache = new Map();
 
         // Create default "user" namespace
         this.createNamespace('user');
@@ -67,13 +69,153 @@ export class NamespaceManager {
     private createMockNamespace(name: string): void {
         const mockNs = this.createNamespace(name);
 
+        // Try to dynamically load from node_modules first
+        if (this.tryLoadNodeModule(name, mockNs)) {
+            return;
+        }
+
+        // Fallback to built-in Node.js modules
         if (name === 'node.fs') {
             this.addNodeFsFunctions(mockNs);
         } else if (name === 'node.crypto') {
             this.addNodeCryptoFunctions(mockNs);
         } else if (name === 'node.path') {
             this.addNodePathFunctions(mockNs);
+        } else if (name === 'node.http') {
+            this.addNodeHttpFunctions(mockNs);
+        } else if (name === 'node.url') {
+            this.addNodeUrlFunctions(mockNs);
+        } else if (name === 'node.os') {
+            this.addNodeOsFunctions(mockNs);
         }
+    }
+
+    private tryLoadNodeModule(moduleName: string, ns: NamespaceInfo): boolean {
+        try {
+            // Remove 'node.' prefix for npm packages
+            const packageName = moduleName.startsWith('node.')
+                ? moduleName.substring(5)
+                : moduleName;
+
+            // Check if already cached
+            if (this.nodeModulesCache.has(packageName)) {
+                const cachedModule = this.nodeModulesCache.get(packageName);
+                this.wrapNodeModule(cachedModule, ns, packageName);
+                return true;
+            }
+
+            // Try to require the module
+            const nodeModule = require(packageName);
+            this.nodeModulesCache.set(packageName, nodeModule);
+            this.wrapNodeModule(nodeModule, ns, packageName);
+            return true;
+
+        } catch (error) {
+            // Module not found or not installed
+            console.log(`Module '${moduleName}' not found in node_modules`);
+            return false;
+        }
+    }
+
+    private wrapNodeModule(nodeModule: any, ns: NamespaceInfo, packageName: string): void {
+        // Handle different types of exports
+        if (typeof nodeModule === 'function') {
+            // Default export is a function (like express)
+            ns.environment.define(packageName, {
+                type: 'function',
+                value: (...args: HCValue[]) => {
+                    const jsArgs = args.map(arg => this.hcValueToJs(arg));
+                    const result = nodeModule(...jsArgs);
+                    return this.jsValueToHc(result);
+                }
+            });
+
+            // Also expose as default export
+            ns.environment.define('default', {
+                type: 'function',
+                value: (...args: HCValue[]) => {
+                    const jsArgs = args.map(arg => this.hcValueToJs(arg));
+                    const result = nodeModule(...jsArgs);
+                    return this.jsValueToHc(result);
+                }
+            });
+        }
+
+        // Handle object exports (methods and properties)
+        if (typeof nodeModule === 'object' && nodeModule !== null) {
+            for (const [key, value] of Object.entries(nodeModule)) {
+                if (typeof value === 'function') {
+                    ns.environment.define(key, {
+                        type: 'function',
+                        value: (...args: HCValue[]) => {
+                            const jsArgs = args.map(arg => this.hcValueToJs(arg));
+                            const result = value(...jsArgs);
+                            return this.jsValueToHc(result);
+                        }
+                    });
+                } else {
+                    // Handle constants/properties
+                    ns.environment.define(key, this.jsValueToHc(value));
+                }
+            }
+        }
+    }
+
+    private hcValueToJs(hcValue: HCValue): any {
+        switch (hcValue.type) {
+            case 'string':
+            case 'number':
+            case 'boolean':
+                return hcValue.value;
+            case 'nil':
+                return null;
+            case 'list':
+            case 'vector':
+                return hcValue.value.map((item: HCValue) => this.hcValueToJs(item));
+            case 'object':
+                return hcValue.value;
+            case 'function':
+                return hcValue.value;
+            case 'symbol':
+            case 'keyword':
+                return hcValue.value;
+            case 'closure':
+                return hcValue; // Return closure as-is for HC-Lisp functions
+            case 'recur':
+                return hcValue.values.map((item: HCValue) => this.hcValueToJs(item));
+            default:
+                return hcValue;
+        }
+    }
+
+    private jsValueToHc(jsValue: any): HCValue {
+        if (jsValue === null || jsValue === undefined) {
+            return { type: 'nil', value: null };
+        }
+        if (typeof jsValue === 'string') {
+            return { type: 'string', value: jsValue };
+        }
+        if (typeof jsValue === 'number') {
+            return { type: 'number', value: jsValue };
+        }
+        if (typeof jsValue === 'boolean') {
+            return { type: 'boolean', value: jsValue };
+        }
+        if (Array.isArray(jsValue)) {
+            return {
+                type: 'vector',
+                value: jsValue.map(item => this.jsValueToHc(item))
+            };
+        }
+        if (typeof jsValue === 'object') {
+            return { type: 'object', value: jsValue };
+        }
+        if (typeof jsValue === 'function') {
+            return { type: 'function', value: jsValue };
+        }
+
+        // Fallback: treat as object
+        return { type: 'object', value: jsValue };
     }
 
     private addNodeFsFunctions(ns: NamespaceInfo): void {
@@ -139,6 +281,97 @@ export class NamespaceManager {
                 }
                 const hash = crypto.createHash(args[0].value).update(args[1].value).digest('hex');
                 return { type: 'string', value: hash };
+            }
+        });
+    }
+
+    private addNodeHttpFunctions(ns: NamespaceInfo): void {
+        const http = require('http');
+
+        ns.environment.define('createServer', {
+            type: 'function',
+            value: (...args: HCValue[]) => {
+                if (args.length !== 1 || args[0].type !== 'function') {
+                    throw new Error('createServer expects a function argument (request handler)');
+                }
+                const handler = args[0].value;
+                const server = http.createServer((req: any, res: any) => {
+                    const reqObj = { type: 'object', value: req };
+                    const resObj = { type: 'object', value: res };
+                    handler(reqObj, resObj);
+                });
+                return { type: 'object', value: server };
+            }
+        });
+
+        ns.environment.define('request', {
+            type: 'function',
+            value: (...args: HCValue[]) => {
+                if (args.length < 1 || args[0].type !== 'string') {
+                    throw new Error('http.request expects at least a URL string argument');
+                }
+                const url = args[0].value;
+                const callback = args.length > 1 && args[1].type === 'function' ? args[1].value : null;
+                const req = http.request(url, callback);
+                return { type: 'object', value: req };
+            }
+        });
+    }
+
+    private addNodeUrlFunctions(ns: NamespaceInfo): void {
+        const url = require('url');
+
+        ns.environment.define('parse', {
+            type: 'function',
+            value: (...args: HCValue[]) => {
+                if (args.length !== 1 || args[0].type !== 'string') {
+                    throw new Error('url.parse expects a string argument');
+                }
+                const parsed = url.parse(args[0].value);
+                return { type: 'object', value: parsed };
+            }
+        });
+
+        ns.environment.define('resolve', {
+            type: 'function',
+            value: (...args: HCValue[]) => {
+                if (args.length !== 2 || args[0].type !== 'string' || args[1].type !== 'string') {
+                    throw new Error('url.resolve expects two string arguments');
+                }
+                const resolved = url.resolve(args[0].value, args[1].value);
+                return { type: 'string', value: resolved };
+            }
+        });
+    }
+
+    private addNodeOsFunctions(ns: NamespaceInfo): void {
+        const os = require('os');
+
+        ns.environment.define('platform', {
+            type: 'function',
+            value: (...args: HCValue[]) => {
+                return { type: 'string', value: os.platform() };
+            }
+        });
+
+        ns.environment.define('hostname', {
+            type: 'function',
+            value: (...args: HCValue[]) => {
+                return { type: 'string', value: os.hostname() };
+            }
+        });
+
+        ns.environment.define('tmpdir', {
+            type: 'function',
+            value: (...args: HCValue[]) => {
+                return { type: 'string', value: os.tmpdir() };
+            }
+        });
+
+        ns.environment.define('homedir', {
+            type: 'function',
+            value: (...args: HCValue[]) => {
+                return { type: 'string', value: os.homedir() };
             }
         });
     }

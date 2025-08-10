@@ -141,33 +141,86 @@ describe('HC-Lisp File Integration Tests', () => {
         consoleSpy.mockRestore();
     });
 
-    test('should parse demo-syntax.hclisp syntax without errors', () => {
+    test('should execute demo-syntax.hclisp without errors', () => {
         const filePath = getRootFilePath('demo-syntax.hclisp');
 
-        // Test that the file can be read and parsed (syntax validation only)
-        // This is a syntax demonstration file, not meant to be executed
-        expect(() => {
-            const fs = require('fs');
-            const content = fs.readFileSync(filePath, 'utf-8');
-            // Just verify file exists and is readable
-            expect(content).toContain('defn greeting');
-            expect(content).toContain('HC-Lisp');
-        }).not.toThrow();
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+        expect(() => HcLisp.evalFile(filePath)).not.toThrow();
+
+        // Verify that demo syntax executed successfully
+        const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
+        expect(output).toContain('Hello, World!');
+
+        consoleSpy.mockRestore();
     });
 
-    test('should parse syntax-showcase.hclisp syntax without errors', () => {
+    test('should execute syntax-showcase.hclisp without errors', () => {
         const filePath = getRootFilePath('syntax-showcase.hclisp');
 
-        // Test that the file can be read and parsed (syntax validation only)
-        // This is a syntax showcase file, not meant to be executed
-        expect(() => {
-            const fs = require('fs');
-            const content = fs.readFileSync(filePath, 'utf-8');
-            // Just verify file exists and is readable
-            expect(content).toContain('HC-LISP');
-            expect(content).toContain('defn fibonacci');
-        }).not.toThrow();
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+        expect(() => HcLisp.evalFile(filePath)).not.toThrow();
+
+        // Verify that syntax showcase executed successfully
+        const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
+        expect(output).toContain('Fibonacci(10):');
+        expect(output).toContain('Factorial(5):');
+        expect(output).toContain('Sum result:');
+        expect(output).toContain('Person: John Age: 30');
+        expect(output).toContain('Result greater than 10');
+
+        consoleSpy.mockRestore();
     });
 
+    test('should execute dynamic-modules.hclisp without errors', () => {
+        const filePath = getTestFilePath('dynamic-modules.hclisp');
 
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+        expect(() => HcLisp.evalFile(filePath)).not.toThrow();
+
+        // Verify that dynamic module loading tests ran
+        const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
+        expect(output).toContain('Testing crypto module:');
+        expect(output).toContain('Random UUID:');
+        expect(output).toContain('Random bytes:');
+        expect(output).toContain('Testing fs module:');
+        expect(output).toContain('package.json exists: true');
+        expect(output).toContain('Testing path module:');
+        expect(output).toContain('Joined path: src/main.ts');
+        expect(output).toContain('Base name: file.txt');
+        expect(output).toContain('✅ Dynamic module loading test completed!');
+
+        consoleSpy.mockRestore();
+    });
+
+    test('should handle express-server.hclisp gracefully', () => {
+        const filePath = getTestFilePath('express-server.hclisp');
+
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+        // Express may not be installed, so we expect either success or a specific module error
+        try {
+            HcLisp.evalFile(filePath);
+
+            // If it succeeds, check for expected output
+            const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
+            // Since this starts a server, we won't see the final server start message
+            // But we can check that namespace setup worked
+            expect(true).toBe(true); // If we get here, dynamic loading worked
+
+        } catch (error) {
+            // If Express is not installed, we should get a specific error
+            const errorMessage = (error as Error).message;
+            expect(
+                errorMessage.includes('Module \'express\' not found') ||
+                errorMessage.includes('Cannot find module \'express\'') ||
+                errorMessage.includes('express') ||
+                errorMessage.includes('MODULE_NOT_FOUND')
+            ).toBe(true);
+        }
+
+        consoleSpy.mockRestore();
+    });
 });

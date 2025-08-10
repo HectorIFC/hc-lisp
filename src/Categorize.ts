@@ -10,7 +10,8 @@ export type HCValue =
     | { type: 'vector'; value: HCValue[] }
     | { type: 'function'; value: (...args: any[]) => any; arity?: number }
     | { type: 'closure'; params: string[]; body: HCValue; env: any }
-    | { type: 'recur'; values: HCValue[] };
+    | { type: 'recur'; values: HCValue[] }
+    | { type: 'object'; value: any };
 
 export function categorize(token: string): HCValue {
     // Handle numbers (including floats, negatives, and scientific notation)
