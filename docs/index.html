@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HC-Lisp - A Modern Lisp Dialect</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?fami                            <pre><code class="language-bash"># Run all tests (78 tests across 4 suites)
+npm test
+
+# Run specific test suites
+npm test tests/hc-lisp.test.ts             # Core language (25 tests)
+npm test tests/hc-lisp-advanced.test.ts    # Advanced features (15 tests) 
+npm test tests/hc-files.test.ts            # File integration (10 tests)
+npm test tests/hc-lisp-coverage.test.ts    # Coverage enhancement (28 tests)</code></pre>r:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
 </head>
 <body>
@@ -112,7 +119,7 @@
                     <div class="feature-card">
                         <div class="feature-icon">🧪</div>
                         <h3>Thoroughly Tested</h3>
-                        <p>50 test cases with Jest, including individual isolated tests for each .hclisp file</p>
+                        <p>78 test cases with Jest, including individual isolated tests for each .hclisp file</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">📊</div>
@@ -268,11 +275,11 @@ npm start</code></pre>
                 <div class="testing-grid">
                     <div class="test-stats">
                         <div class="stat">
-                            <div class="stat-number">50</div>
+                            <div class="stat-number">78</div>
                             <div class="stat-label">Test Cases</div>
                         </div>
                         <div class="stat">
-                            <div class="stat-number">3</div>
+                            <div class="stat-number">4</div>
                             <div class="stat-label">Test Suites</div>
                         </div>
                         <div class="stat">
@@ -291,13 +298,14 @@ npm start</code></pre>
                             <li>Jest framework for modern testing</li>
                         </ul>
                         <div class="code-block">
-                            <pre><code class="language-bash"># Run all tests (50 tests across 3 suites)
+                            <pre><code class="language-bash"># Run all tests (78 tests across 4 suites)
 npm test
 
 # Run specific test suites
-npm test tests/hc-lisp.test.ts           # Core language (25 tests)
-npm test tests/hc-lisp-advanced.test.ts  # Advanced features (15 tests) 
-npm test tests/hc-files.test.ts          # File integration (10 tests)
+npm test tests/hc-lisp.test.ts             # Core language (25 tests)
+npm test tests/hc-lisp-advanced.test.ts    # Advanced features (15 tests) 
+npm test tests/hc-files.test.ts            # File integration (10 tests)
+npm test tests/hc-lisp-coverage.test.ts    # Coverage enhancement (28 tests)
 
 # Test individual .hclisp files
 npm run hclisp tests/namespace-test.hclisp  # Node.js integration
