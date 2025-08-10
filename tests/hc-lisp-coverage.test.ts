@@ -41,35 +41,35 @@ describe('HC-Lisp Coverage Tests', () => {
         test('should handle I/O functions', () => {
             const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
             const stdoutSpy = jest.spyOn(process.stdout, 'write').mockImplementation();
-            
+
             HcLisp.eval('(println "test")');
             expect(consoleSpy).toHaveBeenCalledWith('test');
-            
+
             HcLisp.eval('(print "test")');
             expect(stdoutSpy).toHaveBeenCalledWith('test');
-            
+
             consoleSpy.mockRestore();
             stdoutSpy.mockRestore();
         });
 
         test('should handle string namespace functions', () => {
-            expect(HcLisp.eval('(str/upper-case "hello")')).toEqual({ 
-                type: 'string', value: 'HELLO' 
+            expect(HcLisp.eval('(str/upper-case "hello")')).toEqual({
+                type: 'string', value: 'HELLO'
             });
-            expect(HcLisp.eval('(str/lower-case "HELLO")')).toEqual({ 
-                type: 'string', value: 'hello' 
+            expect(HcLisp.eval('(str/lower-case "HELLO")')).toEqual({
+                type: 'string', value: 'hello'
             });
-            expect(HcLisp.eval('(str/trim "  hello  ")')).toEqual({ 
-                type: 'string', value: 'hello' 
+            expect(HcLisp.eval('(str/trim "  hello  ")')).toEqual({
+                type: 'string', value: 'hello'
             });
         });
 
         test('should handle JSON functions', () => {
-            expect(HcLisp.eval('(json/stringify [1 2 3])')).toEqual({ 
-                type: 'string', value: '[1,2,3]' 
+            expect(HcLisp.eval('(json/stringify [1 2 3])')).toEqual({
+                type: 'string', value: '[1,2,3]'
             });
-            expect(HcLisp.eval('(json/parse "[1,2,3]")')).toEqual({ 
-                type: 'vector', 
+            expect(HcLisp.eval('(json/parse "[1,2,3]")')).toEqual({
+                type: 'vector',
                 value: [
                     { type: 'number', value: 1 },
                     { type: 'number', value: 2 },
@@ -157,18 +157,18 @@ describe('HC-Lisp Coverage Tests', () => {
             HcLisp.eval('(def x 10)');
             const result = HcLisp.eval('(let [x 20] x)');
             expect(result).toEqual({ type: 'number', value: 20 });
-            
+
             const original = HcLisp.eval('x');
             expect(original).toEqual({ type: 'number', value: 10 });
         });
 
         test('should handle function closures', () => {
             HcLisp.eval(`
-                (def make-adder 
-                  (fn [x] 
+                (def make-adder
+                  (fn [x]
                     (fn [y] (+ x y))))
             `);
-            
+
             HcLisp.eval('(def add5 (make-adder 5))');
             const result = HcLisp.eval('(add5 3)');
             expect(result).toEqual({ type: 'number', value: 8 });
@@ -190,7 +190,7 @@ describe('HC-Lisp Coverage Tests', () => {
 
         test('should handle range function', () => {
             const result1 = HcLisp.eval('(range 3)');
-            expect(result1).toEqual({ 
+            expect(result1).toEqual({
                 type: 'list',
                 value: [
                     { type: 'number', value: 0 },
@@ -200,7 +200,7 @@ describe('HC-Lisp Coverage Tests', () => {
             });
 
             const result2 = HcLisp.eval('(range 2 5)');
-            expect(result2).toEqual({ 
+            expect(result2).toEqual({
                 type: 'list',
                 value: [
                     { type: 'number', value: 2 },
@@ -210,7 +210,7 @@ describe('HC-Lisp Coverage Tests', () => {
             });
 
             const result3 = HcLisp.eval('(range 0 10 2)');
-            expect(result3).toEqual({ 
+            expect(result3).toEqual({
                 type: 'list',
                 value: [
                     { type: 'number', value: 0 },
@@ -225,13 +225,13 @@ describe('HC-Lisp Coverage Tests', () => {
         test('should handle sequence predicates', () => {
             expect(HcLisp.eval('(nil? nil)')).toEqual({ type: 'boolean', value: true });
             expect(HcLisp.eval('(nil? 5)')).toEqual({ type: 'boolean', value: false });
-            
+
             expect(HcLisp.eval('(empty? [])')).toEqual({ type: 'boolean', value: true });
             expect(HcLisp.eval('(empty? [1])')).toEqual({ type: 'boolean', value: false });
-            
+
             expect(HcLisp.eval('(even? 4)')).toEqual({ type: 'boolean', value: true });
             expect(HcLisp.eval('(even? 3)')).toEqual({ type: 'boolean', value: false });
-            
+
             expect(HcLisp.eval('(odd? 3)')).toEqual({ type: 'boolean', value: true });
             expect(HcLisp.eval('(odd? 4)')).toEqual({ type: 'boolean', value: false });
         });
