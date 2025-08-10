@@ -12,7 +12,7 @@ jobs:
     
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x]
 
     steps:
     - name: Checkout code
@@ -66,38 +66,6 @@ jobs:
           echo "❌ Coverage is too low (${COVERAGE}% < 80%)"
           exit 1
         fi
-
-    - name: Update README badges
-      if: github.ref == 'refs/heads/master' && matrix.node-version == '20.x'
-      run: |
-        echo "Updating README with latest test statistics..."
-        
-        # Get test results
-        TEST_RESULTS=$(npm test -- --verbose --passWithNoTests 2>&1 | tail -10)
-        TESTS_PASSED=$(echo "$TEST_RESULTS" | grep -o "Tests:.*passed" | head -1 | grep -o "[0-9]\+" | head -1)
-        TESTS_TOTAL=$(echo "$TEST_RESULTS" | grep -o "Tests:.*total" | head -1 | grep -o "[0-9]\+" | tail -1)
-        SUITES_PASSED=$(echo "$TEST_RESULTS" | grep -o "Test Suites:.*passed" | head -1 | grep -o "[0-9]\+" | head -1)
-        SUITES_TOTAL=$(echo "$TEST_RESULTS" | grep -o "Test Suites:.*total" | head -1 | grep -o "[0-9]\+" | tail -1)
-        
-        # Get coverage
-        if [ -f coverage/coverage-summary.json ]; then
-          COVERAGE=$(node -p "JSON.parse(require('fs').readFileSync('coverage/coverage-summary.json', 'utf8')).total.lines.pct")
-        else
-          COVERAGE="N/A"
-        fi
-        
-        # Update or add badges to README
-        if grep -q "!\[Tests\]" README.md; then
-          # Update existing badges
-          sed -i "s/!\[Tests\]([^)]*)$/![Tests](https:\/\/img.shields.io\/badge\/Tests-${TESTS_PASSED}\/${TESTS_TOTAL}%20passed-brightgreen)/" README.md
-          sed -i "s/!\[Test Suites\]([^)]*)$/![Test Suites](https:\/\/img.shields.io\/badge\/Test%20Suites-${SUITES_PASSED}\/${SUITES_TOTAL}%20passed-brightgreen)/" README.md
-          sed -i "s/!\[Coverage\]([^)]*)$/![Coverage](https:\/\/img.shields.io\/badge\/Coverage-${COVERAGE}%25-brightgreen)/" README.md
-        else
-          # Add badges after title
-          sed -i '1s/^/![Tests](https:\/\/img.shields.io\/badge\/Tests-'${TESTS_PASSED}'\/'${TESTS_TOTAL}'%20passed-brightgreen) ![Test Suites](https:\/\/img.shields.io\/badge\/Test%20Suites-'${SUITES_PASSED}'\/'${SUITES_TOTAL}'%20passed-brightgreen) ![Coverage](https:\/\/img.shields.io\/badge\/Coverage-'${COVERAGE}'%25-brightgreen) ![Node.js](https:\/\/img.shields.io\/badge\/Node.js-18%20|%2020-brightgreen) ![TypeScript](https:\/\/img.shields.io\/badge\/TypeScript-5.0-blue)\n\n/' README.md
-        fi
-        
-        echo "✅ README updated with latest statistics"
 
     - name: Generate test report
       if: always()
