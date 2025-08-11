@@ -1,5 +1,4 @@
 name: CI/CD Pipeline
-# Note: SonarCloud analysis is handled in sonarcloud.yml workflow
 
 on:
   push:
