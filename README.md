@@ -18,10 +18,10 @@ HC-Lisp is a functional programming language that supports:
 - **List operations**: `first`, `rest`, `count`, `map`, `reduce`, `range`
 - **Predicates**: `even?`, `nil?`, `empty?`
 - **I/O**: `println`, `print`
-- **🆕 Namespace System**: Import and require Node.js modules with `(import)` and `(require)`
-- **🆕 Node.js Integration**: Built-in access to fs, crypto, path, and other Node.js modules
-- **🆕 Built-in Functions**: String manipulation, JSON handling, process utilities
-- **🆕 Modern Test Pipeline**: Comprehensive Jest-based testing with isolated test files
+- **Namespace System**: Import and require Node.js modules with `(import)` and `(require)`
+- **Node.js Integration**: Built-in access to fs, crypto, path, and other Node.js modules
+- **Built-in Functions**: String manipulation, JSON handling, process utilities
+- **Modern Test Pipeline**: Comprehensive Jest-based testing with isolated test files
 
 ## Quick Links
 
@@ -56,23 +56,23 @@ npm run hclisp <file.hclisp>
 
 HC-Lisp uses **Jest** as the modern test framework with complete integration. The test suite includes:
 
-- **50 test cases** covering all language features  
+- **Comprehensive test coverage** for all language features  
 - **Unit tests** for TypeScript modules (Jest)
 - **Integration tests** for .hclisp files (Jest) - each file has isolated tests
 - **Type-safe tests** written in TypeScript
 - **Error handling validation** with proper exception testing
 - **Console output mocking** for I/O testing
 - **Multiline expression support** in the language core
-- **🆕 Namespace/Import Testing**: Comprehensive tests for Node.js integration
-- **🆕 Individual File Tests**: Each .hclisp file has its own isolated test for better maintainability
+- **Namespace/Import Testing**: Comprehensive tests for Node.js integration
+- **Individual File Tests**: Each .hclisp file has its own isolated test for better maintainability
 
 All tests are unified under Jest with a clean, isolated test structure - no legacy test runners needed!
 
 ### Test Structure
-- **3 test suites** running 50 tests total
-- **hc-lisp.test.ts**: Core language functionality (25 tests)
-- **hc-lisp-advanced.test.ts**: Advanced features and edge cases (15 tests)  
-- **hc-files.test.ts**: Individual .hclisp file execution tests (10 tests)
+- **Multiple test suites** covering all functionality
+- **hc-lisp.test.ts**: Core language functionality
+- **hc-lisp-advanced.test.ts**: Advanced features and edge cases  
+- **hc-files.test.ts**: Individual .hclisp file execution tests
 
 For detailed testing information, see [TESTING.md](TESTING.md)
 
@@ -82,14 +82,14 @@ HC-Lisp is an **experimental educational project** currently in active developme
 
 ### Current State
 - ✅ Core language features implemented and working
-- ✅ Comprehensive test suite (50 tests) with 100% pass rate
+- ✅ Comprehensive test suite with 100% pass rate
 - ✅ REPL interface for interactive development
 - ✅ File execution support (.hclisp files)
 - ✅ Modern development tooling (TypeScript, Jest, etc.)
-- ✅ **🆕 Namespace system** with Node.js module integration
-- ✅ **🆕 Import/require functionality** for external dependencies
-- ✅ **🆕 Built-in string, JSON, and utility functions**
-- ✅ **🆕 Isolated test pipeline** with individual .hclisp file tests
+- ✅ **Namespace system** with Node.js module integration
+- ✅ **Import/require functionality** for external dependencies
+- ✅ **Built-in string, JSON, and utility functions**
+- ✅ **Isolated test pipeline** with individual .hclisp file tests
 
 ### Limitations & Considerations
 - 🚧 **Not production-ready**: This is a learning/research project
@@ -164,7 +164,7 @@ For more details, see [SYNTAX-HIGHLIGHTING.md](SYNTAX-HIGHLIGHTING.md)
     acc))
 ```
 
-### 🆕 Namespace System & Node.js Integration
+### Namespace System & Node.js Integration
 ```lisp
 ;; Create namespace and import Node.js modules
 (ns my-app
@@ -189,7 +189,7 @@ For more details, see [SYNTAX-HIGHLIGHTING.md](SYNTAX-HIGHLIGHTING.md)
 (process/platform)               ; => Operating system platform
 ```
 
-### 🆕 Example Test Files
+### Example Test Files
 ```lisp
 ;; namespace-test.hclisp - Testing namespace functionality
 (ns test-app
@@ -260,15 +260,15 @@ For more details, see [SYNTAX-HIGHLIGHTING.md](SYNTAX-HIGHLIGHTING.md)
 - `tests/pi-test.hclisp` - Pi calculation demonstration
 - `tests/sqrt-test.hclisp` - Square root calculation tests
 - `tests/first-element-test.hclisp` - First element function tests
-- **🆕** `tests/namespace-test.hclisp` - Namespace system and Node.js integration tests
-- **🆕** `tests/import-test.hclisp` - Import/require functionality tests
-- **🆕** `tests/basic-node-test.hclisp` - Basic Node.js module usage tests
-- **🆕** `tests/simple-ns-test.hclisp` - Simple namespace creation tests
+- `tests/namespace-test.hclisp` - Namespace system and Node.js integration tests
+- `tests/import-test.hclisp` - Import/require functionality tests
+- `tests/basic-node-test.hclisp` - Basic Node.js module usage tests
+- `tests/simple-ns-test.hclisp` - Simple namespace creation tests
 
 ### Unit Test Files (TypeScript/Jest)
 - `tests/hc-lisp.test.ts` - Basic unit tests (Jest/TypeScript)
 - `tests/hc-lisp-advanced.test.ts` - Advanced unit tests (Jest/TypeScript)  
-- `tests/hc-files.test.ts` - **🆕 Individual isolated tests** for each .hclisp file (Jest/TypeScript)
+- `tests/hc-files.test.ts` - **Individual isolated tests** for each .hclisp file (Jest/TypeScript)
 
 ### Syntax Examples (Non-executable)
 - `demo-syntax.hclisp` - Syntax highlighting demonstration
@@ -288,7 +288,7 @@ npm run hclisp tests/sqrt-test.hclisp
 # Function tests
 npm run hclisp tests/first-element-test.hclisp
 
-# 🆕 Node.js integration tests
+# Node.js integration tests
 npm run hclisp tests/namespace-test.hclisp
 npm run hclisp tests/import-test.hclisp
 npm run hclisp tests/basic-node-test.hclisp
@@ -297,13 +297,13 @@ npm run hclisp tests/simple-ns-test.hclisp
 
 ### Run Jest Test Suites
 ```bash
-# All tests (50 tests across 3 suites)
+# All tests
 npm test
 
 # Specific test suite
-npm test tests/hc-lisp.test.ts           # Core language (25 tests)
-npm test tests/hc-lisp-advanced.test.ts  # Advanced features (15 tests)
-npm test tests/hc-files.test.ts          # File integration (10 tests)
+npm test tests/hc-lisp.test.ts           # Core language tests
+npm test tests/hc-lisp-advanced.test.ts  # Advanced features
+npm test tests/hc-files.test.ts          # File integration tests
 
 # Test with coverage
 npm run test:coverage
@@ -395,7 +395,7 @@ The project is structured in modules:
 - `Library.ts` - Basic function library and built-in functions
 - `Keywords.ts` - Special forms (def, defn, if, let, ns, import, require, etc.)
 - `Context.ts` - Environment/scope management
-- **🆕** `Namespace.ts` - Namespace management and Node.js module integration
+- `Namespace.ts` - Namespace management and Node.js module integration
 - `hc-lisp.ts` - Main interface
 
 ## Project Goals
