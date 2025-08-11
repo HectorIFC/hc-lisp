@@ -3,16 +3,13 @@ import * as path from 'path';
 
 describe('HC-Lisp File Integration Tests', () => {
     beforeEach(() => {
-        // Reset context before each test to ensure clean state
         HcLisp.resetContext();
     });
 
-    // Helper function to get test file path
     function getTestFilePath(filename: string): string {
         return path.join(__dirname, filename);
     }
 
-    // Helper function to get root project file path
     function getRootFilePath(filename: string): string {
         return path.join(__dirname, '..', filename);
     }
@@ -20,12 +17,10 @@ describe('HC-Lisp File Integration Tests', () => {
     test('should execute basic-test.hclisp without errors', () => {
         const filePath = getTestFilePath('basic-test.hclisp');
 
-        // Capture console output
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
         expect(() => HcLisp.evalFile(filePath)).not.toThrow();
 
-        // Verify that basic tests ran successfully
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
         expect(output).toContain('=== Basic Tests ===');
         expect(output).toContain('Addition test: (+ 1 2 3) => 6');
@@ -42,7 +37,6 @@ describe('HC-Lisp File Integration Tests', () => {
 
         expect(() => HcLisp.evalFile(filePath)).not.toThrow();
 
-        // Verify that pi calculation ran
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
         expect(output).toContain('=== Pi Calculation Test ===');
         expect(output).toContain('Pi approximated with');
@@ -58,7 +52,6 @@ describe('HC-Lisp File Integration Tests', () => {
 
         expect(() => HcLisp.evalFile(filePath)).not.toThrow();
 
-        // Verify that sqrt tests ran
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
         expect(output).toContain('=== Square Root Test ===');
         expect(output).toContain('Square root of 9: 3');
@@ -74,7 +67,6 @@ describe('HC-Lisp File Integration Tests', () => {
 
         expect(() => HcLisp.evalFile(filePath)).not.toThrow();
 
-        // Verify that first element tests ran
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
         expect(output).toContain('=== First Element Test ===');
         expect(output).toContain('First element of [1 2 3 4]:');
@@ -90,7 +82,6 @@ describe('HC-Lisp File Integration Tests', () => {
 
         expect(() => HcLisp.evalFile(filePath)).not.toThrow();
 
-        // Verify that namespace tests ran
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
         expect(output).toContain('Generated UUID:');
         expect(output).toContain('Uppercase: NODE.JS IS COOL!');
@@ -106,7 +97,6 @@ describe('HC-Lisp File Integration Tests', () => {
 
         expect(() => HcLisp.evalFile(filePath)).not.toThrow();
 
-        // Verify that import tests ran
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
         expect(output).toContain('=== Test of Imports and Requires with Node.js ===');
         expect(output).toContain('Generated UUID:');
@@ -122,7 +112,6 @@ describe('HC-Lisp File Integration Tests', () => {
 
         expect(() => HcLisp.evalFile(filePath)).not.toThrow();
 
-        // Verify that basic node tests ran
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
         expect(output).toContain('=== Basic Node.js Test ===');
         expect(output).toContain('UUID:');
@@ -148,7 +137,6 @@ describe('HC-Lisp File Integration Tests', () => {
 
         expect(() => HcLisp.evalFile(filePath)).not.toThrow();
 
-        // Verify that demo syntax executed successfully
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
         expect(output).toContain('Hello, World!');
 
@@ -162,7 +150,6 @@ describe('HC-Lisp File Integration Tests', () => {
 
         expect(() => HcLisp.evalFile(filePath)).not.toThrow();
 
-        // Verify that syntax showcase executed successfully
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
         expect(output).toContain('Fibonacci(10):');
         expect(output).toContain('Factorial(5):');
@@ -180,7 +167,6 @@ describe('HC-Lisp File Integration Tests', () => {
 
         expect(() => HcLisp.evalFile(filePath)).not.toThrow();
 
-        // Verify that dynamic module loading tests ran
         const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
         expect(output).toContain('Testing crypto module:');
         expect(output).toContain('Random UUID:');
@@ -200,18 +186,13 @@ describe('HC-Lisp File Integration Tests', () => {
 
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-        // Express may not be installed, so we expect either success or a specific module error
         try {
             HcLisp.evalFile(filePath);
 
-            // If it succeeds, check for expected output
             const output = consoleSpy.mock.calls.map(call => call.join(' ')).join('\n');
-            // Since this starts a server, we won't see the final server start message
-            // But we can check that namespace setup worked
-            expect(true).toBe(true); // If we get here, dynamic loading worked
+            expect(true).toBe(true);
 
         } catch (error) {
-            // If Express is not installed, we should get a specific error
             const errorMessage = (error as Error).message;
             expect(
                 errorMessage.includes('Module \'express\' not found') ||

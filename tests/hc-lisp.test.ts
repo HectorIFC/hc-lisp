@@ -2,7 +2,6 @@ import HcLisp from '../hc-lisp';
 
 describe('HC-Lisp Basic Operations', () => {
   beforeEach(() => {
-    // Reset the context for each test
     HcLisp.resetContext();
   });
 
