@@ -66,6 +66,8 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       continue-on-error: true
+      with:
+        scanMetadataReportFile: .scannerwork/report-task.txt
 
     - name: Upload coverage to artifacts
       if: always()
