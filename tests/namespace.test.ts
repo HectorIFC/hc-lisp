@@ -100,20 +100,17 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
     });
 
     test('should add require for existing namespace without recreating it', () => {
-      // First, create a namespace manually
       const existingNs = namespaceManager.createNamespace('existing-ns');
       existingNs.environment.define('test-var', { type: 'string', value: 'original' });
 
-      // Now add a require for the same namespace
       namespaceManager.addRequire('existing-ns', 'existing');
 
       const currentNs = namespaceManager.getCurrentNamespace();
       expect(currentNs.requires.has('existing-ns')).toBe(true);
       expect(currentNs.requires.get('existing-ns')).toBe('existing');
 
-      // Verify the original namespace still exists and wasn't recreated
       const retrievedNs = namespaceManager.getNamespace('existing-ns');
-      expect(retrievedNs).toBe(existingNs); // Same instance
+      expect(retrievedNs).toBe(existingNs);
       expect(retrievedNs?.environment.get('test-var')).toEqual({ type: 'string', value: 'original' });
     });
   });
@@ -881,7 +878,6 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
         const namedExport = testNs.environment.get('execFunction');
         const defaultExport = testNs.environment.get('default');
 
-        // Execute the named export function (covers lines 118-121)
         if (namedExport.type === 'function') {
           const result = namedExport.value(
             { type: 'string', value: 'test' },
@@ -892,7 +888,6 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
           expect(mockFn).toHaveBeenCalledWith('test', 42);
         }
 
-        // Execute the default export function (covers lines 125-128)
         if (defaultExport.type === 'function') {
           const result = defaultExport.value(
             { type: 'string', value: 'default' },
@@ -953,7 +948,6 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
         const wrappedFn = testNs.environment.get('complexFunction');
 
         if (wrappedFn.type === 'function') {
-          // Test with complex HC values that need conversion
           const result = wrappedFn.value(
             { type: 'vector', value: [{ type: 'string', value: 'item1' }, { type: 'number', value: 123 }] },
             { type: 'object', value: { key: 'value' } },
@@ -963,7 +957,6 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
           expect(result.type).toBe('object');
           expect(mockFn).toHaveBeenCalledWith(['item1', 123], { key: 'value' }, true);
 
-          // Verify the mock function was called with converted JS values
           const [arr, obj, bool] = mockFn.mock.calls[0];
           expect(Array.isArray(arr)).toBe(true);
           expect(arr[0]).toBe('item1');
