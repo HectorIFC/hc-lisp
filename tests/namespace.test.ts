@@ -33,6 +33,13 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
     throw new Error('Not a boolean');
   };
 
+  const getObjectValue = (hcValue: HCValue): any => {
+    if (hcValue.type === 'object') {
+      return hcValue.value;
+    }
+    throw new Error('Not an object');
+  };
+
   // ============================================================================
   // BASIC NAMESPACE OPERATIONS
   // ============================================================================
@@ -561,6 +568,626 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
       const currentNs = namespaceManager.getCurrentNamespace();
       expect(currentNs.requires.has('future-namespace')).toBe(true);
       expect(currentNs.requires.get('future-namespace')).toBe('future');
+    });
+  });
+
+  // ============================================================================
+  // PUBLIC METHODS DETAILED TESTING
+  // ============================================================================
+  describe('Public Methods Detailed Testing', () => {
+
+    describe('createMockNamespace', () => {
+      test('should create mock namespace for node.fs', () => {
+        namespaceManager.createMockNamespace('node.fs');
+        const fsNs = namespaceManager.getNamespace('node.fs');
+
+        expect(fsNs).toBeDefined();
+        expect(fsNs?.name).toBe('node.fs');
+        expect(() => fsNs!.environment.get('readFileSync')).not.toThrow();
+        expect(() => fsNs!.environment.get('existsSync')).not.toThrow();
+      });
+
+      test('should create mock namespace for node.crypto', () => {
+        namespaceManager.createMockNamespace('node.crypto');
+        const cryptoNs = namespaceManager.getNamespace('node.crypto');
+
+        expect(cryptoNs).toBeDefined();
+        expect(cryptoNs?.name).toBe('node.crypto');
+        expect(() => cryptoNs!.environment.get('randomUUID')).not.toThrow();
+        expect(() => cryptoNs!.environment.get('randomBytes')).not.toThrow();
+        expect(() => cryptoNs!.environment.get('createHash')).not.toThrow();
+      });
+
+      test('should create mock namespace for node.path', () => {
+        namespaceManager.createMockNamespace('node.path');
+        const pathNs = namespaceManager.getNamespace('node.path');
+
+        expect(pathNs).toBeDefined();
+        expect(pathNs?.name).toBe('node.path');
+        expect(() => pathNs!.environment.get('join')).not.toThrow();
+        expect(() => pathNs!.environment.get('basename')).not.toThrow();
+        expect(() => pathNs!.environment.get('dirname')).not.toThrow();
+        expect(() => pathNs!.environment.get('extname')).not.toThrow();
+      });
+
+      test('should create mock namespace for node.http', () => {
+        namespaceManager.createMockNamespace('node.http');
+        const httpNs = namespaceManager.getNamespace('node.http');
+
+        expect(httpNs).toBeDefined();
+        expect(httpNs?.name).toBe('node.http');
+        expect(() => httpNs!.environment.get('createServer')).not.toThrow();
+        expect(() => httpNs!.environment.get('request')).not.toThrow();
+      });
+
+      test('should create mock namespace for node.url', () => {
+        namespaceManager.createMockNamespace('node.url');
+        const urlNs = namespaceManager.getNamespace('node.url');
+
+        expect(urlNs).toBeDefined();
+        expect(urlNs?.name).toBe('node.url');
+        expect(() => urlNs!.environment.get('parse')).not.toThrow();
+        expect(() => urlNs!.environment.get('resolve')).not.toThrow();
+      });
+
+      test('should create mock namespace for node.os', () => {
+        namespaceManager.createMockNamespace('node.os');
+        const osNs = namespaceManager.getNamespace('node.os');
+
+        expect(osNs).toBeDefined();
+        expect(osNs?.name).toBe('node.os');
+        expect(() => osNs!.environment.get('platform')).not.toThrow();
+        expect(() => osNs!.environment.get('hostname')).not.toThrow();
+        expect(() => osNs!.environment.get('tmpdir')).not.toThrow();
+        expect(() => osNs!.environment.get('homedir')).not.toThrow();
+      });
+
+      test('should create empty namespace for unknown modules', () => {
+        namespaceManager.createMockNamespace('unknown-module');
+        const unknownNs = namespaceManager.getNamespace('unknown-module');
+
+        expect(unknownNs).toBeDefined();
+        expect(unknownNs?.name).toBe('unknown-module');
+      });
+
+      test('should try loading from node_modules first', () => {
+        // This should first try to load 'fs' from node_modules (which will fail)
+        // Then fallback to built-in node.fs functions
+        namespaceManager.createMockNamespace('fs');
+        const fsNs = namespaceManager.getNamespace('fs');
+
+        expect(fsNs).toBeDefined();
+        expect(fsNs?.name).toBe('fs');
+      });
+    });
+
+    describe('tryLoadNodeModule', () => {
+      test('should return false for non-existent modules', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        const result = namespaceManager.tryLoadNodeModule('non-existent-module', testNs);
+
+        expect(result).toBe(false);
+      });
+
+      test('should handle modules with node. prefix', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        const result = namespaceManager.tryLoadNodeModule('node.invalid-module', testNs);
+
+        expect(result).toBe(false);
+      });
+
+      test('should successfully load existing modules like fs', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        const result = namespaceManager.tryLoadNodeModule('fs', testNs);
+
+        expect(result).toBe(true);
+        // Should have wrapped the fs module
+        expect(() => testNs.environment.get('readFileSync')).not.toThrow();
+      });
+
+      test('should use cache for previously loaded modules', () => {
+        const testNs1 = namespaceManager.createNamespace('test1');
+        const testNs2 = namespaceManager.createNamespace('test2');
+
+        // First load
+        const result1 = namespaceManager.tryLoadNodeModule('fs', testNs1);
+        expect(result1).toBe(true);
+
+        // Second load should use cache
+        const result2 = namespaceManager.tryLoadNodeModule('fs', testNs2);
+        expect(result2).toBe(true);
+
+        // Both should have the same functions
+        expect(() => testNs1.environment.get('readFileSync')).not.toThrow();
+        expect(() => testNs2.environment.get('readFileSync')).not.toThrow();
+      });
+    });
+
+    describe('wrapNodeModule', () => {
+      test('should wrap function modules correctly', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        const mockFn = jest.fn(() => 'test-result');
+
+        namespaceManager.wrapNodeModule(mockFn, testNs, 'testFunction');
+
+        // Should create both named and default exports
+        const namedExport = testNs.environment.get('testFunction');
+        const defaultExport = testNs.environment.get('default');
+
+        expect(namedExport.type).toBe('function');
+        expect(defaultExport.type).toBe('function');
+      });
+
+      test('should wrap object modules with methods', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        const mockModule = {
+          method1: jest.fn(() => 'result1'),
+          method2: jest.fn(() => 'result2'),
+          constant: 'test-value'
+        };
+
+        namespaceManager.wrapNodeModule(mockModule, testNs, 'testModule');
+
+        // Should create exports for all properties
+        expect(() => testNs.environment.get('method1')).not.toThrow();
+        expect(() => testNs.environment.get('method2')).not.toThrow();
+        expect(() => testNs.environment.get('constant')).not.toThrow();
+
+        const method1 = testNs.environment.get('method1');
+        const constant = testNs.environment.get('constant');
+
+        expect(method1.type).toBe('function');
+        expect(constant.type).toBe('string');
+        if (constant.type === 'string') {
+          expect(constant.value).toBe('test-value');
+        }
+      });
+
+      test('should handle modules that are both function and object', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        const mockModule = jest.fn(() => 'main-result') as any;
+        mockModule.subMethod = jest.fn(() => 'sub-result');
+        mockModule.property = 'test-prop';
+
+        namespaceManager.wrapNodeModule(mockModule, testNs, 'complexModule');
+
+        // Should handle both function and object aspects
+        expect(() => testNs.environment.get('complexModule')).not.toThrow();
+        expect(() => testNs.environment.get('default')).not.toThrow();
+        expect(() => testNs.environment.get('subMethod')).not.toThrow();
+        expect(() => testNs.environment.get('property')).not.toThrow();
+      });
+    });
+
+    describe('hcValueToJs and jsValueToHc', () => {
+      test('should convert all HC value types to JS', () => {
+        // Test all possible HC value types
+        expect(namespaceManager.hcValueToJs({ type: 'string', value: 'test' })).toBe('test');
+        expect(namespaceManager.hcValueToJs({ type: 'number', value: 42 })).toBe(42);
+        expect(namespaceManager.hcValueToJs({ type: 'boolean', value: true })).toBe(true);
+        expect(namespaceManager.hcValueToJs({ type: 'nil', value: null })).toBe(null);
+
+        // Test collections
+        const listValue: HCValue = { type: 'list', value: [{ type: 'number', value: 1 }, { type: 'string', value: 'test' }] };
+        expect(namespaceManager.hcValueToJs(listValue)).toEqual([1, 'test']);
+
+        const vectorValue: HCValue = { type: 'vector', value: [{ type: 'boolean', value: true }] };
+        expect(namespaceManager.hcValueToJs(vectorValue)).toEqual([true]);
+
+        // Test object and function
+        const objValue = { key: 'value' };
+        expect(namespaceManager.hcValueToJs({ type: 'object', value: objValue })).toBe(objValue);
+
+        const fnValue = () => 'test';
+        expect(namespaceManager.hcValueToJs({ type: 'function', value: fnValue })).toBe(fnValue);
+
+        // Test symbol and keyword
+        expect(namespaceManager.hcValueToJs({ type: 'symbol', value: 'my-symbol' })).toBe('my-symbol');
+        expect(namespaceManager.hcValueToJs({ type: 'keyword', value: ':my-keyword' })).toBe(':my-keyword');
+
+        // Test closure (should return as-is)
+        const closure: HCValue = { type: 'closure', params: [], body: { type: 'nil', value: null }, env: null };
+        expect(namespaceManager.hcValueToJs(closure)).toBe(closure);
+
+        // Test recur
+        const recurValue: HCValue = { type: 'recur', values: [{ type: 'number', value: 1 }, { type: 'string', value: 'test' }] };
+        expect(namespaceManager.hcValueToJs(recurValue)).toEqual([1, 'test']);
+
+        // Test default case
+        const unknownValue: any = { type: 'unknown-type', value: 'something' };
+        expect(namespaceManager.hcValueToJs(unknownValue)).toBe(unknownValue);
+      });
+
+      test('should convert all JS value types to HC', () => {
+        // Test null and undefined
+        expect(namespaceManager.jsValueToHc(null)).toEqual({ type: 'nil', value: null });
+        expect(namespaceManager.jsValueToHc(undefined)).toEqual({ type: 'nil', value: null });
+
+        // Test primitives
+        expect(namespaceManager.jsValueToHc('hello')).toEqual({ type: 'string', value: 'hello' });
+        expect(namespaceManager.jsValueToHc(123)).toEqual({ type: 'number', value: 123 });
+        expect(namespaceManager.jsValueToHc(false)).toEqual({ type: 'boolean', value: false });
+
+        // Test array (converts to vector)
+        const jsArray = [1, 'test', true];
+        const hcArray = namespaceManager.jsValueToHc(jsArray);
+        expect(hcArray.type).toBe('vector');
+        if (hcArray.type === 'vector') {
+          expect(hcArray.value).toHaveLength(3);
+          expect(hcArray.value[0]).toEqual({ type: 'number', value: 1 });
+          expect(hcArray.value[1]).toEqual({ type: 'string', value: 'test' });
+          expect(hcArray.value[2]).toEqual({ type: 'boolean', value: true });
+        }
+
+        // Test object
+        const jsObj = { key: 'value', num: 42 };
+        expect(namespaceManager.jsValueToHc(jsObj)).toEqual({ type: 'object', value: jsObj });
+
+        // Test function
+        const jsFn = () => 'test';
+        expect(namespaceManager.jsValueToHc(jsFn)).toEqual({ type: 'function', value: jsFn });
+
+        // Test fallback case
+        const symbol = Symbol('test');
+        expect(namespaceManager.jsValueToHc(symbol)).toEqual({ type: 'object', value: symbol });
+      });
+
+      test('should handle nested conversions correctly', () => {
+        // Test deeply nested array
+        const nestedJs = [1, [2, [3, 'deep']], { nested: true }];
+        const nestedHc = namespaceManager.jsValueToHc(nestedJs);
+
+        expect(nestedHc.type).toBe('vector');
+        if (nestedHc.type === 'vector') {
+          expect(nestedHc.value[0]).toEqual({ type: 'number', value: 1 });
+          expect(nestedHc.value[1].type).toBe('vector');
+          expect(nestedHc.value[2]).toEqual({ type: 'object', value: { nested: true } });
+        }
+
+        // Test converting back
+        const backToJs = namespaceManager.hcValueToJs(nestedHc);
+        expect(backToJs).toEqual([1, [2, [3, 'deep']], { nested: true }]);
+      });
+    });
+
+    describe('addNodeFsFunctions', () => {
+      test('should add readFileSync function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeFsFunctions(testNs);
+
+        const readFileSync = testNs.environment.get('readFileSync');
+        expect(readFileSync.type).toBe('function');
+
+        // Test error case - invalid arguments
+        expect(() => {
+          callHCFunction(readFileSync, { type: 'number', value: 123 });
+        }).toThrow('readFileSync expects a string argument (file path)');
+
+        expect(() => {
+          callHCFunction(readFileSync);
+        }).toThrow('readFileSync expects a string argument (file path)');
+      });
+
+      test('should add existsSync function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeFsFunctions(testNs);
+
+        const existsSync = testNs.environment.get('existsSync');
+        expect(existsSync.type).toBe('function');
+
+        // Test error case - invalid arguments
+        expect(() => {
+          callHCFunction(existsSync, { type: 'number', value: 123 });
+        }).toThrow('existsSync expects a string argument (file path)');
+
+        expect(() => {
+          callHCFunction(existsSync);
+        }).toThrow('existsSync expects a string argument (file path)');
+
+        // Test with valid but non-existent path
+        const result = callHCFunction(existsSync, { type: 'string', value: '/path/that/does/not/exist' });
+        expect(result.type).toBe('boolean');
+        expect(getBooleanValue(result)).toBe(false);
+      });
+    });
+
+    describe('addNodeCryptoFunctions', () => {
+      test('should add randomUUID function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeCryptoFunctions(testNs);
+
+        const randomUUID = testNs.environment.get('randomUUID');
+        expect(randomUUID.type).toBe('function');
+
+        const result = callHCFunction(randomUUID);
+        expect(result.type).toBe('string');
+        expect(typeof getStringValue(result)).toBe('string');
+        expect(getStringValue(result).length).toBeGreaterThan(0);
+      });
+
+      test('should add randomBytes function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeCryptoFunctions(testNs);
+
+        const randomBytes = testNs.environment.get('randomBytes');
+        expect(randomBytes.type).toBe('function');
+
+        // Test valid call
+        const result = callHCFunction(randomBytes, { type: 'number', value: 16 });
+        expect(result.type).toBe('string');
+        expect(typeof getStringValue(result)).toBe('string');
+
+        // Test error cases
+        expect(() => {
+          callHCFunction(randomBytes);
+        }).toThrow('randomBytes expects a number argument');
+
+        expect(() => {
+          callHCFunction(randomBytes, { type: 'string', value: 'not-number' });
+        }).toThrow('randomBytes expects a number argument');
+      });
+
+      test('should add createHash function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeCryptoFunctions(testNs);
+
+        const createHash = testNs.environment.get('createHash');
+        expect(createHash.type).toBe('function');
+
+        // Test valid call
+        const result = callHCFunction(createHash,
+          { type: 'string', value: 'sha256' },
+          { type: 'string', value: 'test data' }
+        );
+        expect(result.type).toBe('string');
+        expect(typeof getStringValue(result)).toBe('string');
+
+        // Test error cases
+        expect(() => {
+          callHCFunction(createHash, { type: 'string', value: 'sha256' });
+        }).toThrow('createHash expects algorithm and data as string arguments');
+
+        expect(() => {
+          callHCFunction(createHash,
+            { type: 'number', value: 256 },
+            { type: 'string', value: 'data' }
+          );
+        }).toThrow('createHash expects algorithm and data as string arguments');
+      });
+    });
+
+    describe('addNodePathFunctions', () => {
+      test('should add join function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodePathFunctions(testNs);
+
+        const join = testNs.environment.get('join');
+        expect(join.type).toBe('function');
+
+        // Test valid call
+        const result = callHCFunction(join,
+          { type: 'string', value: '/home' },
+          { type: 'string', value: 'user' },
+          { type: 'string', value: 'documents' }
+        );
+        expect(result.type).toBe('string');
+        expect(typeof getStringValue(result)).toBe('string');
+
+        // Test error case
+        expect(() => {
+          callHCFunction(join, { type: 'number', value: 123 });
+        }).toThrow('path/join expects string arguments');
+      });
+
+      test('should add basename function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodePathFunctions(testNs);
+
+        const basename = testNs.environment.get('basename');
+        expect(basename.type).toBe('function');
+
+        // Test valid call
+        const result = callHCFunction(basename, { type: 'string', value: '/path/to/file.txt' });
+        expect(result.type).toBe('string');
+        expect(getStringValue(result)).toBe('file.txt');
+
+        // Test error cases
+        expect(() => {
+          callHCFunction(basename);
+        }).toThrow('basename expects a string argument');
+
+        expect(() => {
+          callHCFunction(basename, { type: 'number', value: 123 });
+        }).toThrow('basename expects a string argument');
+      });
+
+      test('should add dirname function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodePathFunctions(testNs);
+
+        const dirname = testNs.environment.get('dirname');
+        expect(dirname.type).toBe('function');
+
+        // Test valid call
+        const result = callHCFunction(dirname, { type: 'string', value: '/path/to/file.txt' });
+        expect(result.type).toBe('string');
+        expect(getStringValue(result)).toBe('/path/to');
+
+        // Test error cases
+        expect(() => {
+          callHCFunction(dirname);
+        }).toThrow('dirname expects a string argument');
+
+        expect(() => {
+          callHCFunction(dirname, { type: 'number', value: 123 });
+        }).toThrow('dirname expects a string argument');
+      });
+
+      test('should add extname function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodePathFunctions(testNs);
+
+        const extname = testNs.environment.get('extname');
+        expect(extname.type).toBe('function');
+
+        // Test valid call
+        const result = callHCFunction(extname, { type: 'string', value: '/path/to/file.txt' });
+        expect(result.type).toBe('string');
+        expect(getStringValue(result)).toBe('.txt');
+
+        // Test error cases
+        expect(() => {
+          callHCFunction(extname);
+        }).toThrow('extname expects a string argument');
+
+        expect(() => {
+          callHCFunction(extname, { type: 'number', value: 123 });
+        }).toThrow('extname expects a string argument');
+      });
+    });
+
+    describe('addNodeHttpFunctions', () => {
+      test('should add createServer function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeHttpFunctions(testNs);
+
+        const createServer = testNs.environment.get('createServer');
+        expect(createServer.type).toBe('function');
+
+        // Test valid call
+        const handlerFn: HCValue = { type: 'function', value: jest.fn() };
+        const result = callHCFunction(createServer, handlerFn);
+        expect(result.type).toBe('object');
+        expect(getObjectValue(result)).toBeDefined();
+
+        // Test error case
+        expect(() => {
+          callHCFunction(createServer, { type: 'string', value: 'not-function' });
+        }).toThrow('createServer expects a function argument (request handler)');
+
+        expect(() => {
+          callHCFunction(createServer);
+        }).toThrow('createServer expects a function argument (request handler)');
+      });
+
+      test('should add request function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeHttpFunctions(testNs);
+
+        const request = testNs.environment.get('request');
+        expect(request.type).toBe('function');
+
+        // Test error case
+        expect(() => {
+          callHCFunction(request);
+        }).toThrow('http.request expects at least a URL string argument');
+
+        expect(() => {
+          callHCFunction(request, { type: 'number', value: 123 });
+        }).toThrow('http.request expects at least a URL string argument');
+      });
+    });
+
+    describe('addNodeUrlFunctions', () => {
+      test('should add parse function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeUrlFunctions(testNs);
+
+        const parse = testNs.environment.get('parse');
+        expect(parse.type).toBe('function');
+
+        // Test valid call
+        const result = callHCFunction(parse, { type: 'string', value: 'https://example.com/path' });
+        expect(result.type).toBe('object');
+        expect(getObjectValue(result)).toBeDefined();
+
+        // Test error cases
+        expect(() => {
+          callHCFunction(parse);
+        }).toThrow('url.parse expects a string argument');
+
+        expect(() => {
+          callHCFunction(parse, { type: 'number', value: 123 });
+        }).toThrow('url.parse expects a string argument');
+      });
+
+      test('should add resolve function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeUrlFunctions(testNs);
+
+        const resolve = testNs.environment.get('resolve');
+        expect(resolve.type).toBe('function');
+
+        // Test valid call
+        const result = callHCFunction(resolve,
+          { type: 'string', value: 'https://example.com/' },
+          { type: 'string', value: 'path/file.html' }
+        );
+        expect(result.type).toBe('string');
+        expect(typeof getStringValue(result)).toBe('string');
+
+        // Test error cases
+        expect(() => {
+          callHCFunction(resolve, { type: 'string', value: 'base' });
+        }).toThrow('url.resolve expects two string arguments');
+
+        expect(() => {
+          callHCFunction(resolve,
+            { type: 'number', value: 123 },
+            { type: 'string', value: 'path' }
+          );
+        }).toThrow('url.resolve expects two string arguments');
+      });
+    });
+
+    describe('addNodeOsFunctions', () => {
+      test('should add platform function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeOsFunctions(testNs);
+
+        const platform = testNs.environment.get('platform');
+        expect(platform.type).toBe('function');
+
+        const result = callHCFunction(platform);
+        expect(result.type).toBe('string');
+        expect(typeof getStringValue(result)).toBe('string');
+      });
+
+      test('should add hostname function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeOsFunctions(testNs);
+
+        const hostname = testNs.environment.get('hostname');
+        expect(hostname.type).toBe('function');
+
+        const result = callHCFunction(hostname);
+        expect(result.type).toBe('string');
+        expect(typeof getStringValue(result)).toBe('string');
+      });
+
+      test('should add tmpdir function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeOsFunctions(testNs);
+
+        const tmpdir = testNs.environment.get('tmpdir');
+        expect(tmpdir.type).toBe('function');
+
+        const result = callHCFunction(tmpdir);
+        expect(result.type).toBe('string');
+        expect(typeof getStringValue(result)).toBe('string');
+      });
+
+      test('should add homedir function', () => {
+        const testNs = namespaceManager.createNamespace('test');
+        namespaceManager.addNodeOsFunctions(testNs);
+
+        const homedir = testNs.environment.get('homedir');
+        expect(homedir.type).toBe('function');
+
+        const result = callHCFunction(homedir);
+        expect(result.type).toBe('string');
+        expect(typeof getStringValue(result)).toBe('string');
+      });
     });
   });
 });

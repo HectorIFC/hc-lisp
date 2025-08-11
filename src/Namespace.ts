@@ -49,32 +49,27 @@ export class NamespaceManager {
         return this.namespaces.get(name);
     }
 
-    // Simulates imports of external libraries
     addImport(className: string, mockImplementation: any): void {
         const currentNs = this.getCurrentNamespace();
         currentNs.imports.set(className, mockImplementation);
     }
 
-    // Adds a require (namespace -> alias)
     addRequire(namespace: string, alias: string): void {
         const currentNs = this.getCurrentNamespace();
         currentNs.requires.set(namespace, alias);
 
-        // If namespace doesn't exist, create a basic mock
         if (!this.namespaces.has(namespace)) {
             this.createMockNamespace(namespace);
         }
     }
 
-    private createMockNamespace(name: string): void {
+    createMockNamespace(name: string): void {
         const mockNs = this.createNamespace(name);
 
-        // Try to dynamically load from node_modules first
         if (this.tryLoadNodeModule(name, mockNs)) {
             return;
         }
 
-        // Fallback to built-in Node.js modules
         if (name === 'node.fs') {
             this.addNodeFsFunctions(mockNs);
         } else if (name === 'node.crypto') {
@@ -90,28 +85,24 @@ export class NamespaceManager {
         }
     }
 
-    private tryLoadNodeModule(moduleName: string, ns: NamespaceInfo): boolean {
+     tryLoadNodeModule(moduleName: string, ns: NamespaceInfo): boolean {
         try {
-            // Remove 'node.' prefix for npm packages
             const packageName = moduleName.startsWith('node.')
                 ? moduleName.substring(5)
                 : moduleName;
 
-            // Check if already cached
             if (this.nodeModulesCache.has(packageName)) {
                 const cachedModule = this.nodeModulesCache.get(packageName);
                 this.wrapNodeModule(cachedModule, ns, packageName);
                 return true;
             }
 
-            // Try to require the module
             const nodeModule = require(packageName);
             this.nodeModulesCache.set(packageName, nodeModule);
             this.wrapNodeModule(nodeModule, ns, packageName);
             return true;
 
         } catch (error) {
-            // Module not found or not installed
             console.log(`Module '${moduleName}' not found in node_modules`);
             if (error instanceof Error) {
                 console.debug(`Module loading error: ${error.message}`);
@@ -120,10 +111,8 @@ export class NamespaceManager {
         }
     }
 
-    private wrapNodeModule(nodeModule: any, ns: NamespaceInfo, packageName: string): void {
-        // Handle different types of exports
+     wrapNodeModule(nodeModule: any, ns: NamespaceInfo, packageName: string): void {
         if (typeof nodeModule === 'function') {
-            // Default export is a function (like express)
             ns.environment.define(packageName, {
                 type: 'function',
                 value: (...args: HCValue[]) => {
@@ -133,7 +122,6 @@ export class NamespaceManager {
                 }
             });
 
-            // Also expose as default export
             ns.environment.define('default', {
                 type: 'function',
                 value: (...args: HCValue[]) => {
@@ -144,8 +132,7 @@ export class NamespaceManager {
             });
         }
 
-        // Handle object exports (methods and properties)
-        if (typeof nodeModule === 'object' && nodeModule !== null) {
+        if ((typeof nodeModule === 'object' && nodeModule !== null) || typeof nodeModule === 'function') {
             for (const [key, value] of Object.entries(nodeModule)) {
                 if (typeof value === 'function') {
                     ns.environment.define(key, {
@@ -164,7 +151,7 @@ export class NamespaceManager {
         }
     }
 
-    private hcValueToJs(hcValue: HCValue): any {
+     hcValueToJs(hcValue: HCValue): any {
         switch (hcValue.type) {
             case 'string':
             case 'number':
@@ -191,7 +178,7 @@ export class NamespaceManager {
         }
     }
 
-    private jsValueToHc(jsValue: any): HCValue {
+     jsValueToHc(jsValue: any): HCValue {
         if (jsValue === null || jsValue === undefined) {
             return { type: 'nil', value: null };
         }
@@ -221,7 +208,7 @@ export class NamespaceManager {
         return { type: 'object', value: jsValue };
     }
 
-    private addNodeFsFunctions(ns: NamespaceInfo): void {
+     addNodeFsFunctions(ns: NamespaceInfo): void {
         const fs = require('fs');
 
         ns.environment.define('readFileSync', {
@@ -258,7 +245,7 @@ export class NamespaceManager {
         });
     }
 
-    private addNodeCryptoFunctions(ns: NamespaceInfo): void {
+     addNodeCryptoFunctions(ns: NamespaceInfo): void {
         const crypto = require('crypto');
 
         ns.environment.define('randomUUID', {
@@ -291,7 +278,7 @@ export class NamespaceManager {
         });
     }
 
-    private addNodeHttpFunctions(ns: NamespaceInfo): void {
+     addNodeHttpFunctions(ns: NamespaceInfo): void {
         const http = require('http');
 
         ns.environment.define('createServer', {
@@ -324,7 +311,7 @@ export class NamespaceManager {
         });
     }
 
-    private addNodeUrlFunctions(ns: NamespaceInfo): void {
+     addNodeUrlFunctions(ns: NamespaceInfo): void {
         const url = require('url');
 
         ns.environment.define('parse', {
@@ -350,7 +337,7 @@ export class NamespaceManager {
         });
     }
 
-    private addNodeOsFunctions(ns: NamespaceInfo): void {
+     addNodeOsFunctions(ns: NamespaceInfo): void {
         const os = require('os');
 
         ns.environment.define('platform', {
@@ -382,7 +369,7 @@ export class NamespaceManager {
         });
     }
 
-    private addNodePathFunctions(ns: NamespaceInfo): void {
+     addNodePathFunctions(ns: NamespaceInfo): void {
         const path = require('path');
 
         ns.environment.define('join', {
