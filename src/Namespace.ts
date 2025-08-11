@@ -9,9 +9,9 @@ export interface NamespaceInfo {
 }
 
 export class NamespaceManager {
-    private namespaces: Map<string, NamespaceInfo>;
+    private readonly namespaces: Map<string, NamespaceInfo>;
     private currentNamespace: string;
-    private nodeModulesCache: Map<string, any>; // Cache for loaded modules
+    private readonly nodeModulesCache: Map<string, any>; // Cache for loaded modules
 
     constructor() {
         this.namespaces = new Map();
@@ -113,6 +113,9 @@ export class NamespaceManager {
         } catch (error) {
             // Module not found or not installed
             console.log(`Module '${moduleName}' not found in node_modules`);
+            if (error instanceof Error) {
+                console.debug(`Module loading error: ${error.message}`);
+            }
             return false;
         }
     }
@@ -432,8 +435,11 @@ export class NamespaceManager {
         // First, try to find in local environment (built-in functions, etc.)
         try {
             return currentEnv.get(symbol);
-        } catch {
+        } catch (error) {
             // If not found in local environment, check namespaces
+            if (error instanceof Error) {
+                console.debug(`Symbol '${symbol}' not found in local environment: ${error.message}`);
+            }
         }
 
         const currentNs = this.getCurrentNamespace();
@@ -451,7 +457,10 @@ export class NamespaceManager {
                     if (targetNs) {
                         try {
                             return targetNs.environment.get(fnName);
-                        } catch {
+                        } catch (error) {
+                            if (error instanceof Error) {
+                                console.debug(`Function '${fnName}' lookup error in namespace '${realNs}': ${error.message}`);
+                            }
                             throw new Error(`Function '${fnName}' not found in namespace '${realNs}'`);
                         }
                     }
