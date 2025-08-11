@@ -4,21 +4,19 @@ import { Environment } from './Context';
 export interface NamespaceInfo {
     name: string;
     environment: Environment;
-    imports: Map<string, any>; // For external imports (simulated)
-    requires: Map<string, string>; // namespace -> alias
+    imports: Map<string, any>;
+    requires: Map<string, string>;
 }
 
 export class NamespaceManager {
     private readonly namespaces: Map<string, NamespaceInfo>;
     private currentNamespace: string;
-    private readonly nodeModulesCache: Map<string, any>; // Cache for loaded modules
+    private readonly nodeModulesCache: Map<string, any>;
 
     constructor() {
         this.namespaces = new Map();
         this.currentNamespace = 'user';
         this.nodeModulesCache = new Map();
-
-        // Create default "user" namespace
         this.createNamespace('user');
     }
 
@@ -144,7 +142,6 @@ export class NamespaceManager {
                         }
                     });
                 } else {
-                    // Handle constants/properties
                     ns.environment.define(key, this.jsValueToHc(value));
                 }
             }
@@ -170,7 +167,7 @@ export class NamespaceManager {
             case 'keyword':
                 return hcValue.value;
             case 'closure':
-                return hcValue; // Return closure as-is for HC-Lisp functions
+                return hcValue;
             case 'recur':
                 return hcValue.values.map((item: HCValue) => this.hcValueToJs(item));
             default:
@@ -204,7 +201,6 @@ export class NamespaceManager {
             return { type: 'function', value: jsValue };
         }
 
-        // Fallback: treat as object
         return { type: 'object', value: jsValue };
     }
 
@@ -420,13 +416,10 @@ export class NamespaceManager {
         });
     }
 
-    // Resolves a symbol considering requires and imports
     resolveSymbol(symbol: string, currentEnv: Environment): HCValue {
-        // First, try to find in local environment (built-in functions, etc.)
         try {
             return currentEnv.get(symbol);
         } catch (error) {
-            // If not found in local environment, check namespaces
             if (error instanceof Error) {
                 console.debug(`Symbol '${symbol}' not found in local environment: ${error.message}`);
             }
@@ -434,11 +427,9 @@ export class NamespaceManager {
 
         const currentNs = this.getCurrentNamespace();
 
-        // Check if it's a symbol with namespace (e.g., str/upper-case)
         if (symbol.includes('/')) {
             const [nsAlias, fnName] = symbol.split('/');
 
-            // Search for the real namespace by alias
             const requiresArray = Array.from(currentNs.requires.entries());
             for (let i = 0; i < requiresArray.length; i++) {
                 const [realNs, alias] = requiresArray[i];
@@ -460,12 +451,10 @@ export class NamespaceManager {
             throw new Error(`Namespace alias '${nsAlias}' not found`);
         }
 
-        // Check class imports
         if (currentNs.imports.has(symbol)) {
             return { type: 'function', value: currentNs.imports.get(symbol) };
         }
 
-        // If we got here, symbol was not found
         throw new Error(`Undefined symbol: ${symbol}`);
     }
 }
