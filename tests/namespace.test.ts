@@ -1285,7 +1285,7 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
 
         try {
           require('fs').existsSync = jest.fn(() => {
-            throw new Error('Non-error exception');
+            throw String('Non-error exception string');
           });
 
           const result = callHCFunction(existsSync, { type: 'string', value: '/some/path' });
