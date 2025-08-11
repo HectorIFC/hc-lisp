@@ -148,16 +148,12 @@ describe('HC-Lisp Basic Operations', () => {
     });
 
     test('should handle parsing edge cases', () => {
-      // Test cases to improve coverage of Parenthesize.ts
-      
-      // Test multiple elements to trigger line 14 (return list)
       const multiResult = HcLisp.eval('(+ 1 2)');
       expect(multiResult.type).toBe('number');
       if (multiResult.type === 'number') {
         expect(multiResult.value).toBe(3);
       }
-      
-      // Test nested structures for more coverage
+
       const nestedResult = HcLisp.eval('[[1 2] [3 4]]');
       expect(nestedResult.type).toBe('vector');
     });
