@@ -249,6 +249,9 @@ export class NamespaceManager {
                     const exists = fs.existsSync(args[0].value);
                     return { type: 'boolean', value: exists };
                 } catch (error) {
+                    if (error instanceof Error) {
+                        console.debug(`existsSync error for path '${args[0].value}': ${error.message}`);
+                    }
                     return { type: 'boolean', value: false };
                 }
             }
