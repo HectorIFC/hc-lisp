@@ -14,34 +14,34 @@ export type HCValue =
     | { type: 'object'; value: any };
 
 export function categorize(token: string): HCValue {
-    // Handle numbers (including floats, negatives, and scientific notation)
-    if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(token)) {
-        return { type: 'number', value: parseFloat(token) };
-    }
+  // Handle numbers (including floats, negatives, and scientific notation)
+  if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(token)) {
+    return { type: 'number', value: parseFloat(token) };
+  }
 
-    // Handle strings
-    if (token[0] === '"' && token.slice(-1) === '"') {
-        return { type: 'string', value: token.slice(1, -1) };
-    }
+  // Handle strings
+  if (token[0] === '"' && token.slice(-1) === '"') {
+    return { type: 'string', value: token.slice(1, -1) };
+  }
 
-    // Handle booleans
-    if (token === 'true') {
-        return { type: 'boolean', value: true };
-    }
-    if (token === 'false') {
-        return { type: 'boolean', value: false };
-    }
+  // Handle booleans
+  if (token === 'true') {
+    return { type: 'boolean', value: true };
+  }
+  if (token === 'false') {
+    return { type: 'boolean', value: false };
+  }
 
-    // Handle nil
-    if (token === 'nil') {
-        return { type: 'nil', value: null };
-    }
+  // Handle nil
+  if (token === 'nil') {
+    return { type: 'nil', value: null };
+  }
 
-    // Handle keywords (starting with :)
-    if (token[0] === ':') {
-        return { type: 'keyword', value: token.slice(1) };
-    }
+  // Handle keywords (starting with :)
+  if (token[0] === ':') {
+    return { type: 'keyword', value: token.slice(1) };
+  }
 
-    // Everything else is a symbol
-    return { type: 'symbol', value: token };
+  // Everything else is a symbol
+  return { type: 'symbol', value: token };
 }

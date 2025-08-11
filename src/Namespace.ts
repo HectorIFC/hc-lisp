@@ -86,13 +86,13 @@ export class NamespaceManager {
   tryLoadNodeModule(moduleName: string, ns: NamespaceInfo): boolean {
     try {
       const packageName = moduleName.startsWith('node.')
-          ? moduleName.substring(5)
-          : moduleName;
+        ? moduleName.substring(5)
+        : moduleName;
 
       if (this.nodeModulesCache.has(packageName)) {
-          const cachedModule = this.nodeModulesCache.get(packageName);
-          this.wrapNodeModule(cachedModule, ns, packageName);
-          return true;
+        const cachedModule = this.nodeModulesCache.get(packageName);
+        this.wrapNodeModule(cachedModule, ns, packageName);
+        return true;
       }
 
       const nodeModule = require(packageName);
@@ -102,7 +102,7 @@ export class NamespaceManager {
     } catch (error) {
       console.log(`Module '${moduleName}' not found in node_modules`);
       if (error instanceof Error) {
-          console.debug(`Module loading error: ${error.message}`);
+        console.debug(`Module loading error: ${error.message}`);
       }
       return false;
     }
@@ -111,21 +111,21 @@ export class NamespaceManager {
   wrapNodeModule(nodeModule: any, ns: NamespaceInfo, packageName: string): void {
     if (typeof nodeModule === 'function') {
       ns.environment.define(packageName, {
-          type: 'function',
-          value: (...args: HCValue[]) => {
-              const jsArgs = args.map(arg => this.hcValueToJs(arg));
-              const result = nodeModule(...jsArgs);
-              return this.jsValueToHc(result);
-          }
+        type: 'function',
+        value: (...args: HCValue[]) => {
+          const jsArgs = args.map(arg => this.hcValueToJs(arg));
+          const result = nodeModule(...jsArgs);
+          return this.jsValueToHc(result);
+        }
       });
 
       ns.environment.define('default', {
-          type: 'function',
-          value: (...args: HCValue[]) => {
-              const jsArgs = args.map(arg => this.hcValueToJs(arg));
-              const result = nodeModule(...jsArgs);
-              return this.jsValueToHc(result);
-          }
+        type: 'function',
+        value: (...args: HCValue[]) => {
+          const jsArgs = args.map(arg => this.hcValueToJs(arg));
+          const result = nodeModule(...jsArgs);
+          return this.jsValueToHc(result);
+        }
       });
     }
 
@@ -133,12 +133,12 @@ export class NamespaceManager {
       for (const [key, value] of Object.entries(nodeModule)) {
         if (typeof value === 'function') {
           ns.environment.define(key, {
-              type: 'function',
-              value: (...args: HCValue[]) => {
-                  const jsArgs = args.map(arg => this.hcValueToJs(arg));
-                  const result = value(...jsArgs);
-                  return this.jsValueToHc(result);
-              }
+            type: 'function',
+            value: (...args: HCValue[]) => {
+              const jsArgs = args.map(arg => this.hcValueToJs(arg));
+              const result = value(...jsArgs);
+              return this.jsValueToHc(result);
+            }
           });
         } else {
           ns.environment.define(key, this.jsValueToHc(value));
@@ -149,28 +149,28 @@ export class NamespaceManager {
 
   hcValueToJs(hcValue: HCValue): any {
     switch (hcValue.type) {
-      case 'string':
-      case 'number':
-      case 'boolean':
-        return hcValue.value;
-      case 'nil':
-        return null;
-      case 'list':
-      case 'vector':
-        return hcValue.value.map((item: HCValue) => this.hcValueToJs(item));
-      case 'object':
-        return hcValue.value;
-      case 'function':
-        return hcValue.value;
-      case 'symbol':
-      case 'keyword':
-        return hcValue.value;
-      case 'closure':
-        return hcValue;
-      case 'recur':
-        return hcValue.values.map((item: HCValue) => this.hcValueToJs(item));
-      default:
-        return hcValue;
+    case 'string':
+    case 'number':
+    case 'boolean':
+      return hcValue.value;
+    case 'nil':
+      return null;
+    case 'list':
+    case 'vector':
+      return hcValue.value.map((item: HCValue) => this.hcValueToJs(item));
+    case 'object':
+      return hcValue.value;
+    case 'function':
+      return hcValue.value;
+    case 'symbol':
+    case 'keyword':
+      return hcValue.value;
+    case 'closure':
+      return hcValue;
+    case 'recur':
+      return hcValue.values.map((item: HCValue) => this.hcValueToJs(item));
+    default:
+      return hcValue;
     }
   }
 
@@ -418,18 +418,18 @@ export class NamespaceManager {
   resolveSymbol(symbol: string, currentEnv: Environment): HCValue {
     const localResult = this.tryResolveFromLocal(symbol, currentEnv);
     if (localResult) {
-        return localResult;
+      return localResult;
     }
 
     const currentNs = this.getCurrentNamespace();
 
     if (symbol.includes('/')) {
-        return this.resolveNamespacedSymbol(symbol, currentNs);
+      return this.resolveNamespacedSymbol(symbol, currentNs);
     }
 
     const importResult = this.tryResolveFromImports(symbol, currentNs);
     if (importResult) {
-        return importResult;
+      return importResult;
     }
 
     throw new Error(`Undefined symbol: ${symbol}`);
@@ -437,12 +437,12 @@ export class NamespaceManager {
 
   tryResolveFromLocal(symbol: string, searchEnv: Environment): HCValue | null {
     try {
-        return searchEnv.get(symbol);
+      return searchEnv.get(symbol);
     } catch (error) {
-        if (error instanceof Error) {
-            console.debug(`Symbol '${symbol}' not found in local environment: ${error.message}`);
-        }
-        return null;
+      if (error instanceof Error) {
+        console.debug(`Symbol '${symbol}' not found in local environment: ${error.message}`);
+      }
+      return null;
     }
   }
 
@@ -451,16 +451,16 @@ export class NamespaceManager {
 
     let foundRealNs: string | null = null;
     searchNamespace.requires.forEach((value: string, key: string) => {
-        if (value === nsAlias) {
-            foundRealNs = key;
-        }
+      if (value === nsAlias) {
+        foundRealNs = key;
+      }
     });
 
     if (foundRealNs) {
-        const targetNs = this.getNamespace(foundRealNs);
-        if (targetNs) {
-            return this.getSymbolFromNamespace(fnName, foundRealNs, targetNs);
-        }
+      const targetNs = this.getNamespace(foundRealNs);
+      if (targetNs) {
+        return this.getSymbolFromNamespace(fnName, foundRealNs, targetNs);
+      }
     }
 
     throw new Error(`Namespace alias '${nsAlias}' not found`);
@@ -468,18 +468,18 @@ export class NamespaceManager {
 
   getSymbolFromNamespace(fnName: string, realNs: string, targetNs: any): HCValue {
     try {
-        return targetNs.environment.get(fnName);
+      return targetNs.environment.get(fnName);
     } catch (error) {
-        if (error instanceof Error) {
-            console.debug(`Function '${fnName}' lookup error in namespace '${realNs}': ${error.message}`);
-        }
-        throw new Error(`Function '${fnName}' not found in namespace '${realNs}'`);
+      if (error instanceof Error) {
+        console.debug(`Function '${fnName}' lookup error in namespace '${realNs}': ${error.message}`);
+      }
+      throw new Error(`Function '${fnName}' not found in namespace '${realNs}'`);
     }
   }
 
   tryResolveFromImports(symbol: string, searchNamespace: any): HCValue | null {
     if (searchNamespace.imports.has(symbol)) {
-        return { type: 'function', value: searchNamespace.imports.get(symbol) };
+      return { type: 'function', value: searchNamespace.imports.get(symbol) };
     }
     return null;
   }
