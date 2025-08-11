@@ -239,4 +239,35 @@ describe('HC-Lisp Basic Operations', () => {
       consoleSpy.mockRestore();
     });
   });
+
+  describe('Environment/Context Coverage', () => {
+    test('should handle loop/recur variable modification', () => {
+      const result = HcLisp.eval(`
+        (loop [x 0 acc 1]
+          (if (< x 3)
+            (recur (+ x 1) (* acc 2))
+            acc))
+      `);
+
+      expect(result).toEqual({ type: 'number', value: 8 });
+    });
+
+    test('should handle nested loop/recur with environment traversal', () => {
+      const result = HcLisp.eval(`
+        (let [outer-val 10]
+          (loop [i 0 result 0]
+            (if (< i 2)
+              (recur (+ i 1) (+ result outer-val))
+              result)))
+      `);
+
+      expect(result).toEqual({ type: 'number', value: 20 });
+    });
+
+    test('should handle error when setting undefined symbol in Environment', () => {
+      expect(() => {
+        HcLisp.eval('undefined-variable');
+      }).toThrow('Undefined symbol: undefined-variable');
+    });
+  });
 });
