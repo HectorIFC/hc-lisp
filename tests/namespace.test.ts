@@ -98,6 +98,24 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
       const externalNs = namespaceManager.getNamespace('external-lib');
       expect(externalNs).toBeDefined();
     });
+
+    test('should add require for existing namespace without recreating it', () => {
+      // First, create a namespace manually
+      const existingNs = namespaceManager.createNamespace('existing-ns');
+      existingNs.environment.define('test-var', { type: 'string', value: 'original' });
+
+      // Now add a require for the same namespace
+      namespaceManager.addRequire('existing-ns', 'existing');
+
+      const currentNs = namespaceManager.getCurrentNamespace();
+      expect(currentNs.requires.has('existing-ns')).toBe(true);
+      expect(currentNs.requires.get('existing-ns')).toBe('existing');
+
+      // Verify the original namespace still exists and wasn't recreated
+      const retrievedNs = namespaceManager.getNamespace('existing-ns');
+      expect(retrievedNs).toBe(existingNs); // Same instance
+      expect(retrievedNs?.environment.get('test-var')).toEqual({ type: 'string', value: 'original' });
+    });
   });
 
   describe('Node.js Module Creation', () => {
@@ -788,6 +806,55 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
 
         expect(() => testNs1.environment.get('readFileSync')).not.toThrow();
         expect(() => testNs2.environment.get('readFileSync')).not.toThrow();
+      });
+
+      test('should handle both Error and non-Error exceptions in catch block', () => {
+        const testNs = namespaceManager.createNamespace('test');
+
+        const originalMethod = namespaceManager.tryLoadNodeModule;
+
+        const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+        const consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation();
+
+        namespaceManager.tryLoadNodeModule = function(this: any, moduleName: string, ns: any): boolean {
+          try {
+            if (moduleName === 'module-throwing-error-instance') {
+              throw new Error('This is an actual Error instance');
+            }
+            if (moduleName === 'module-throwing-string-error') {
+              throw new Error('This is a string error, not an Error object');
+            }
+            return originalMethod.call(this, moduleName, ns);
+          } catch (error) {
+            console.log(`Module '${moduleName}' not found in node_modules`);
+            if (error instanceof Error) {
+              console.debug(`Module loading error: ${error.message}`);
+            }
+            return false;
+          }
+        };
+
+        try {
+          const result1 = namespaceManager.tryLoadNodeModule('module-throwing-error-instance', testNs);
+
+          expect(result1).toBe(false);
+          expect(consoleLogSpy).toHaveBeenCalledWith('Module \'module-throwing-error-instance\' not found in node_modules');
+          expect(consoleDebugSpy).toHaveBeenCalledWith(expect.stringMatching(/Module loading error:/));
+
+          consoleLogSpy.mockClear();
+          consoleDebugSpy.mockClear();
+
+          const result2 = namespaceManager.tryLoadNodeModule('module-throwing-string-error', testNs);
+
+          expect(result2).toBe(false);
+          expect(consoleLogSpy).toHaveBeenCalledWith('Module \'module-throwing-string-error\' not found in node_modules');
+          expect(consoleDebugSpy).not.toHaveBeenCalled();
+
+        } finally {
+          namespaceManager.tryLoadNodeModule = originalMethod;
+          consoleLogSpy.mockRestore();
+          consoleDebugSpy.mockRestore();
+        }
       });
     });
 
