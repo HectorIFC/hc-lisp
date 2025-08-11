@@ -972,6 +972,116 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
           expect(bool).toBe(true);
         }
       });
+
+      test('should handle null modules without crashing', () => {
+        const testNs = namespaceManager.createNamespace('test-null');
+
+        expect(() => {
+          namespaceManager.wrapNodeModule(null, testNs, 'nullModule');
+        }).not.toThrow();
+      });
+
+      test('should handle undefined modules without crashing', () => {
+        const testNs = namespaceManager.createNamespace('test-undefined');
+
+        expect(() => {
+          namespaceManager.wrapNodeModule(undefined, testNs, 'undefinedModule');
+        }).not.toThrow();
+      });
+
+      test('should handle primitive value modules', () => {
+        const testNs = namespaceManager.createNamespace('test-primitive');
+
+        expect(() => {
+          namespaceManager.wrapNodeModule('primitive-string', testNs, 'stringModule');
+        }).not.toThrow();
+
+        expect(() => {
+          namespaceManager.wrapNodeModule(42, testNs, 'numberModule');
+        }).not.toThrow();
+
+        expect(() => {
+          namespaceManager.wrapNodeModule(true, testNs, 'booleanModule');
+        }).not.toThrow();
+
+      });
+
+      test('should properly handle non-function properties in object modules', () => {
+        const testNs = namespaceManager.createNamespace('test-constants');
+
+        const simpleModule = {
+          myConstant: 'simple-value'
+        };
+
+        namespaceManager.wrapNodeModule(simpleModule, testNs, 'simpleModule');
+
+        const constant = testNs.environment.get('myConstant');
+        expect(constant.type).toBe('string');
+        if (constant.type === 'string') {
+          expect(constant.value).toBe('simple-value');
+        }
+      });
+
+      test('should handle mixed function and non-function properties', () => {
+        const testNs = namespaceManager.createNamespace('test-mixed');
+        const mockModule = {
+          stringConstant: 'test-string',
+          numberConstant: 42,
+          booleanConstant: true,
+          nullConstant: null,
+          arrayConstant: [1, 2, 3],
+          objectConstant: { nested: 'value' },
+          undefinedConstant: undefined,
+          functionProp: jest.fn(() => 'result')
+        };
+
+        namespaceManager.wrapNodeModule(mockModule, testNs, 'mixedModule');
+
+        const stringConst = testNs.environment.get('stringConstant');
+        expect(stringConst.type).toBe('string');
+        if (stringConst.type === 'string') {
+          expect(stringConst.value).toBe('test-string');
+        }
+
+        const numberConst = testNs.environment.get('numberConstant');
+        expect(numberConst.type).toBe('number');
+        if (numberConst.type === 'number') {
+          expect(numberConst.value).toBe(42);
+        }
+
+        const booleanConst = testNs.environment.get('booleanConstant');
+        expect(booleanConst.type).toBe('boolean');
+        if (booleanConst.type === 'boolean') {
+          expect(booleanConst.value).toBe(true);
+        }
+
+        const nullConst = testNs.environment.get('nullConstant');
+        expect(nullConst.type).toBe('nil');
+        if (nullConst.type === 'nil') {
+          expect(nullConst.value).toBe(null);
+        }
+
+        const arrayConst = testNs.environment.get('arrayConstant');
+        expect(arrayConst.type).toBe('vector');
+        if (arrayConst.type === 'vector') {
+          expect(arrayConst.value).toHaveLength(3);
+        }
+
+        const objectConst = testNs.environment.get('objectConstant');
+        expect(objectConst.type).toBe('object');
+        if (objectConst.type === 'object') {
+          expect(objectConst.value).toEqual({ nested: 'value' });
+        }
+
+        const undefinedConst = testNs.environment.get('undefinedConstant');
+        expect(undefinedConst.type).toBe('nil');
+        if (undefinedConst.type === 'nil') {
+          expect(undefinedConst.value).toBe(null);
+        }
+
+        const funcProp = testNs.environment.get('functionProp');
+        expect(funcProp.type).toBe('function');
+      });
     });
 
     describe('hcValueToJs and jsValueToHc', () => {
