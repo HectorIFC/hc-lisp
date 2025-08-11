@@ -1195,6 +1195,29 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
         }).toThrow('readFileSync expects a string argument (file path)');
       });
 
+      test('should handle readFileSync successful file reading', () => {
+        const testNs = namespaceManager.createNamespace('test-read-success');
+        namespaceManager.addNodeFsFunctions(testNs);
+
+        const readFileSync = testNs.environment.get('readFileSync');
+
+        const result = callHCFunction(readFileSync, { type: 'string', value: 'package.json' });
+        expect(result.type).toBe('string');
+        expect(typeof getStringValue(result)).toBe('string');
+        expect(getStringValue(result).length).toBeGreaterThan(0);
+      });
+
+      test('should handle readFileSync file not found error', () => {
+        const testNs = namespaceManager.createNamespace('test-read-error');
+        namespaceManager.addNodeFsFunctions(testNs);
+
+        const readFileSync = testNs.environment.get('readFileSync');
+
+        expect(() => {
+          callHCFunction(readFileSync, { type: 'string', value: '/path/to/non/existent/file.txt' });
+        }).toThrow(/Error reading file:/);
+      });
+
       test('should add existsSync function', () => {
         const testNs = namespaceManager.createNamespace('test');
         namespaceManager.addNodeFsFunctions(testNs);
@@ -1213,6 +1236,67 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
         const result = callHCFunction(existsSync, { type: 'string', value: '/path/that/does/not/exist' });
         expect(result.type).toBe('boolean');
         expect(getBooleanValue(result)).toBe(false);
+      });
+
+      test('should handle existsSync with valid existing file', () => {
+        const testNs = namespaceManager.createNamespace('test-exists-success');
+        namespaceManager.addNodeFsFunctions(testNs);
+
+        const existsSync = testNs.environment.get('existsSync');
+
+        const result = callHCFunction(existsSync, { type: 'string', value: 'package.json' });
+        expect(result.type).toBe('boolean');
+        expect(getBooleanValue(result)).toBe(true);
+      });
+
+      test('should handle existsSync Error exception in catch block', () => {
+        const testNs = namespaceManager.createNamespace('test-exists-error');
+        namespaceManager.addNodeFsFunctions(testNs);
+
+        const existsSync = testNs.environment.get('existsSync');
+
+        const originalExistsSync = require('fs').existsSync;
+        const consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation();
+
+        try {
+          require('fs').existsSync = jest.fn(() => {
+            throw new Error('Mocked fs error');
+          });
+
+          const result = callHCFunction(existsSync, { type: 'string', value: '/some/path' });
+          expect(result.type).toBe('boolean');
+          expect(getBooleanValue(result)).toBe(false);
+          expect(consoleDebugSpy).toHaveBeenCalledWith('existsSync error for path \'/some/path\': Mocked fs error');
+
+        } finally {
+          require('fs').existsSync = originalExistsSync;
+          consoleDebugSpy.mockRestore();
+        }
+      });
+
+      test('should handle existsSync non-Error exception in catch block', () => {
+        const testNs = namespaceManager.createNamespace('test-exists-non-error');
+        namespaceManager.addNodeFsFunctions(testNs);
+
+        const existsSync = testNs.environment.get('existsSync');
+
+        const originalExistsSync = require('fs').existsSync;
+        const consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation();
+
+        try {
+          require('fs').existsSync = jest.fn(() => {
+            throw new Error('Non-error exception');
+          });
+
+          const result = callHCFunction(existsSync, { type: 'string', value: '/some/path' });
+          expect(result.type).toBe('boolean');
+          expect(getBooleanValue(result)).toBe(false);
+          expect(consoleDebugSpy).not.toHaveBeenCalled();
+
+        } finally {
+          require('fs').existsSync = originalExistsSync;
+          consoleDebugSpy.mockRestore();
+        }
       });
     });
 
