@@ -625,6 +625,132 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
           addCryptoSpy.mockRestore();
         }
       });
+
+      test('should cover all else-if conditions in createMockNamespace', () => {
+        const originalTryLoad = namespaceManager.tryLoadNodeModule;
+        namespaceManager.tryLoadNodeModule = jest.fn().mockReturnValue(false);
+
+        const addFsSpy = jest.spyOn(namespaceManager, 'addNodeFsFunctions');
+        const addCryptoSpy = jest.spyOn(namespaceManager, 'addNodeCryptoFunctions');
+        const addPathSpy = jest.spyOn(namespaceManager, 'addNodePathFunctions');
+        const addHttpSpy = jest.spyOn(namespaceManager, 'addNodeHttpFunctions');
+        const addUrlSpy = jest.spyOn(namespaceManager, 'addNodeUrlFunctions');
+        const addOsSpy = jest.spyOn(namespaceManager, 'addNodeOsFunctions');
+
+        try {
+          namespaceManager.createMockNamespace('node.fs');
+          expect(addFsSpy).toHaveBeenCalled();
+
+          namespaceManager.createMockNamespace('node.crypto');
+          expect(addCryptoSpy).toHaveBeenCalled();
+
+          namespaceManager.createMockNamespace('node.path');
+          expect(addPathSpy).toHaveBeenCalled();
+
+          namespaceManager.createMockNamespace('node.http');
+          expect(addHttpSpy).toHaveBeenCalled();
+
+          namespaceManager.createMockNamespace('node.url');
+          expect(addUrlSpy).toHaveBeenCalled();
+
+          namespaceManager.createMockNamespace('node.os');
+          expect(addOsSpy).toHaveBeenCalled();
+
+          namespaceManager.createMockNamespace('unknown-module');
+        } finally {
+          namespaceManager.tryLoadNodeModule = originalTryLoad;
+          addFsSpy.mockRestore();
+          addCryptoSpy.mockRestore();
+          addPathSpy.mockRestore();
+          addHttpSpy.mockRestore();
+          addUrlSpy.mockRestore();
+          addOsSpy.mockRestore();
+        }
+      });
+
+      test('should test all conditional branches in sequence', () => {
+        const originalTryLoad = namespaceManager.tryLoadNodeModule;
+        const callCount = 0;
+
+        namespaceManager.tryLoadNodeModule = jest.fn().mockImplementation(() => {
+          return false;
+        });
+
+        const spies = {
+          fs: jest.spyOn(namespaceManager, 'addNodeFsFunctions'),
+          crypto: jest.spyOn(namespaceManager, 'addNodeCryptoFunctions'),
+          path: jest.spyOn(namespaceManager, 'addNodePathFunctions'),
+          http: jest.spyOn(namespaceManager, 'addNodeHttpFunctions'),
+          url: jest.spyOn(namespaceManager, 'addNodeUrlFunctions'),
+          os: jest.spyOn(namespaceManager, 'addNodeOsFunctions')
+        };
+
+        try {
+          const modules = ['node.fs', 'node.crypto', 'node.path', 'node.http', 'node.url', 'node.os'];
+
+          for (const moduleName of modules) {
+            namespaceManager.createMockNamespace(moduleName);
+          }
+
+          expect(spies.fs).toHaveBeenCalledTimes(1);
+          expect(spies.crypto).toHaveBeenCalledTimes(1);
+          expect(spies.path).toHaveBeenCalledTimes(1);
+          expect(spies.http).toHaveBeenCalledTimes(1);
+          expect(spies.url).toHaveBeenCalledTimes(1);
+          expect(spies.os).toHaveBeenCalledTimes(1);
+
+          namespaceManager.createMockNamespace('unknown-module');
+
+        } finally {
+          namespaceManager.tryLoadNodeModule = originalTryLoad;
+          Object.values(spies).forEach(spy => spy.mockRestore());
+        }
+      });
+
+      test('should execute each conditional branch correctly', () => {
+        const originalTryLoad = namespaceManager.tryLoadNodeModule;
+        namespaceManager.tryLoadNodeModule = jest.fn().mockReturnValue(false);
+
+        try {
+          namespaceManager.createMockNamespace('node.fs');
+          const fsNs = namespaceManager.getNamespace('node.fs');
+          expect(fsNs).toBeDefined();
+          expect(() => fsNs!.environment.get('readFileSync')).not.toThrow();
+
+          namespaceManager.createMockNamespace('node.crypto');
+          const cryptoNs = namespaceManager.getNamespace('node.crypto');
+          expect(cryptoNs).toBeDefined();
+          expect(() => cryptoNs!.environment.get('randomUUID')).not.toThrow();
+
+          namespaceManager.createMockNamespace('node.path');
+          const pathNs = namespaceManager.getNamespace('node.path');
+          expect(pathNs).toBeDefined();
+          expect(() => pathNs!.environment.get('join')).not.toThrow();
+
+          namespaceManager.createMockNamespace('node.http');
+          const httpNs = namespaceManager.getNamespace('node.http');
+          expect(httpNs).toBeDefined();
+          expect(() => httpNs!.environment.get('createServer')).not.toThrow();
+
+          namespaceManager.createMockNamespace('node.url');
+          const urlNs = namespaceManager.getNamespace('node.url');
+          expect(urlNs).toBeDefined();
+          expect(() => urlNs!.environment.get('parse')).not.toThrow();
+
+          namespaceManager.createMockNamespace('node.os');
+          const osNs = namespaceManager.getNamespace('node.os');
+          expect(osNs).toBeDefined();
+          expect(() => osNs!.environment.get('platform')).not.toThrow();
+
+          namespaceManager.createMockNamespace('some-other-module');
+          const otherNs = namespaceManager.getNamespace('some-other-module');
+          expect(otherNs).toBeDefined();
+          expect(otherNs?.name).toBe('some-other-module');
+
+        } finally {
+          namespaceManager.tryLoadNodeModule = originalTryLoad;
+        }
+      });
     });
 
     describe('tryLoadNodeModule', () => {
