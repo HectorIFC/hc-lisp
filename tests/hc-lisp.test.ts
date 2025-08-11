@@ -110,6 +110,42 @@ describe('HC-Lisp Basic Operations', () => {
       expect(HcLisp.eval('(count [1 2 3 4])')).toEqual({ type: 'number', value: 4 });
       expect(HcLisp.eval('(count [])')).toEqual({ type: 'number', value: 0 });
     });
+
+    test('should handle vector with single primitive element', () => {
+      const result = HcLisp.eval('[42]');
+      expect(result.type).toBe('vector');
+      if (result.type === 'vector') {
+        expect(result.value).toEqual([{ type: 'number', value: 42 }]);
+      }
+    });
+
+    test('should handle nested vector with single element', () => {
+      const result = HcLisp.eval('[[42]]');
+      expect(result.type).toBe('vector');
+      if (result.type === 'vector') {
+        expect(result.value).toHaveLength(1);
+        expect(result.value[0]).toEqual({
+          type: 'vector',
+          value: [{ type: 'number', value: 42 }]
+        });
+      }
+    });
+
+    test('should handle vector containing single symbol', () => {
+      const result = HcLisp.eval('["hello"]');
+      expect(result.type).toBe('vector');
+      if (result.type === 'vector') {
+        expect(result.value).toEqual([{ type: 'string', value: 'hello' }]);
+      }
+    });
+
+    test('should handle empty expressions', () => {
+      const result = HcLisp.eval('()');
+      expect(result.type).toBe('list');
+      if (result.type === 'list') {
+        expect(result.value).toEqual([]);
+      }
+    });
   });
 
   describe('Predicates', () => {
