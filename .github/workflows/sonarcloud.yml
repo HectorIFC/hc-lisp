@@ -43,18 +43,29 @@ jobs:
           exit 1
         fi
 
+    - name: Check SONAR_TOKEN
+      run: |
+        if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
+          echo "❌ SONAR_TOKEN is not configured"
+          echo "Please configure SONAR_TOKEN in GitHub repository secrets"
+          echo "See setup instructions in SONARCLOUD_README.md"
+          exit 1
+        else
+          echo "✅ SONAR_TOKEN is configured"
+        fi
+
     - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@master
+      uses: SonarSource/sonarqube-scan-action@v5
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}     # Generate a token on SonarCloud
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: SonarCloud Quality Gate check
-      uses: sonarqube-quality-gate-action@master
+      uses: sonarqube-quality-gate-action@v1.3.0
       timeout-minutes: 5
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      continue-on-error: true  # Don't fail the build on quality gate failure initially
+      continue-on-error: true
 
     - name: Upload coverage to artifacts
       if: always()
@@ -71,6 +82,7 @@ jobs:
         script: |
           const projectKey = 'HectorIFC_hc-lisp';
           const sonarUrl = `https://sonarcloud.io/project/overview?id=${projectKey}`;
+          const prUrl = `https://sonarcloud.io/project/pull_requests?id=${projectKey}`;
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,
@@ -81,6 +93,9 @@ jobs:
             The SonarCloud analysis has been completed for this PR.
             
             🔍 **[View detailed results on SonarCloud](${sonarUrl})**
+            📈 **[View PR analysis](${prUrl})**
             
-            Key metrics will be available after the analysis completes.`
+            Key metrics will be available after the analysis completes.
+            
+            If you see authentication issues, please ensure SONAR_TOKEN is configured in repository secrets.`
           });

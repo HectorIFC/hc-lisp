@@ -66,6 +66,7 @@ show_setup_instructions() {
     echo "   • Click 'New repository secret'"
     echo "   • Name: SONAR_TOKEN"
     echo "   • Value: [paste your token]"
+    echo "   • ⚠️  Important: Without this token, the GitHub Action will fail!"
     echo ""
     echo "5. 🚀 Trigger Analysis:"
     echo "   • Push a commit to master branch"

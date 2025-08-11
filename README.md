@@ -348,6 +348,8 @@ npm run coverage:sonar
 
 For detailed setup instructions, see [SONARCLOUD_README.md](./SONARCLOUD_README.md).
 
+**⚠️ GitHub Action failing?** See [SONARCLOUD_TROUBLESHOOTING.md](./SONARCLOUD_TROUBLESHOOTING.md)
+
 ### Local SonarQube
 
 For local development analysis:
