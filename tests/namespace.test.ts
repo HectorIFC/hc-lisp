@@ -805,6 +805,38 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
         expect(defaultExport.type).toBe('function');
       });
 
+      test('should execute wrapped function modules and handle conversions', () => {
+        const testNs = namespaceManager.createNamespace('test-exec');
+        const mockFn = jest.fn((str: string, num: number) => `Result: ${str}-${num}`);
+
+        namespaceManager.wrapNodeModule(mockFn, testNs, 'execFunction');
+
+        const namedExport = testNs.environment.get('execFunction');
+        const defaultExport = testNs.environment.get('default');
+
+        // Execute the named export function (covers lines 118-121)
+        if (namedExport.type === 'function') {
+          const result = namedExport.value(
+            { type: 'string', value: 'test' },
+            { type: 'number', value: 42 }
+          );
+          expect(result.type).toBe('string');
+          expect(result.value).toBe('Result: test-42');
+          expect(mockFn).toHaveBeenCalledWith('test', 42);
+        }
+
+        // Execute the default export function (covers lines 125-128)
+        if (defaultExport.type === 'function') {
+          const result = defaultExport.value(
+            { type: 'string', value: 'default' },
+            { type: 'number', value: 99 }
+          );
+          expect(result.type).toBe('string');
+          expect(result.value).toBe('Result: default-99');
+          expect(mockFn).toHaveBeenCalledWith('default', 99);
+        }
+      });
+
       test('should wrap object modules with methods', () => {
         const testNs = namespaceManager.createNamespace('test');
         const mockModule = {
@@ -841,6 +873,37 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
         expect(() => testNs.environment.get('default')).not.toThrow();
         expect(() => testNs.environment.get('subMethod')).not.toThrow();
         expect(() => testNs.environment.get('property')).not.toThrow();
+      });
+
+      test('should execute wrapped function with complex argument conversion', () => {
+        const testNs = namespaceManager.createNamespace('test-complex');
+        const mockFn = jest.fn((arr: any[], obj: any, bool: boolean) => {
+          return { processed: true, input: { arr, obj, bool } };
+        });
+
+        namespaceManager.wrapNodeModule(mockFn, testNs, 'complexFunction');
+
+        const wrappedFn = testNs.environment.get('complexFunction');
+
+        if (wrappedFn.type === 'function') {
+          // Test with complex HC values that need conversion
+          const result = wrappedFn.value(
+            { type: 'vector', value: [{ type: 'string', value: 'item1' }, { type: 'number', value: 123 }] },
+            { type: 'object', value: { key: 'value' } },
+            { type: 'boolean', value: true }
+          );
+
+          expect(result.type).toBe('object');
+          expect(mockFn).toHaveBeenCalledWith(['item1', 123], { key: 'value' }, true);
+
+          // Verify the mock function was called with converted JS values
+          const [arr, obj, bool] = mockFn.mock.calls[0];
+          expect(Array.isArray(arr)).toBe(true);
+          expect(arr[0]).toBe('item1');
+          expect(arr[1]).toBe(123);
+          expect(obj).toEqual({ key: 'value' });
+          expect(bool).toBe(true);
+        }
       });
     });
 
