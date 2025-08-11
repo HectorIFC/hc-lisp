@@ -417,44 +417,68 @@ export class NamespaceManager {
     }
 
     resolveSymbol(symbol: string, currentEnv: Environment): HCValue {
-        try {
-            return currentEnv.get(symbol);
-        } catch (error) {
-            if (error instanceof Error) {
-                console.debug(`Symbol '${symbol}' not found in local environment: ${error.message}`);
-            }
+        const localResult = this.tryResolveFromLocal(symbol, currentEnv);
+        if (localResult) {
+            return localResult;
         }
 
         const currentNs = this.getCurrentNamespace();
 
         if (symbol.includes('/')) {
-            const [nsAlias, fnName] = symbol.split('/');
-
-            const requiresArray = Array.from(currentNs.requires.entries());
-            for (let i = 0; i < requiresArray.length; i++) {
-                const [realNs, alias] = requiresArray[i];
-                if (alias === nsAlias) {
-                    const targetNs = this.getNamespace(realNs);
-                    if (targetNs) {
-                        try {
-                            return targetNs.environment.get(fnName);
-                        } catch (error) {
-                            if (error instanceof Error) {
-                                console.debug(`Function '${fnName}' lookup error in namespace '${realNs}': ${error.message}`);
-                            }
-                            throw new Error(`Function '${fnName}' not found in namespace '${realNs}'`);
-                        }
-                    }
-                }
-            }
-
-            throw new Error(`Namespace alias '${nsAlias}' not found`);
+            return this.resolveNamespacedSymbol(symbol, currentNs);
         }
 
-        if (currentNs.imports.has(symbol)) {
-            return { type: 'function', value: currentNs.imports.get(symbol) };
+        const importResult = this.tryResolveFromImports(symbol, currentNs);
+        if (importResult) {
+            return importResult;
         }
 
         throw new Error(`Undefined symbol: ${symbol}`);
+    }
+
+     tryResolveFromLocal(symbol: string, searchEnv: Environment): HCValue | null {
+        try {
+            return searchEnv.get(symbol);
+        } catch (error) {
+            return null;
+        }
+    }
+
+     resolveNamespacedSymbol(symbol: string, searchNamespace: any): HCValue {
+        const [nsAlias, fnName] = symbol.split('/');
+
+        let foundRealNs: string | null = null;
+        searchNamespace.requires.forEach((value: string, key: string) => {
+            if (value === nsAlias) {
+                foundRealNs = key;
+            }
+        });
+
+        if (foundRealNs) {
+            const targetNs = this.getNamespace(foundRealNs);
+            if (targetNs) {
+                return this.getSymbolFromNamespace(fnName, foundRealNs, targetNs);
+            }
+        }
+
+        throw new Error(`Namespace alias '${nsAlias}' not found`);
+    }
+
+     getSymbolFromNamespace(fnName: string, realNs: string, targetNs: any): HCValue {
+        try {
+            return targetNs.environment.get(fnName);
+        } catch (error) {
+            if (error instanceof Error) {
+                console.debug(`Function '${fnName}' lookup error in namespace '${realNs}': ${error.message}`);
+            }
+            throw new Error(`Function '${fnName}' not found in namespace '${realNs}'`);
+        }
+    }
+
+     tryResolveFromImports(symbol: string, searchNamespace: any): HCValue | null {
+        if (searchNamespace.imports.has(symbol)) {
+            return { type: 'function', value: searchNamespace.imports.get(symbol) };
+        }
+        return null;
     }
 }
