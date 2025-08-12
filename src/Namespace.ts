@@ -14,7 +14,7 @@ export class NamespaceManager {
   private currentNamespace: string;
   private readonly nodeModulesCache: Map<string, any>;
   private pendingNamespaces?: Set<string>;
-  private globalEnv: Environment;
+  private readonly globalEnv: Environment;
 
   constructor(globalEnv: Environment) {
     this.globalEnv = globalEnv;
@@ -103,9 +103,7 @@ export class NamespaceManager {
 
       for (const filePath of possiblePaths) {
         if (fs.existsSync(filePath)) {
-          if (!this.pendingNamespaces) {
-            this.pendingNamespaces = new Set();
-          }
+          this.pendingNamespaces ??= new Set();
           this.pendingNamespaces.add(namespaceName);
 
           this.loadHCLispFileContent(filePath, ns);
@@ -138,8 +136,15 @@ export class NamespaceManager {
     const ns = this.getNamespace(namespaceName);
     if (!ns) {return;}
 
-    const contentValue = ns.environment.get('__deferred_content__');
-    const filepathValue = ns.environment.get('__deferred_filepath__');
+    let contentValue: any;
+    let filepathValue: any;
+
+    try {
+      contentValue = ns.environment.get('__deferred_content__');
+      filepathValue = ns.environment.get('__deferred_filepath__');
+    } catch (error) {
+      return;
+    }
 
     if (contentValue && contentValue.type === 'string' &&
         filepathValue && filepathValue.type === 'string') {

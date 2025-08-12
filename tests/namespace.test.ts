@@ -1579,5 +1579,187 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
         expect(typeof getStringValue(result)).toBe('string');
       });
     });
+
+    describe('evaluateDeferredNamespace Coverage', () => {
+      test('should return early when namespace does not exist', () => {
+        const mockHcLispInstance = {
+          evalFileContent: jest.fn()
+        };
+
+        expect(() => {
+          namespaceManager.evaluateDeferredNamespace('non-existent-namespace', mockHcLispInstance);
+        }).not.toThrow();
+
+        expect(mockHcLispInstance.evalFileContent).not.toHaveBeenCalled();
+      });
+
+      test('should return early when namespace has no deferred content', () => {
+        const testNs = namespaceManager.createNamespace('test-no-deferred');
+        const mockHcLispInstance = {
+          evalFileContent: jest.fn()
+        };
+
+        expect(() => {
+          namespaceManager.evaluateDeferredNamespace('test-no-deferred', mockHcLispInstance);
+        }).not.toThrow();
+
+        expect(mockHcLispInstance.evalFileContent).not.toHaveBeenCalled();
+      });
+
+      test('should return early when deferred content is not string type', () => {
+        const testNs = namespaceManager.createNamespace('test-invalid-content');
+        const mockHcLispInstance = {
+          evalFileContent: jest.fn()
+        };
+
+        testNs.environment.define('__deferred_content__', { type: 'number', value: 42 });
+        testNs.environment.define('__deferred_filepath__', { type: 'string', value: 'test.hclisp' });
+
+        expect(() => {
+          namespaceManager.evaluateDeferredNamespace('test-invalid-content', mockHcLispInstance);
+        }).not.toThrow();
+
+        expect(mockHcLispInstance.evalFileContent).not.toHaveBeenCalled();
+      });
+
+      test('should return early when deferred filepath is not string type', () => {
+        const testNs = namespaceManager.createNamespace('test-invalid-filepath');
+        const mockHcLispInstance = {
+          evalFileContent: jest.fn()
+        };
+
+        testNs.environment.define('__deferred_content__', { type: 'string', value: '(+ 1 2)' });
+        testNs.environment.define('__deferred_filepath__', { type: 'number', value: 123 });
+
+        expect(() => {
+          namespaceManager.evaluateDeferredNamespace('test-invalid-filepath', mockHcLispInstance);
+        }).not.toThrow();
+
+        expect(mockHcLispInstance.evalFileContent).not.toHaveBeenCalled();
+      });
+
+      test('should successfully evaluate deferred namespace content', () => {
+        const testNs = namespaceManager.createNamespace('test-deferred-success');
+        const mockHcLispInstance = {
+          evalFileContent: jest.fn()
+        };
+
+        testNs.environment.define('__deferred_content__', {
+          type: 'string',
+          value: '(def test-var 42)'
+        });
+        testNs.environment.define('__deferred_filepath__', {
+          type: 'string',
+          value: 'test-success.hclisp'
+        });
+
+        const originalNamespace = namespaceManager.getCurrentNamespace().name;
+
+        namespaceManager.evaluateDeferredNamespace('test-deferred-success', mockHcLispInstance);
+
+        expect(mockHcLispInstance.evalFileContent).toHaveBeenCalledWith('(def test-var 42)');
+
+        const contentAfter = testNs.environment.get('__deferred_content__');
+        const filepathAfter = testNs.environment.get('__deferred_filepath__');
+        expect(contentAfter).toEqual({ type: 'nil', value: null });
+        expect(filepathAfter).toEqual({ type: 'nil', value: null });
+
+        expect(namespaceManager.getCurrentNamespace().name).toBe(originalNamespace);
+      });
+
+      test('should handle errors during evaluation and restore namespace in finally block', () => {
+        const testNs = namespaceManager.createNamespace('test-deferred-error');
+        const mockHcLispInstance = {
+          evalFileContent: jest.fn(() => {
+            throw new Error('Evaluation failed');
+          })
+        };
+
+        testNs.environment.define('__deferred_content__', {
+          type: 'string',
+          value: '(invalid-syntax'
+        });
+        testNs.environment.define('__deferred_filepath__', {
+          type: 'string',
+          value: 'test-error.hclisp'
+        });
+
+        const originalNamespace = namespaceManager.getCurrentNamespace().name;
+
+        expect(() => {
+          namespaceManager.evaluateDeferredNamespace('test-deferred-error', mockHcLispInstance);
+        }).not.toThrow();
+
+        expect(mockHcLispInstance.evalFileContent).toHaveBeenCalledWith('(invalid-syntax');
+
+        expect(namespaceManager.getCurrentNamespace().name).toBe(originalNamespace);
+
+        const contentAfter = testNs.environment.get('__deferred_content__');
+        const filepathAfter = testNs.environment.get('__deferred_filepath__');
+        expect(contentAfter.type).toBe('string');
+        expect(filepathAfter.type).toBe('string');
+      });
+
+      test('should switch to target namespace during evaluation', () => {
+        const testNs = namespaceManager.createNamespace('test-namespace-switch');
+        let namespaceAtEvaluation: string;
+
+        const mockHcLispInstance = {
+          evalFileContent: jest.fn(() => {
+            namespaceAtEvaluation = namespaceManager.getCurrentNamespace().name;
+          })
+        };
+
+        testNs.environment.define('__deferred_content__', {
+          type: 'string',
+          value: '(def switch-test 123)'
+        });
+        testNs.environment.define('__deferred_filepath__', {
+          type: 'string',
+          value: 'test-switch.hclisp'
+        });
+
+        namespaceManager.evaluateDeferredNamespace('test-namespace-switch', mockHcLispInstance);
+
+        expect(namespaceAtEvaluation!).toBe('test-namespace-switch');
+        expect(mockHcLispInstance.evalFileContent).toHaveBeenCalled();
+      });
+
+      test('should handle missing __deferred_content__ gracefully', () => {
+        const testNs = namespaceManager.createNamespace('test-missing-content');
+        const mockHcLispInstance = {
+          evalFileContent: jest.fn()
+        };
+
+        testNs.environment.define('__deferred_filepath__', {
+          type: 'string',
+          value: 'test-missing.hclisp'
+        });
+
+        expect(() => {
+          namespaceManager.evaluateDeferredNamespace('test-missing-content', mockHcLispInstance);
+        }).not.toThrow();
+
+        expect(mockHcLispInstance.evalFileContent).not.toHaveBeenCalled();
+      });
+
+      test('should handle missing __deferred_filepath__ gracefully', () => {
+        const testNs = namespaceManager.createNamespace('test-missing-filepath');
+        const mockHcLispInstance = {
+          evalFileContent: jest.fn()
+        };
+
+        testNs.environment.define('__deferred_content__', {
+          type: 'string',
+          value: '(def test 456)'
+        });
+
+        expect(() => {
+          namespaceManager.evaluateDeferredNamespace('test-missing-filepath', mockHcLispInstance);
+        }).not.toThrow();
+
+        expect(mockHcLispInstance.evalFileContent).not.toHaveBeenCalled();
+      });
+    });
   });
 });
