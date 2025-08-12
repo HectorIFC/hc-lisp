@@ -1,8 +1,8 @@
 import { HCValue } from './Categorize';
 
 export class Environment {
-  private bindings: Map<string, HCValue>;
-  private parent: Environment | null;
+  private readonly bindings: Map<string, HCValue>;
+  private readonly parent: Environment | null;
 
   constructor(parent: Environment | null = null) {
     this.bindings = new Map();
@@ -41,10 +41,5 @@ export class Environment {
       newEnv.define(params[i], args[i] || { type: 'nil', value: null });
     }
     return newEnv;
-  }
-
-  // Debug method to get all keys in this environment (not parent)
-  getKeys(): string[] {
-    return Array.from(this.bindings.keys());
   }
 }
