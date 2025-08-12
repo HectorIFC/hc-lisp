@@ -12,7 +12,7 @@ class HCLisp {
 
   constructor() {
     this.globalEnv = createGlobalEnvironment();
-    this.nsManager = new NamespaceManager();
+    this.nsManager = new NamespaceManager(this.globalEnv);
   }
 
   parse(input: string): HCValue {
@@ -21,6 +21,11 @@ class HCLisp {
 
   interpret(expr: HCValue, env?: Environment): HCValue {
     return interpret(expr, env || this.globalEnv, this.nsManager);
+  }
+
+  // Getter to access the global environment for testing
+  getGlobalEnvironment(): Environment {
+    return this.globalEnv;
   }
 
   eval(input: string): HCValue {
@@ -51,24 +56,65 @@ class HCLisp {
       }
 
       const content = fs.readFileSync(filePath, 'utf-8');
-      return this.evalFileContent(content);
+      return this.evalFileContentInternal(content);
     } catch (error) {
       throw new Error(`Error reading file ${filePath}: ${(error as Error).message}`);
     }
   }
 
-  private evalFileContent(content: string): HCValue {
+  private loadRequiredNamespaces(content: string): void {
+    // Parse the content to find namespace declarations with requirements
+    const nsMatch = content.match(/\(ns\s+\S+\s*\(\s*:require\s+\[([\s\S]*?)\]\s*\)/);
+    if (nsMatch) {
+      const requiresString = nsMatch[1];
+      const requiredNamespaces = requiresString.split(/\s+/).filter(ns => ns.trim());
+
+      for (const ns of requiredNamespaces) {
+        // Check if namespace already exists and has content
+        const nsInfo = this.nsManager.getNamespace(ns);
+
+        if (nsInfo) {
+          const contentValue = nsInfo.environment.get('__deferred_content__');
+
+          if (contentValue && contentValue.type === 'string') {
+            // Evaluate the deferred content immediately
+            const originalNs = this.nsManager.getCurrentNamespace().name;
+            this.nsManager.setCurrentNamespace(ns);
+
+            try {
+              this.evalFileContentInternal(contentValue.value);
+
+              // Clean up deferred markers
+              nsInfo.environment.define('__deferred_content__', { type: 'nil', value: null });
+              nsInfo.environment.define('__deferred_filepath__', { type: 'nil', value: null });
+            } catch (error) {
+              console.error(`Error evaluating namespace '${ns}':`, error);
+            } finally {
+              // Restore original namespace
+              if (this.nsManager.getNamespace(originalNs)) {
+                this.nsManager.setCurrentNamespace(originalNs);
+              }
+            }
+          }
+        }
+      }
+    }
+  }  // Public method for NamespaceManager to evaluate file content
+  public evalFileContent(content: string): HCValue {
+    return this.evalFileContentInternal(content);
+  }
+
+  private evalFileContentInternal(content: string): HCValue {
     // Better expression parsing that handles multi-line expressions and comments
     const lines = content.split('\n');
     let currentExpr = '';
     let parenCount = 0;
     let inString = false;
     let lastResult: HCValue = { type: 'nil', value: null };
+    let nsProcessed = false;
 
     for (const line of lines) {
-      const trimmedLine = line.trim();
-
-      // Skip comments and empty lines
+      const trimmedLine = line.trim();      // Skip comments and empty lines
       if (!trimmedLine || trimmedLine.startsWith(';;')) {
         continue;
       }
@@ -92,11 +138,15 @@ class HCLisp {
         }
       }
 
-      // If we have a complete expression, evaluate it
       if (parenCount === 0 && currentExpr.trim()) {
         try {
           const ast = this.parse(currentExpr.trim());
-          lastResult = this.interpret(ast);
+          const currentNs = this.nsManager.getCurrentNamespace();
+          lastResult = interpret(ast, currentNs.environment, this.nsManager);
+          if (!nsProcessed && currentExpr.trim().includes('(ns ') && currentExpr.trim().includes(':require')) {
+            this.loadRequiredNamespaces(currentExpr.trim());
+            nsProcessed = true;
+          }
         } catch (error) {
           throw new Error(`Error evaluating expression "${currentExpr.trim()}": ${(error as Error).message}`);
         }
@@ -172,7 +222,7 @@ class HCLisp {
   // Reset the global environment to its initial state
   resetContext(): void {
     this.globalEnv = createGlobalEnvironment();
-    this.nsManager = new NamespaceManager();
+    this.nsManager = new NamespaceManager(this.globalEnv);
   }
 
   // Helper method to format output for display
@@ -213,5 +263,6 @@ export default {
   eval: (input: string) => hcLisp.eval(input),
   evalFile: (filePath: string) => hcLisp.evalFile(filePath),
   formatOutput: (value: HCValue) => hcLisp.formatOutput(value),
-  resetContext: () => hcLisp.resetContext()
+  resetContext: () => hcLisp.resetContext(),
+  getGlobalEnvironment: () => hcLisp.getGlobalEnvironment()
 };

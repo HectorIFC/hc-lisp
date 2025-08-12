@@ -7,8 +7,8 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
   let namespaceManager: NamespaceManager;
 
   beforeEach(() => {
-    namespaceManager = new NamespaceManager();
     HcLisp.resetContext();
+    namespaceManager = new NamespaceManager(HcLisp.getGlobalEnvironment());
   });
 
   const callHCFunction = (hcValue: HCValue, ...args: HCValue[]): HCValue => {

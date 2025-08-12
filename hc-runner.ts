@@ -1,9 +1,7 @@
 import HcLisp from './hc-lisp';
 
-// Simple HC-Lisp file executor
 function executeHCFile(filePath: string): void {
   try {
-    console.log(`Executing ${filePath}...\n`);
     HcLisp.evalFile(filePath);
   } catch (error) {
     console.error(`Error: ${(error as Error).message}`);
@@ -11,11 +9,10 @@ function executeHCFile(filePath: string): void {
   }
 }
 
-// Get file path from command line arguments
 const filePath = process.argv[2];
 
 if (!filePath) {
-  console.log('Usage: npx ts-node hc-runner.ts <file.hclisp>');
+  console.log('Usage: npm run hclisp <file.hclisp>');
   process.exit(1);
 }
 

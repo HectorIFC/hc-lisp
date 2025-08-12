@@ -1,5 +1,6 @@
 import { HCValue } from './Categorize';
 import { Environment } from './Context';
+import * as fs from 'fs';
 
 export interface NamespaceInfo {
   name: string;
@@ -12,8 +13,11 @@ export class NamespaceManager {
   private readonly namespaces: Map<string, NamespaceInfo>;
   private currentNamespace: string;
   private readonly nodeModulesCache: Map<string, any>;
+  private pendingNamespaces?: Set<string>;
+  private globalEnv: Environment;
 
-  constructor() {
+  constructor(globalEnv: Environment) {
+    this.globalEnv = globalEnv;
     this.namespaces = new Map();
     this.currentNamespace = 'user';
     this.nodeModulesCache = new Map();
@@ -23,7 +27,7 @@ export class NamespaceManager {
   createNamespace(name: string, baseEnv?: Environment): NamespaceInfo {
     const ns: NamespaceInfo = {
       name,
-      environment: new Environment(baseEnv || null),
+      environment: new Environment(baseEnv || this.globalEnv),
       imports: new Map(),
       requires: new Map()
     };
@@ -64,6 +68,10 @@ export class NamespaceManager {
   createMockNamespace(name: string): void {
     const mockNs = this.createNamespace(name);
 
+    if (this.tryLoadHCLispFile(name, mockNs)) {
+      return;
+    }
+
     if (this.tryLoadNodeModule(name, mockNs)) {
       return;
     }
@@ -80,6 +88,78 @@ export class NamespaceManager {
       this.addNodeUrlFunctions(mockNs);
     } else if (name === 'node.os') {
       this.addNodeOsFunctions(mockNs);
+    }
+  }
+
+  tryLoadHCLispFile(namespaceName: string, ns: NamespaceInfo): boolean {
+    try {
+      // Try different possible paths for the .hclisp file
+      const possiblePaths = [
+        `${namespaceName}.hclisp`,
+        `./tests/${namespaceName}.hclisp`,
+        `./src/${namespaceName}.hclisp`,
+        `./${namespaceName}/${namespaceName}.hclisp`
+      ];
+
+      for (const filePath of possiblePaths) {
+        if (fs.existsSync(filePath)) {
+          if (!this.pendingNamespaces) {
+            this.pendingNamespaces = new Set();
+          }
+          this.pendingNamespaces.add(namespaceName);
+
+          this.loadHCLispFileContent(filePath, ns);
+          return true;
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.log(`Failed to load HC-Lisp file for namespace '${namespaceName}': ${error}`);
+      return false;
+    }
+  }
+
+  private loadHCLispFileContent(filePath: string, ns: NamespaceInfo): void {
+    const content = fs.readFileSync(filePath, 'utf-8');
+
+    ns.environment.define('__deferred_content__', {
+      type: 'string',
+      value: content
+    });
+
+    ns.environment.define('__deferred_filepath__', {
+      type: 'string',
+      value: filePath
+    });
+  }
+
+  evaluateDeferredNamespace(namespaceName: string, hcLispInstance: any): void {
+    const ns = this.getNamespace(namespaceName);
+    if (!ns) {return;}
+
+    const contentValue = ns.environment.get('__deferred_content__');
+    const filepathValue = ns.environment.get('__deferred_filepath__');
+
+    if (contentValue && contentValue.type === 'string' &&
+        filepathValue && filepathValue.type === 'string') {
+
+      const originalNs = this.currentNamespace;
+      this.currentNamespace = namespaceName;
+
+      try {
+        console.log(`Evaluating deferred namespace '${namespaceName}' from ${filepathValue.value}`);
+        hcLispInstance.evalFileContent(contentValue.value);
+
+        ns.environment.define('__deferred_content__', { type: 'nil', value: null });
+        ns.environment.define('__deferred_filepath__', { type: 'nil', value: null });
+
+        console.log(`Successfully loaded namespace '${namespaceName}' from ${filepathValue.value}`);
+      } catch (error) {
+        console.error(`Error evaluating namespace '${namespaceName}':`, error);
+      } finally {
+        this.currentNamespace = originalNs;
+      }
     }
   }
 
@@ -439,9 +519,6 @@ export class NamespaceManager {
     try {
       return searchEnv.get(symbol);
     } catch (error) {
-      if (error instanceof Error) {
-        console.debug(`Symbol '${symbol}' not found in local environment: ${error.message}`);
-      }
       return null;
     }
   }
@@ -470,9 +547,6 @@ export class NamespaceManager {
     try {
       return targetNs.environment.get(fnName);
     } catch (error) {
-      if (error instanceof Error) {
-        console.debug(`Function '${fnName}' lookup error in namespace '${realNs}': ${error.message}`);
-      }
       throw new Error(`Function '${fnName}' not found in namespace '${realNs}'`);
     }
   }

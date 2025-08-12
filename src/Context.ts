@@ -42,4 +42,9 @@ export class Environment {
     }
     return newEnv;
   }
+
+  // Debug method to get all keys in this environment (not parent)
+  getKeys(): string[] {
+    return Array.from(this.bindings.keys());
+  }
 }
