@@ -143,6 +143,8 @@ export class NamespaceManager {
       contentValue = ns.environment.get('__deferred_content__');
       filepathValue = ns.environment.get('__deferred_filepath__');
     } catch (error) {
+      console.debug(`No deferred content found in namespace '${namespaceName}': 
+        ${error instanceof Error ? error.message : 'Unknown error'}`);
       return;
     }
 
@@ -524,6 +526,7 @@ export class NamespaceManager {
     try {
       return searchEnv.get(symbol);
     } catch (error) {
+      console.debug(`Symbol '${symbol}' not found in local environment: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return null;
     }
   }
@@ -552,6 +555,8 @@ export class NamespaceManager {
     try {
       return targetNs.environment.get(fnName);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.debug(`Failed to get symbol '${fnName}' from namespace '${realNs}': ${errorMessage}`);
       throw new Error(`Function '${fnName}' not found in namespace '${realNs}'`);
     }
   }
