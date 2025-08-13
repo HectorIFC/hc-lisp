@@ -12,7 +12,7 @@ describe('Environment Class Coverage Tests', () => {
 
   describe('set method coverage', () => {
     test('should throw error when setting undefined symbol in environment without parent', () => {
-      const rootEnv = new Environment(null); // No parent
+      const rootEnv = new Environment(null);
 
       expect(() => {
         rootEnv.set('undefined-var', { type: 'number', value: 42 });
@@ -20,31 +20,31 @@ describe('Environment Class Coverage Tests', () => {
     });
 
     test('should successfully set variable in parent when not found locally', () => {
-      // Define variable in parent environment
+
       parentEnv.define('parent-var', { type: 'number', value: 10 });
 
-      // Set variable through child environment (should modify parent)
+
       env.set('parent-var', { type: 'number', value: 20 });
 
-      // Verify it was modified in parent
+
       expect(parentEnv.get('parent-var')).toEqual({ type: 'number', value: 20 });
     });
 
     test('should set variable locally when it exists locally', () => {
-      // Define variable locally
+
       env.define('local-var', { type: 'number', value: 5 });
 
-      // Set variable locally
+
       env.set('local-var', { type: 'number', value: 15 });
 
-      // Verify it was modified locally
+
       expect(env.get('local-var')).toEqual({ type: 'number', value: 15 });
     });
   });
 
   describe('get method coverage', () => {
     test('should throw error when getting undefined symbol from environment without parent', () => {
-      const rootEnv = new Environment(null); // No parent
+      const rootEnv = new Environment(null);
 
       expect(() => {
         rootEnv.get('undefined-var');
@@ -70,7 +70,7 @@ describe('Environment Class Coverage Tests', () => {
       const args: HCValue[] = [
         { type: 'number', value: 1 },
         { type: 'number', value: 2 }
-        // Missing third argument
+
       ];
 
       const newEnv = env.extend(params, args);
@@ -100,7 +100,7 @@ describe('Environment Class Coverage Tests', () => {
 
       const newEnv = env.extend(params, args);
 
-      // These should use the actual values, not nil
+
       expect(newEnv.get('zero')).toEqual({ type: 'number', value: 0 });
       expect(newEnv.get('false-val')).toEqual({ type: 'boolean', value: false });
       expect(newEnv.get('empty-str')).toEqual({ type: 'string', value: '' });
@@ -111,7 +111,7 @@ describe('Environment Class Coverage Tests', () => {
 
       const newEnv = env.extend(['param'], [{ type: 'number', value: 42 }]);
 
-      // Should be able to access through parent chain
+
       expect(newEnv.get('grandparent-var')).toEqual({ type: 'string', value: 'inherited' });
       expect(newEnv.get('param')).toEqual({ type: 'number', value: 42 });
     });
@@ -124,7 +124,7 @@ describe('Environment Class Coverage Tests', () => {
       rootEnv.define('test', { type: 'number', value: 123 });
       expect(rootEnv.get('test')).toEqual({ type: 'number', value: 123 });
 
-      // Should throw when accessing undefined variable
+
       expect(() => rootEnv.get('undefined')).toThrow('Undefined symbol: undefined');
     });
 

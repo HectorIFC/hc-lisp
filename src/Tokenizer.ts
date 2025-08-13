@@ -1,6 +1,6 @@
 
 export function tokenizer(input: string): string[] {
-  // Remove comments (lines starting with ;)
+
   const lines = input.split('\n').map(line => {
     const commentIndex = line.indexOf(';');
     return commentIndex !== -1 ? line.substring(0, commentIndex) : line;
@@ -9,14 +9,14 @@ export function tokenizer(input: string): string[] {
   return lines
     .split('"')
     .map((x, i) => {
-      if (i % 2 === 0) { // not in string
+      if (i % 2 === 0) {
         return x
           .replace(/\(/g, ' ( ')
           .replace(/\)/g, ' ) ')
           .replace(/\[/g, ' [ ')
           .replace(/\]/g, ' ] ')
           .replace(/'/g, ' \' ');
-      } else { // in string
+      } else {
         return x.replace(/ /g, '!whitespace!');
       }
     })

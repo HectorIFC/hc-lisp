@@ -9,7 +9,6 @@ export type SpecialForm = (
     nsManager?: NamespaceManager
 ) => HCValue;
 
-// Special forms
 export const specialForms: { [key: string]: SpecialForm } = {
   'def': (args: HCValue[], env: Environment, interpret: any, nsManager?: NamespaceManager): HCValue => {
     if (args.length !== 2) {
@@ -40,7 +39,6 @@ export const specialForms: { [key: string]: SpecialForm } = {
     let paramList: HCValue;
     let body: HCValue;
 
-    // Check if second argument is a docstring
     if (args[1].type === 'string' && args.length >= 4) {
       docstring = args[1].value as string;
       paramList = args[2];
@@ -130,7 +128,6 @@ export const specialForms: { [key: string]: SpecialForm } = {
       letEnv.define(name.value, value);
     }
 
-    // Execute all body expressions, returning the last one
     let result: HCValue = { type: 'nil', value: null };
     for (const expr of bodyExpressions) {
       result = interpret(expr, letEnv);
@@ -184,7 +181,6 @@ export const specialForms: { [key: string]: SpecialForm } = {
             throw new Error(`recur requires ${paramNames.length} arguments, got ${newValues.length}`);
           }
 
-          // Update loop variables
           for (let i = 0; i < paramNames.length; i++) {
             loopEnv.set(paramNames[i], newValues[i]);
           }
@@ -250,16 +246,13 @@ export const specialForms: { [key: string]: SpecialForm } = {
 
     const nsName = nameExpr.value;
 
-    // Create or get the namespace
     let ns = nsManager.getNamespace(nsName);
     if (!ns) {
       ns = nsManager.createNamespace(nsName, env);
     }
 
-    // Set current namespace
     nsManager.setCurrentNamespace(nsName);
 
-    // Process imports and requires
     for (let i = 1; i < args.length; i++) {
       const clause = args[i];
       if (clause.type === 'list' && clause.value.length > 0) {
@@ -285,20 +278,15 @@ function processImport(importClauses: HCValue[], nsManager: NamespaceManager): v
       if (packageName.type === 'symbol') {
         const moduleName = packageName.value;
 
-        // Handle different types of imports
         if (moduleName.startsWith('node.')) {
-          // Built-in Node.js modules: (node.crypto randomUUID randomBytes)
-          const alias = moduleName.split('.')[1]; // e.g., "crypto" from "node.crypto"
+          const alias = moduleName.split('.')[1];
           nsManager.addRequire(moduleName, alias);
         } else {
-          // NPM packages or built-in modules: (crypto), (fs), (express)
-          // For built-in Node modules, map them to node.* format
           const builtinModules = ['crypto', 'fs', 'path', 'http', 'url', 'os', 'util', 'events'];
           const finalModuleName = builtinModules.includes(moduleName) ? `node.${moduleName}` : moduleName;
           nsManager.addRequire(finalModuleName, moduleName);
         }
 
-        // Process individual function imports if specified
         for (let i = 1; i < clause.value.length; i++) {
           const functionName = clause.value[i];
           if (functionName.type === 'symbol') {
@@ -317,7 +305,6 @@ function processRequire(requireClauses: HCValue[], nsManager: NamespaceManager):
       if (namespaceName.type === 'symbol') {
         let alias = namespaceName.value;
 
-        // Look for :as
         for (let i = 1; i < clause.value.length; i++) {
           const item = clause.value[i];
           if (item.type === 'keyword' && item.value === 'as' && i + 1 < clause.value.length) {

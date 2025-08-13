@@ -23,7 +23,6 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
 
   case 'symbol':
     try {
-      // If we have a namespace manager, try to resolve symbol through it
       if (nsManager) {
         return nsManager.resolveSymbol(expr.value, env);
       }
@@ -33,18 +32,16 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
     }
 
   case 'vector':
-    // Vectors evaluate their elements
     const evaluatedVector = expr.value.map(item => evaluateExpression(item, env, nsManager));
     return { type: 'vector', value: evaluatedVector };
 
   case 'list':
     if (expr.value.length === 0) {
-      return expr; // Empty list evaluates to itself
+      return expr;
     }
 
     const [first, ...rest] = expr.value;
 
-    // Check if it's a special form
     if (first.type === 'symbol' && specialForms[first.value]) {
       return specialForms[first.value](
         rest,
@@ -54,7 +51,6 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
       );
     }
 
-    // Handle special built-in functions that need custom evaluation
     if (first.type === 'symbol') {
       if (first.value === 'map' && rest.length === 2) {
         const fn = evaluateExpression(rest[0], env, nsManager);
@@ -70,7 +66,6 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
       }
     }
 
-    // Regular function call
     const fn = evaluateExpression(first, env, nsManager);
     const args = rest.map(arg => evaluateExpression(arg, env, nsManager));
 
@@ -102,14 +97,12 @@ function callFunction(fn: HCValue, args: HCValue[], env: Environment, nsManager?
     try {
       return evaluateExpression(body, callEnv, nsManager);
     } catch (error) {
-      // Handle recur for tail recursion
       if ((error as any).type === 'recur') {
         const newValues = (error as any).values as HCValue[];
         if (newValues.length !== params.length) {
           throw new Error(`recur requires ${params.length} arguments, got ${newValues.length}`);
         }
 
-        // Create a new environment with updated parameters
         const recurEnv = closureEnv.extend(params, newValues);
         return evaluateExpression(body, recurEnv, nsManager);
       } else {
@@ -122,7 +115,6 @@ function callFunction(fn: HCValue, args: HCValue[], env: Environment, nsManager?
   }
 }
 
-// Enhanced map and reduce that work with closures
 export function mapWithClosure(fn: HCValue, seq: HCValue, env: Environment, nsManager?: NamespaceManager): HCValue {
   if (fn.type !== 'function' && fn.type !== 'closure') {
     throw new Error('map requires a function as first argument');

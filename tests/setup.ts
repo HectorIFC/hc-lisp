@@ -1,10 +1,10 @@
-// Jest test setup file
-// This file is executed before each test file
 
-// Global test timeout
+
+
+
 jest.setTimeout(10000);
 
-// Utility function for mocking console
+
 const createConsoleMock = () => {
   const originalLog = console.log;
   const originalError = console.error;
@@ -29,5 +29,5 @@ const createConsoleMock = () => {
   };
 };
 
-// Export for use in tests
+
 export { createConsoleMock };

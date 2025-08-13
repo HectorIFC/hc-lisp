@@ -2,7 +2,7 @@
 import { HCValue } from './Categorize';
 import { Environment } from './Context';
 
-// Utility functions
+
 function isNumber(value: HCValue): value is { type: 'number'; value: number } {
   return value.type === 'number';
 }
@@ -59,7 +59,7 @@ function jsonToHcValue(json: any): HCValue {
     return { type: 'vector', value: json.map(item => jsonToHcValue(item)) };
   }
   if (typeof json === 'object') {
-    // Convert object to vector of [key value] pairs
+
     const pairs: HCValue[] = [];
     for (const [key, value] of Object.entries(json)) {
       pairs.push({ type: 'keyword', value: key });
@@ -70,9 +70,9 @@ function jsonToHcValue(json: any): HCValue {
   return { type: 'string', value: String(json) };
 }
 
-// Core functions
+
 const coreFunctions = {
-  // Arithmetic
+
   '+': (...args: HCValue[]): HCValue => {
     const sum = args.reduce((acc, val) => {
       if (!isNumber(val)) { throw new Error('+ requires numbers'); }
@@ -116,7 +116,7 @@ const coreFunctions = {
     return { type: 'number', value: result };
   },
 
-  // Comparison
+
   '=': (a: HCValue, b: HCValue): HCValue => {
     return { type: 'boolean', value: JSON.stringify(a) === JSON.stringify(b) };
   },
@@ -141,7 +141,7 @@ const coreFunctions = {
     return { type: 'boolean', value: a.value >= b.value };
   },
 
-  // List operations
+
   'first': (seq: HCValue): HCValue => {
     if (!isSeq(seq)) { throw new Error('first requires a sequence'); }
     const items = seq.value;
@@ -166,7 +166,7 @@ const coreFunctions = {
     return { type: 'number', value: seq.value.length };
   },
 
-  // Predicates
+
   'nil?': (value: HCValue): HCValue => {
     return { type: 'boolean', value: value.type === 'nil' };
   },
@@ -187,7 +187,7 @@ const coreFunctions = {
     return { type: 'boolean', value: n.value % 2 !== 0 };
   },
 
-  // Math functions
+
   'Math/abs': (n: HCValue): HCValue => {
     if (!isNumber(n)) { throw new Error('Math/abs requires a number'); }
     return { type: 'number', value: Math.abs(n.value) };
@@ -205,7 +205,7 @@ const coreFunctions = {
     return { type: 'number', value: Math.sqrt(n.value) };
   },
 
-  // Date functions
+
   'Date/now': (): HCValue => {
     return { type: 'number', value: Date.now() };
   },
@@ -215,7 +215,7 @@ const coreFunctions = {
     return { type: 'string', value: date.toISOString() };
   },
 
-  // Process functions
+
   'process/cwd': (): HCValue => {
     return { type: 'string', value: process.cwd() };
   },
@@ -228,7 +228,7 @@ const coreFunctions = {
     throw new Error('process/env requires a string key');
   },
 
-  // String functions - using native Node.js
+
   'str/upper-case': (s: HCValue): HCValue => {
     if (s.type !== 'string') { throw new Error('str/upper-case requires a string'); }
     return { type: 'string', value: s.value.toUpperCase() };
@@ -244,7 +244,7 @@ const coreFunctions = {
     return { type: 'string', value: s.value.trim() };
   },
 
-  // JSON functions - using native Node.js
+
   'json/stringify': (...args: HCValue[]): HCValue => {
     if (args.length !== 1) {
       throw new Error('json/stringify expects one argument');
@@ -269,7 +269,7 @@ const coreFunctions = {
     }
   },
 
-  // String concatenation
+
   'str': (...args: HCValue[]): HCValue => {
     const result = args.map(arg => {
       if (arg.type === 'string') { return arg.value; }
@@ -277,13 +277,13 @@ const coreFunctions = {
       if (arg.type === 'boolean') { return String(arg.value); }
       if (arg.type === 'nil') { return ''; }
       if (arg.type === 'keyword') { return `:${arg.value}`; }
-      // For other types, convert to string representation
+
       return JSON.stringify(toJSValue(arg));
     }).join('');
     return { type: 'string', value: result };
   },
 
-  // I/O
+
   'println': (...args: HCValue[]): HCValue => {
     const output = args.map(arg => {
       if (arg.type === 'string') { return arg.value; }
@@ -306,14 +306,14 @@ const coreFunctions = {
     return { type: 'nil', value: null };
   },
 
-  // Collection functions
+
   'map': (fn: HCValue, seq: HCValue): HCValue => {
     if (fn.type !== 'function' && fn.type !== 'closure') {
       throw new Error('map requires a function as first argument');
     }
     if (!isSeq(seq)) { throw new Error('map requires a sequence as second argument'); }
 
-    // This will be handled by mapWithClosure in the interpreter
+
     throw new Error('map with closures should be handled by the interpreter');
   },
 
@@ -323,7 +323,7 @@ const coreFunctions = {
     }
     if (!isSeq(seq)) { throw new Error('reduce requires a sequence as third argument'); }
 
-    // This will be handled by reduceWithClosure in the interpreter
+
     throw new Error('reduce with closures should be handled by the interpreter');
   },
 
@@ -368,7 +368,7 @@ const coreFunctions = {
 export function createGlobalEnvironment(): Environment {
   const globalEnv = new Environment();
 
-  // Add core functions
+
   Object.entries(coreFunctions).forEach(([name, fn]) => {
     globalEnv.define(name, { type: 'function', value: fn });
   });

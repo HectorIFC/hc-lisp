@@ -93,7 +93,7 @@ export class NamespaceManager {
 
   tryLoadHCLispFile(namespaceName: string, ns: NamespaceInfo): boolean {
     try {
-      // Try different possible paths for the .hclisp file
+
       const possiblePaths = [
         `${namespaceName}.hclisp`,
         `./tests/${namespaceName}.hclisp`,

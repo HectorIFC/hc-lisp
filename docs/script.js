@@ -1,4 +1,3 @@
-// Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -12,20 +11,14 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Terminal animation
 function animateTerminal() {
     const cursor = document.querySelector('.terminal-cursor');
     if (cursor) {
-        // Simple blinking animation is handled by CSS
-        // This function can be extended for more complex animations
     }
 }
 
-// Initialize animations when page loads
 document.addEventListener('DOMContentLoaded', function() {
     animateTerminal();
-    
-    // Add intersection observer for scroll animations
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -39,16 +32,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }, observerOptions);
-    
-    // Observe all sections for scroll animations
+
     document.querySelectorAll('section').forEach(section => {
         section.style.opacity = '0';
         section.style.transform = 'translateY(20px)';
         section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(section);
     });
-    
-    // Animate feature cards
+
     document.querySelectorAll('.feature-card, .example-card').forEach((card, index) => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
@@ -57,7 +48,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Copy code functionality
 function addCopyButtons() {
     document.querySelectorAll('.code-block').forEach(block => {
         const button = document.createElement('button');
@@ -101,16 +91,13 @@ function addCopyButtons() {
     });
 }
 
-// Add copy buttons when page loads
 document.addEventListener('DOMContentLoaded', addCopyButtons);
 
-// Mobile menu toggle (if needed later)
 function toggleMobileMenu() {
     const nav = document.querySelector('.nav-links');
     nav.classList.toggle('mobile-open');
 }
 
-// Navbar background change on scroll
 window.addEventListener('scroll', function() {
     const navbar = document.querySelector('.navbar');
     if (window.scrollY > 50) {

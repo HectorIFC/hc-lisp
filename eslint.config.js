@@ -1,5 +1,6 @@
 const typescript = require('@typescript-eslint/eslint-plugin');
 const typescriptParser = require('@typescript-eslint/parser');
+const noComments = require('eslint-plugin-no-comments');
 
 module.exports = [
     {
@@ -23,7 +24,8 @@ module.exports = [
             }
         },
         plugins: {
-            '@typescript-eslint': typescript
+            '@typescript-eslint': typescript,
+            'no-comments': noComments
         },
         rules: {
             // Disable console warnings (equivalent to tslint no-console: false)
@@ -84,7 +86,10 @@ module.exports = [
             '@typescript-eslint/no-unused-expressions': 'off',
             
             // Allow undef since TypeScript handles this
-            'no-undef': 'off'
+            'no-undef': 'off',
+            
+            // Disable all comments using plugin
+            'no-comments/disallowComments': 'error'
         }
     },
     {
