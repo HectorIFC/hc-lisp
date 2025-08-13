@@ -1,9 +1,9 @@
-import { parse } from './src/Parse';
-import { interpret } from './src/Interpret';
-import { HCValue } from './src/Categorize';
-import { Environment } from './src/Context';
-import { createGlobalEnvironment } from './src/Library';
-import { NamespaceManager } from './src/Namespace';
+import { parse } from './Parse';
+import { interpret } from './Interpret';
+import { HCValue } from './Categorize';
+import { Environment } from './Context';
+import { createGlobalEnvironment } from './Library';
+import { NamespaceManager } from './Namespace';
 import * as fs from 'fs';
 
 class HCLisp {
@@ -23,19 +23,16 @@ class HCLisp {
     return interpret(expr, env || this.globalEnv, this.nsManager);
   }
 
-  // Getter to access the global environment for testing
   getGlobalEnvironment(): Environment {
     return this.globalEnv;
   }
 
   eval(input: string): HCValue {
-    // Handle multiline input with multiple expressions
     const cleanInput = input.trim();
     if (!cleanInput) {
       return { type: 'nil', value: null };
     }
 
-    // Split into individual expressions by tracking parentheses
     const expressions = this.splitExpressions(cleanInput);
     let lastResult: HCValue = { type: 'nil', value: null };
 
@@ -63,34 +60,28 @@ class HCLisp {
   }
 
   private loadRequiredNamespaces(content: string): void {
-    // Parse the content to find namespace declarations with requirements
     const nsMatch = content.match(/\(ns\s+\S+\s*\(\s*:require\s+\[([\s\S]*?)\]\s*\)/);
     if (nsMatch) {
       const requiresString = nsMatch[1];
       const requiredNamespaces = requiresString.split(/\s+/).filter(ns => ns.trim());
 
       for (const ns of requiredNamespaces) {
-        // Check if namespace already exists and has content
         const nsInfo = this.nsManager.getNamespace(ns);
 
         if (nsInfo) {
           const contentValue = nsInfo.environment.get('__deferred_content__');
 
           if (contentValue && contentValue.type === 'string') {
-            // Evaluate the deferred content immediately
             const originalNs = this.nsManager.getCurrentNamespace().name;
             this.nsManager.setCurrentNamespace(ns);
 
             try {
               this.evalFileContentInternal(contentValue.value);
-
-              // Clean up deferred markers
               nsInfo.environment.define('__deferred_content__', { type: 'nil', value: null });
               nsInfo.environment.define('__deferred_filepath__', { type: 'nil', value: null });
             } catch (error) {
               console.error(`Error evaluating namespace '${ns}':`, error);
             } finally {
-              // Restore original namespace
               if (this.nsManager.getNamespace(originalNs)) {
                 this.nsManager.setCurrentNamespace(originalNs);
               }
@@ -99,13 +90,13 @@ class HCLisp {
         }
       }
     }
-  }  // Public method for NamespaceManager to evaluate file content
+  }
+
   public evalFileContent(content: string): HCValue {
     return this.evalFileContentInternal(content);
   }
 
   private evalFileContentInternal(content: string): HCValue {
-    // Better expression parsing that handles multi-line expressions and comments
     const lines = content.split('\n');
     let currentExpr = '';
     let parenCount = 0;
@@ -114,24 +105,20 @@ class HCLisp {
     let nsProcessed = false;
 
     for (const line of lines) {
-      const trimmedLine = line.trim();      // Skip comments and empty lines
+      const trimmedLine = line.trim();
       if (!trimmedLine || trimmedLine.startsWith(';;')) {
         continue;
       }
 
-      // Add line to current expression
       currentExpr += (currentExpr ? ' ' : '') + trimmedLine;
 
-      // Count parentheses to determine complete expressions
       for (let i = 0; i < trimmedLine.length; i++) {
         const char = trimmedLine[i];
 
-        // Handle string boundaries
         if (char === '"' && (i === 0 || trimmedLine[i - 1] !== '\\')) {
           inString = !inString;
         }
 
-        // Only count parentheses outside of strings
         if (!inString) {
           if (char === '(' || char === '[') { parenCount++; }
           if (char === ')' || char === ']') { parenCount--; }
@@ -154,7 +141,6 @@ class HCLisp {
       }
     }
 
-    // Handle any remaining expression
     if (currentExpr.trim()) {
       try {
         const ast = this.parse(currentExpr.trim());
@@ -177,12 +163,10 @@ class HCLisp {
     while (i < input.length) {
       const char = input[i];
 
-      // Handle string boundaries
       if (char === '"' && (i === 0 || input[i - 1] !== '\\')) {
         inString = !inString;
       }
 
-      // Only count parentheses outside of strings
       if (!inString) {
         if (char === '(' || char === '[') {
           parenCount++;
@@ -191,12 +175,10 @@ class HCLisp {
           parenCount--;
           currentExpr += char;
 
-          // If we have a complete expression, save it
           if (parenCount === 0 && currentExpr.trim()) {
             expressions.push(currentExpr.trim());
             currentExpr = '';
 
-            // Skip whitespace after complete expression
             while (i + 1 < input.length && /\s/.test(input[i + 1])) {
               i++;
             }
@@ -211,7 +193,6 @@ class HCLisp {
       i++;
     }
 
-    // Handle any remaining expression
     if (currentExpr.trim()) {
       expressions.push(currentExpr.trim());
     }
@@ -219,13 +200,11 @@ class HCLisp {
     return expressions;
   }
 
-  // Reset the global environment to its initial state
   resetContext(): void {
     this.globalEnv = createGlobalEnvironment();
     this.nsManager = new NamespaceManager(this.globalEnv);
   }
 
-  // Helper method to format output for display
   formatOutput(value: HCValue): string {
     switch (value.type) {
     case 'nil':

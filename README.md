@@ -397,6 +397,8 @@ The project is structured in modules:
 - `Context.ts` - Environment/scope management
 - `Namespace.ts` - Namespace management and Node.js module integration
 - `hc-lisp.ts` - Main interface
+- `hc-runner.ts` - Command-line runner for executing HC-Lisp files
+- `repl.ts` - Interactive Read-Eval-Print Loop
 
 ## Project Goals
 

@@ -1,7 +1,7 @@
 import { NamespaceManager } from '../src/Namespace';
 import { Environment } from '../src/Context';
 import { HCValue } from '../src/Categorize';
-import HcLisp from '../hc-lisp';
+import HcLisp from '../src/hc-lisp';
 
 describe('Namespace Unified Tests - Complete Coverage', () => {
   let namespaceManager: NamespaceManager;

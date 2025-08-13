@@ -1,4 +1,4 @@
-import HcLisp from '../hc-lisp';
+import HcLisp from '../src/hc-lisp';
 
 describe('HC-Lisp Basic Operations', () => {
   beforeEach(() => {

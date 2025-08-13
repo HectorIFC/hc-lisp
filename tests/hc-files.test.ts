@@ -1,4 +1,4 @@
-import HcLisp from '../hc-lisp';
+import HcLisp from '../src/hc-lisp';
 import * as path from 'path';
 
 describe('HC-Lisp File Integration Tests', () => {
