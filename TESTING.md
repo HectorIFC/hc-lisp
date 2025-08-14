@@ -144,3 +144,4 @@ The legacy test suite is still available for comparison and verification:
 - TypeScript tests: Available as `npm run test:basic-legacy` and `npm run test:advanced-legacy`
 
 This dual approach ensures backward compatibility while providing modern testing capabilities.
+
