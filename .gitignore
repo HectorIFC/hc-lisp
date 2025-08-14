@@ -130,6 +130,9 @@ coverage/
 *.bak
 *.tmp
 
+# NPM configuration (may contain tokens)
+.npmrc
+
 # Application specific
 # (uncomment if needed)
 # *.hclisp.bak
