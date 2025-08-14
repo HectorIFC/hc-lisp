@@ -45,8 +45,6 @@ HC-Lisp is a functional programming language that supports:
 
 *"Code with curiosity, debug with determination, and always stay curious like a quati!" - Quati 🦝*
 
-Learn more about our [Visual Identity](VISUAL_IDENTITY.md).
-
 ## Installation and Execution
 
 ```bash
