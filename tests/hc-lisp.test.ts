@@ -237,6 +237,20 @@ describe('HC-Lisp Basic Operations', () => {
 
       consoleSpy.mockRestore();
     });
+
+    test('should handle principles function', () => {
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const result = HcLisp.eval('(principles)');
+
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('The Principles of HC-Lisp, by Hector Cardoso'));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('1. Clarity is better than clever tricks.'));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('20. Code should age well, like fine wine.'));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Now you know the way. 😉'));
+      expect(result).toEqual({ type: 'nil', value: null });
+
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('Environment/Context Coverage', () => {

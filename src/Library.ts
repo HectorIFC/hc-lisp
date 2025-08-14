@@ -306,6 +306,37 @@ const coreFunctions = {
     return { type: 'nil', value: null };
   },
 
+  'principles': (): HCValue => {
+    const principlesText = `
+The Principles of HC-Lisp, by Hector Cardoso
+
+1. Clarity is better than clever tricks.
+2. Less code is better than unnecessary code.
+3. Reading should be as easy as writing.
+4. The simple should be simple to express.
+5. The complex should be possible, but rare.
+6. Structure should guide, not limit.
+7. Consistency beats chaotic creativity.
+8. Code beauty comes from logic, not decoration.
+9. Good surprises are better than bad surprises.
+10. Rules should be understood before being broken.
+11. Small functions tell big stories.
+12. Being explicit is better than leaving it to the compiler's imagination.
+13. Data should flow like ideas, not like mazes.
+14. Naming well is half the work.
+15. One clear solution is better than many confusing ones.
+16. Comments tell why, not what.
+17. The programmer is human — treat them well.
+18. Simplicity does not mean lack of power.
+19. The language serves the creator, not the other way around.
+20. Code should age well, like fine wine.
+
+Now you know the way. 😉
+`;
+    console.log(principlesText);
+    return { type: 'nil', value: null };
+  },
+
 
   'map': (fn: HCValue, seq: HCValue): HCValue => {
     if (fn.type !== 'function' && fn.type !== 'closure') {
