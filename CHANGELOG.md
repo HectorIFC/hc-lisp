@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/HectorIFC/hc-lisp/compare/v1.1.0...v1.2.0) (2025-08-14)
+
+
+### Features
+
+* logo hclisp ([4543478](https://github.com/HectorIFC/hc-lisp/commit/4543478e6db87f3c7f1725951c59bc06a8b7131f))
+* logo hclisp ([51c4e37](https://github.com/HectorIFC/hc-lisp/commit/51c4e3727331c1e30ed71ddfff26806ba1fb704b))
+
 # [1.1.0](https://github.com/HectorIFC/hc-lisp/compare/v1.0.5...v1.1.0) (2025-08-14)
 
 
