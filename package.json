@@ -1,15 +1,43 @@
 {
   "name": "hc-lisp",
-  "version": "0.0.0",
-  "description": "HC-Lisp: A Lisp dialect.",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "A modern Lisp dialect inspired by Clojure with Node.js integration and REPL support",
+  "main": "dist/hc-lisp.js",
+  "types": "dist/hc-lisp.d.ts",
+  "bin": {
+    "hc-lisp": "dist/hc-runner.js",
+    "hclisp": "dist/hc-runner.js"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "lisp",
+    "clojure",
+    "interpreter",
+    "functional-programming",
+    "repl",
+    "typescript",
+    "nodejs",
+    "programming-language",
+    "compiler",
+    "scripting"
+  ],
   "scripts": {
-    "start": "./node_modules/.bin/ts-node src/repl.ts",
+    "build": "tsc --project tsconfig.build.json",
+    "build:watch": "tsc --project tsconfig.build.json --watch",
+    "prebuild": "rimraf dist",
+    "prepublishOnly": "npm run build && npm run quality",
+    "postbuild": "echo '#!/usr/bin/env node' | cat - dist/hc-runner.js > temp && mv temp dist/hc-runner.js && chmod +x dist/hc-runner.js",
+    "start": "ts-node src/repl.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/repl.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:verbose": "jest --verbose",
-    "hclisp": "./node_modules/.bin/ts-node src/hc-runner.ts",
+    "hclisp": "ts-node src/hc-runner.ts",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "type-check": "tsc --noEmit",
@@ -19,10 +47,34 @@
     "sonarcloud:setup": "./setup-sonarcloud.sh",
     "sonarcloud:verify": "./setup-sonarcloud.sh --verify",
     "sonarcloud:test": "./setup-sonarcloud.sh --test",
-    "coverage:sonar": "npm test -- --coverage --coverageReporters=lcov --coverageReporters=text"
+    "coverage:sonar": "npm test -- --coverage --coverageReporters=lcov --coverageReporters=text",
+    "version": "npm run build && git add dist",
+    "postversion": "git push && git push --tags && npm publish",
+    "release:patch": "npm version patch",
+    "release:minor": "npm version minor",
+    "release:major": "npm version major",
+    "release:prerelease": "npm version prerelease",
+    "pack": "npm pack",
+    "publish:dry": "npm publish --dry-run"
   },
   "author": "Hector Cardoso",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HectorIFC/hc-lisp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/HectorIFC/hc-lisp/issues"
+  },
+  "homepage": "https://github.com/HectorIFC/hc-lisp#readme",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
     "@types/jest": "^30.0.0",
@@ -33,6 +85,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-no-comments": "^1.1.10",
     "jest": "^30.0.5",
+    "rimraf": "^6.0.1",
     "ts-jest": "^29.4.0",
     "ts-node": "^8.10.2",
     "ts-node-dev": "^1.0.0-pre.49",
