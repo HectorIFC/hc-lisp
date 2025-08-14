@@ -1,6 +1,6 @@
 {
   "name": "hc-lisp",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A modern Lisp dialect inspired by Clojure with Node.js integration and REPL support",
   "main": "dist/hc-lisp.js",
   "types": "dist/hc-lisp.d.ts",
