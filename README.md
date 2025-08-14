@@ -1,6 +1,10 @@
-# HC-Lisp
+<img src="docs/assets/logo/hclisp-icon-light.svg" alt="HCLisp Icon" width="64">
+
+# HC-Lisp 🦝
 
 A modern Lisp dialect implementation in TypeScript, inspired by Clojure and Peter Norvig's Lispy project.
+
+**Meet Quati 🦝, our smart and curious mascot!** Just like a quati explores the forest, HC-Lisp helps you explore the world of functional programming with intelligence and adaptability.
 
 > ⚠️ **Development Status**: HC-Lisp is currently in active development and is **not ready for production use**. This is an experimental project intended for educational purposes and learning how Lisp interpreters work. APIs may change, features may be incomplete, and there may be bugs. Use at your own discretion for learning and experimentation.
 
@@ -29,6 +33,19 @@ HC-Lisp is a functional programming language that supports:
 - 📖 **[API Reference](https://hectorifc.github.io/hc-lisp#docs)**
 - 🎯 **[Live Examples](https://hectorifc.github.io/hc-lisp#examples)**
 - 🧪 **[Testing Info](https://hectorifc.github.io/hc-lisp#testing)**
+
+## Philosophy & Mascot 🦝
+
+**Quati 🦝** is our intelligent and curious mascot! Just like a quati explores the forest with intelligence and adaptability, HC-Lisp helps you explore functional programming.
+
+**Discover the HC-Lisp Principles:**
+```lisp
+(principles)  ; Display the 20 principles that guide HC-Lisp development
+```
+
+*"Code with curiosity, debug with determination, and always stay curious like a quati!" - Quati 🦝*
+
+Learn more about our [Visual Identity](VISUAL_IDENTITY.md).
 
 ## Installation and Execution
 
@@ -415,4 +432,3 @@ This project serves as:
 ## License
 
 MIT License
- 
