@@ -1,3 +1,11 @@
+## [1.0.2](https://github.com/HectorIFC/hc-lisp/compare/v1.0.1...v1.0.2) (2025-08-14)
+
+
+### Bug Fixes
+
+* npm ([56a975e](https://github.com/HectorIFC/hc-lisp/commit/56a975e3992a8bdd207d5086b456fa35f2706712))
+* npm ([d1341f3](https://github.com/HectorIFC/hc-lisp/commit/d1341f3c6f51f0a62b21730351a9aa5630f1782a))
+
 ## [1.0.1](https://github.com/HectorIFC/hc-lisp/compare/v1.0.0...v1.0.1) (2025-08-14)
 
 
