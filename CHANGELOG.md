@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/HectorIFC/hc-lisp/compare/v1.2.0...v1.3.0) (2025-08-14)
+
+
+### Features
+
+* redirect by logo ([d576a7f](https://github.com/HectorIFC/hc-lisp/commit/d576a7f146ec8d2c8ba0384b55172014875cbbdd))
+
 # [1.2.0](https://github.com/HectorIFC/hc-lisp/compare/v1.1.0...v1.2.0) (2025-08-14)
 
 
