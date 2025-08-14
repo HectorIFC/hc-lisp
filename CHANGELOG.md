@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/HectorIFC/hc-lisp/compare/v1.0.5...v1.1.0) (2025-08-14)
+
+
+### Features
+
+* added principles ([11bb1b9](https://github.com/HectorIFC/hc-lisp/commit/11bb1b9b041250900a6639d81b099ca57741ecb3))
+
 ## [1.0.5](https://github.com/HectorIFC/hc-lisp/compare/v1.0.4...v1.0.5) (2025-08-14)
 
 
