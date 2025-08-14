@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/HectorIFC/hc-lisp/compare/v1.3.1...v1.3.2) (2025-08-14)
+
+
+### Bug Fixes
+
+* link redirect to home ([5f4b352](https://github.com/HectorIFC/hc-lisp/commit/5f4b352bb49fae273f16f1611449d1636619fca0))
+
 ## [1.3.1](https://github.com/HectorIFC/hc-lisp/compare/v1.3.0...v1.3.1) (2025-08-14)
 
 
