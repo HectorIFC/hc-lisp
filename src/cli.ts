@@ -20,22 +20,22 @@ function getVersion(): string {
 function showBanner(): void {
   const version = getVersion();
   console.log(chalk.cyan(`
-    ╔═══════════════════════════════════════╗
-    ║           HC-Lisp ${version.padEnd(20)} ║
-    ║     A Modern Lisp Dialect            ║
-    ║   Inspired by Clojure & Node.js      ║
-    ╚═══════════════════════════════════════╝
+    ╔═════════════════════════════════════════╗
+    ║       HC-Lisp ${version.padEnd(20)}     ║
+    ║     A Modern Lisp Dialect               ║
+    ║   Inspired by Clojure & Node.js         ║
+    ╚═════════════════════════════════════════╝
   `));
 }
 
 function showEnhancedHelp(): string {
   const version = getVersion();
   let help = chalk.cyan(`
-    ╔═══════════════════════════════════════╗
-    ║           HC-Lisp ${version.padEnd(20)} ║
-    ║     A Modern Lisp Dialect            ║
-    ║   Inspired by Clojure & Node.js      ║
-    ╚═══════════════════════════════════════╝
+    ╔═════════════════════════════════════════╗
+    ║           HC-Lisp ${version.padEnd(20)}  ║
+    ║     A Modern Lisp Dialect               ║
+    ║   Inspired by Clojure & Node.js         ║
+    ╚═════════════════════════════════════════╝
   `);
 
   help += chalk.yellow('\n\nUsage Examples:\n');
