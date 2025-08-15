@@ -1,3 +1,20 @@
+# [1.4.0](https://github.com/HectorIFC/hc-lisp/compare/v1.3.2...v1.4.0) (2025-08-15)
+
+
+### Bug Fixes
+
+* issues ([c8f1842](https://github.com/HectorIFC/hc-lisp/commit/c8f1842107504ae4f46cd420df462ac5b2379fb1))
+* sonar issue ([10991a2](https://github.com/HectorIFC/hc-lisp/commit/10991a2e948f123bc62494b6287f8a604706f11f))
+* tests ([cc8066f](https://github.com/HectorIFC/hc-lisp/commit/cc8066f40b6561211926942cc6ef4750289f846a))
+* tests ([b0c07ff](https://github.com/HectorIFC/hc-lisp/commit/b0c07ff5c1f939e7c5c8fb7ad28e2645d252dada))
+
+
+### Features
+
+* adjust ([d880527](https://github.com/HectorIFC/hc-lisp/commit/d880527e389e477d78a52389ebff83380824bdfa))
+* cli ([2819677](https://github.com/HectorIFC/hc-lisp/commit/2819677c30859c04e477ed4bb2929617a243b38a))
+* improved cli options ([d39abf0](https://github.com/HectorIFC/hc-lisp/commit/d39abf0f273e7382f6f9f0e0490b0f9e606c07b5)), closes [#12](https://github.com/HectorIFC/hc-lisp/issues/12)
+
 ## [1.3.2](https://github.com/HectorIFC/hc-lisp/compare/v1.3.1...v1.3.2) (2025-08-14)
 
 
