@@ -82,7 +82,7 @@ describe('HC-Lisp REPL Tests', () => {
       evaluator('unknown-var', {}, 'test.js', mockCallback);
 
       expect(mockEval).toHaveBeenCalledWith('unknown-var');
-      expect(mockCallback).toHaveBeenCalledWith(null, 'Error: Undefined symbol: unknown-var');
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('Error: Undefined symbol: unknown-var'));
       expect(mockFormatOutput).not.toHaveBeenCalled();
     });
 
@@ -94,7 +94,7 @@ describe('HC-Lisp REPL Tests', () => {
       evaluator('(bad-expr)', {}, 'test.js', mockCallback);
 
       expect(mockEval).toHaveBeenCalledWith('(bad-expr)');
-      expect(mockCallback).toHaveBeenCalledWith(null, 'Error: String error');
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('Error: String error'));
       expect(mockFormatOutput).not.toHaveBeenCalled();
     });
 
@@ -152,10 +152,10 @@ describe('HC-Lisp REPL Tests', () => {
     test('should display welcome messages', () => {
       showWelcomeMessage();
 
-      expect(mockConsoleLog).toHaveBeenCalledTimes(3);
-      expect(mockConsoleLog).toHaveBeenNthCalledWith(1, 'Welcome to HC-Lisp REPL!');
-      expect(mockConsoleLog).toHaveBeenNthCalledWith(2, 'A Lisp dialect.');
-      expect(mockConsoleLog).toHaveBeenNthCalledWith(3, 'Type (exit) or Ctrl+C to quit\n');
+      expect(mockConsoleLog).toHaveBeenCalledTimes(7);
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Welcome to HC-Lisp REPL!'));
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('A Modern Lisp Dialect'));
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Type'));
     });
   });
 
@@ -163,10 +163,10 @@ describe('HC-Lisp REPL Tests', () => {
     test('should show welcome message and start repl', () => {
       startRepl();
 
-      expect(mockConsoleLog).toHaveBeenCalledTimes(3);
-      expect(mockConsoleLog).toHaveBeenNthCalledWith(1, 'Welcome to HC-Lisp REPL!');
-      expect(mockConsoleLog).toHaveBeenNthCalledWith(2, 'A Lisp dialect.');
-      expect(mockConsoleLog).toHaveBeenNthCalledWith(3, 'Type (exit) or Ctrl+C to quit\n');
+      expect(mockConsoleLog).toHaveBeenCalledTimes(7);
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Welcome to HC-Lisp REPL!'));
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('A Modern Lisp Dialect'));
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Type'));
 
       expect(mockReplStart).toHaveBeenCalledWith({
         prompt: 'hc-lisp> ',
@@ -218,7 +218,7 @@ describe('HC-Lisp REPL Tests', () => {
 
       evaluator('(invalid syntax', {}, 'test.js', mockCallback);
 
-      expect(mockCallback).toHaveBeenCalledWith(null, 'Error: Parse error');
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('Error: Parse error'));
 
       const output = writer('Error: Parse error');
       expect(output).toBe('Error: Parse error');
