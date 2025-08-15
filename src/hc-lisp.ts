@@ -106,51 +106,77 @@ class HCLisp {
 
     for (const line of lines) {
       const trimmedLine = line.trim();
-      if (!trimmedLine || trimmedLine.startsWith(';;')) {
+      if (this.shouldSkipLine(trimmedLine)) {
         continue;
       }
 
       currentExpr += (currentExpr ? ' ' : '') + trimmedLine;
-
-      for (let i = 0; i < trimmedLine.length; i++) {
-        const char = trimmedLine[i];
-
-        if (char === '"' && (i === 0 || trimmedLine[i - 1] !== '\\')) {
-          inString = !inString;
-        }
-
-        if (!inString) {
-          if (char === '(' || char === '[') { parenCount++; }
-          if (char === ')' || char === ']') { parenCount--; }
-        }
-      }
+      const { newParenCount, newInString } = this.updateParsingState(trimmedLine, parenCount, inString);
+      parenCount = newParenCount;
+      inString = newInString;
 
       if (parenCount === 0 && currentExpr.trim()) {
-        try {
-          const ast = this.parse(currentExpr.trim());
-          const currentNs = this.nsManager.getCurrentNamespace();
-          lastResult = interpret(ast, currentNs.environment, this.nsManager);
-          if (!nsProcessed && currentExpr.trim().includes('(ns ') && currentExpr.trim().includes(':require')) {
-            this.loadRequiredNamespaces(currentExpr.trim());
-            nsProcessed = true;
-          }
-        } catch (error) {
-          throw new Error(`Error evaluating expression "${currentExpr.trim()}": ${(error as Error).message}`);
+        lastResult = this.processCompleteExpression(currentExpr.trim(), nsProcessed);
+        if (!nsProcessed && this.isNamespaceExpression(currentExpr.trim())) {
+          this.loadRequiredNamespaces(currentExpr.trim());
+          nsProcessed = true;
         }
         currentExpr = '';
       }
     }
 
     if (currentExpr.trim()) {
-      try {
-        const ast = this.parse(currentExpr.trim());
-        lastResult = this.interpret(ast);
-      } catch (error) {
-        throw new Error(`Error evaluating expression "${currentExpr.trim()}": ${(error as Error).message}`);
-      }
+      lastResult = this.processRemainingExpression(currentExpr.trim());
     }
 
     return lastResult;
+  }
+
+  private shouldSkipLine(trimmedLine: string): boolean {
+    return !trimmedLine || trimmedLine.startsWith(';;');
+  }
+
+  private updateParsingState(line: string, parenCount: number, inString: boolean): { newParenCount: number; newInString: boolean } {
+    let newParenCount = parenCount;
+    let newInString = inString;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+
+      if (char === '"' && (i === 0 || line[i - 1] !== '\\')) {
+        newInString = !newInString;
+      }
+
+      if (!newInString) {
+        if (char === '(' || char === '[') { newParenCount++; }
+        if (char === ')' || char === ']') { newParenCount--; }
+      }
+    }
+
+    return { newParenCount, newInString };
+  }
+
+  private processCompleteExpression(expression: string, nsProcessed: boolean): HCValue {
+    try {
+      const ast = this.parse(expression);
+      const currentNs = this.nsManager.getCurrentNamespace();
+      return interpret(ast, currentNs.environment, this.nsManager);
+    } catch (error) {
+      throw new Error(`Error evaluating expression "${expression}": ${(error as Error).message}`);
+    }
+  }
+
+  private isNamespaceExpression(expression: string): boolean {
+    return expression.includes('(ns ') && expression.includes(':require');
+  }
+
+  private processRemainingExpression(expression: string): HCValue {
+    try {
+      const ast = this.parse(expression);
+      return this.interpret(ast);
+    } catch (error) {
+      throw new Error(`Error evaluating expression "${expression}": ${(error as Error).message}`);
+    }
   }
 
   private splitExpressions(input: string): string[] {

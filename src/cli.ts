@@ -11,6 +11,7 @@ export function getVersion(): string {
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     return packageJson.version;
   } catch (error) {
+    console.warn('Warning: Unable to read package.json version:', error instanceof Error ? error.message : String(error));
     return 'unknown';
   }
 }
@@ -117,7 +118,8 @@ export function watchFile(filePath: string, options: any): void {
         executeFile(filePath, options);
         console.log(chalk.green('✓ Execution completed'));
       } catch (error) {
-        console.error(chalk.red('✗ Execution failed'));
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(chalk.red('✗ Execution failed:'), errorMessage);
       }
     }
   });
@@ -201,17 +203,25 @@ export function executeCliAction(file: string, options: any, program?: Command):
 
 export function setupErrorHandlers(program?: Command): void {
   process.on('uncaughtException', (error) => {
-    console.error(chalk.red('Uncaught Exception:'), error.message);
-    if (program && program.opts().debug) {
-      console.error(error.stack);
-    }
-    process.exit(1);
+    handleUncaughtException(error, program);
   });
 
   process.on('unhandledRejection', (reason) => {
-    console.error(chalk.red('Unhandled Rejection:'), reason);
-    process.exit(1);
+    handleUnhandledRejection(reason);
   });
+}
+
+function handleUncaughtException(error: Error, program?: Command): void {
+  console.error(chalk.red('Uncaught Exception:'), error.message);
+  if (program?.opts().debug) {
+    console.error(error.stack);
+  }
+  process.exit(1);
+}
+
+function handleUnhandledRejection(reason: unknown): void {
+  console.error(chalk.red('Unhandled Rejection:'), reason);
+  process.exit(1);
 }
 
 export function main(argv?: string[]): void {
