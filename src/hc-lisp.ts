@@ -60,7 +60,8 @@ class HCLisp {
   }
 
   private loadRequiredNamespaces(content: string): void {
-    const nsMatch = content.match(/\(ns\s+\S+\s*\(\s*:require\s+\[([\s\S]*?)\]\s*\)/);
+    const nsRegex = /\(ns\s+\S+\s*\(\s*:require\s+\[([\s\S]*?)\]\s*\)/;
+    const nsMatch = nsRegex.exec(content);
     if (nsMatch) {
       const requiresString = nsMatch[1];
       const requiredNamespaces = requiresString.split(/\s+/).filter(ns => ns.trim());
