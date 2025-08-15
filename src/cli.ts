@@ -5,9 +5,7 @@ import * as path from 'path';
 import HcLisp from './hc-lisp';
 import { startRepl } from './repl';
 
-const program = new Command();
-
-function getVersion(): string {
+export function getVersion(): string {
   try {
     const packageJsonPath = path.join(__dirname, '../package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -17,7 +15,7 @@ function getVersion(): string {
   }
 }
 
-function showBanner(): void {
+export function showBanner(): void {
   const version = getVersion();
   console.log(chalk.cyan(`
     ╔═════════════════════════════════════════╗
@@ -28,7 +26,7 @@ function showBanner(): void {
   `));
 }
 
-function showEnhancedHelp(): string {
+export function showEnhancedHelp(): string {
   const version = getVersion();
   let help = chalk.cyan(`
     ╔═════════════════════════════════════════╗
@@ -62,7 +60,7 @@ function showEnhancedHelp(): string {
   return help;
 }
 
-function executeExpression(expression: string, options: any): void {
+export function executeExpression(expression: string, options: any): void {
   try {
     if (options.verbose) {
       console.log(chalk.blue('Evaluating:'), chalk.yellow(expression));
@@ -78,7 +76,7 @@ function executeExpression(expression: string, options: any): void {
   }
 }
 
-function executeFile(filePath: string, options: any): void {
+export function executeFile(filePath: string, options: any): void {
   try {
     if (!fs.existsSync(filePath)) {
       console.error(chalk.red('Error:'), `File not found: ${filePath}`);
@@ -101,7 +99,7 @@ function executeFile(filePath: string, options: any): void {
   }
 }
 
-function watchFile(filePath: string, options: any): void {
+export function watchFile(filePath: string, options: any): void {
   if (!fs.existsSync(filePath)) {
     console.error(chalk.red('Error:'), `File not found: ${filePath}`);
     process.exit(1);
@@ -127,7 +125,7 @@ function watchFile(filePath: string, options: any): void {
   process.stdin.resume();
 }
 
-function loadConfig(configPath: string): any {
+export function loadConfig(configPath: string): any {
   try {
     if (!fs.existsSync(configPath)) {
       console.error(chalk.red('Error:'), `Configuration file not found: ${configPath}`);
@@ -143,7 +141,7 @@ function loadConfig(configPath: string): any {
   }
 }
 
-function startEnhancedRepl(options: any): void {
+export function startEnhancedRepl(options: any): void {
   if (options.verbose) {
     showBanner();
   }
@@ -156,23 +154,33 @@ function startEnhancedRepl(options: any): void {
   startRepl();
 }
 
-program
-  .name('hc-lisp')
-  .description('HC-Lisp - A Modern Lisp Dialect')
-  .version(getVersion(), '-v, --version', 'display version number')
-  .option('-c, --config <file>', 'load configuration file')
-  .option('--verbose', 'enable verbose output')
-  .option('--debug', 'enable debug mode')
-  .option('-e, --eval <expression>', 'evaluate expression and exit')
-  .option('-w, --watch', 'watch file for changes and re-execute')
-  .argument('[file]', 'HC-Lisp file to execute')
-  .helpOption('-h, --help', 'display help information');
+export function createProgram(): Command {
+  const program = new Command();
 
-program.addHelpText('after', () => {
-  return '\n' + showEnhancedHelp();
-});
+  program
+    .name('hc-lisp')
+    .description('HC-Lisp - A Modern Lisp Dialect')
+    .version(getVersion(), '-v, --version', 'display version number')
+    .option('-c, --config <file>', 'load configuration file')
+    .option('--verbose', 'enable verbose output')
+    .option('--debug', 'enable debug mode')
+    .option('-e, --eval <expression>', 'evaluate expression and exit')
+    .option('-w, --watch', 'watch file for changes and re-execute')
+    .argument('[file]', 'HC-Lisp file to execute')
+    .helpOption('-h, --help', 'display help information');
 
-program.action((file, options) => {
+  program.addHelpText('after', () => {
+    return '\n' + showEnhancedHelp();
+  });
+
+  program.action((file: string, options: any) => {
+    executeCliAction(file, options, program);
+  });
+
+  return program;
+}
+
+export function executeCliAction(file: string, options: any, program?: Command): void {
   if (options.config) {
     const config = loadConfig(options.config);
     Object.assign(options, { ...config, ...options });
@@ -189,19 +197,34 @@ program.action((file, options) => {
   } else {
     startEnhancedRepl(options);
   }
-});
+}
 
-process.on('uncaughtException', (error) => {
-  console.error(chalk.red('Uncaught Exception:'), error.message);
-  if (program.opts().debug) {
-    console.error(error.stack);
+export function setupErrorHandlers(program?: Command): void {
+  process.on('uncaughtException', (error) => {
+    console.error(chalk.red('Uncaught Exception:'), error.message);
+    if (program && program.opts().debug) {
+      console.error(error.stack);
+    }
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason) => {
+    console.error(chalk.red('Unhandled Rejection:'), reason);
+    process.exit(1);
+  });
+}
+
+export function main(argv?: string[]): void {
+  const program = createProgram();
+  setupErrorHandlers(program);
+
+  if (argv) {
+    program.parse(argv);
+  } else {
+    program.parse();
   }
-  process.exit(1);
-});
+}
 
-process.on('unhandledRejection', (reason) => {
-  console.error(chalk.red('Unhandled Rejection:'), reason);
-  process.exit(1);
-});
-
-program.parse();
+if (require.main === module) {
+  main();
+}
