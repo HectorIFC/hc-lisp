@@ -5,8 +5,8 @@
   "main": "dist/hc-lisp.js",
   "types": "dist/hc-lisp.d.ts",
   "bin": {
-    "hc-lisp": "dist/hc-runner.js",
-    "hclisp": "dist/hc-runner.js"
+    "hc-lisp": "dist/cli.js",
+    "hclisp": "dist/cli.js"
   },
   "files": [
     "dist/**/*",
@@ -30,7 +30,7 @@
     "build:watch": "tsc --project tsconfig.build.json --watch",
     "prebuild": "rimraf dist",
     "prepublishOnly": "npm run build && npm run quality",
-    "postbuild": "echo '#!/usr/bin/env node' | cat - dist/hc-runner.js > temp && mv temp dist/hc-runner.js && chmod +x dist/hc-runner.js",
+    "postbuild": "echo '#!/usr/bin/env node' | cat - dist/cli.js > temp && mv temp dist/cli.js && chmod +x dist/cli.js",
     "start": "ts-node src/repl.ts",
     "dev": "ts-node-dev --respawn --transpile-only src/repl.ts",
     "test": "jest",
@@ -98,5 +98,9 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^14.0.0"
   }
 }
