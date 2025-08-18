@@ -1,6 +1,8 @@
 import { HCValue } from './Categorize';
 import { Environment } from './Context';
 import { NamespaceManager } from './Namespace';
+import { toJSValue, jsonToHcValue, JSValue, JSONValue } from './Utils';
+import { callFunction } from './Interpret';
 
 export type SpecialForm = (
     args: HCValue[],
@@ -268,6 +270,161 @@ export const specialForms: { [key: string]: SpecialForm } = {
     }
 
     return { type: 'keyword', value: nsName };
+  },
+
+  'cond': (args: HCValue[], env: Environment, interpret: any, nsManager?: NamespaceManager): HCValue => {
+    for (let i = 0; i < args.length; i += 2) {
+      if (i + 1 >= args.length) {
+        throw new Error('cond requires an even number of arguments');
+      }
+
+      const condition = args[i];
+      const body = args[i + 1];
+
+      if (condition.type === 'keyword' && condition.value === 'else') {
+        return interpret(body, env);
+      }
+
+      const conditionResult = interpret(condition, env);
+      const isTruthy = conditionResult.type !== 'nil' &&
+                      (conditionResult.type !== 'boolean' || conditionResult.value === true);
+
+      if (isTruthy) {
+        return interpret(body, env);
+      }
+    }
+
+    return { type: 'nil', value: null };
+  },
+
+  'and': (args: HCValue[], env: Environment, interpret: any, nsManager?: NamespaceManager): HCValue => {
+    for (const arg of args) {
+      const result = interpret(arg, env);
+      const isTruthy = result.type !== 'nil' &&
+                      (result.type !== 'boolean' || result.value === true);
+      if (!isTruthy) {
+        return result;
+      }
+    }
+    return args.length > 0 ? interpret(args[args.length - 1], env) : { type: 'boolean', value: true };
+  },
+
+  '.': (args: HCValue[], env: Environment, interpret: any, nsManager?: NamespaceManager): HCValue => {
+    if (args.length < 2) {
+      throw new Error('. requires at least 2 arguments');
+    }
+
+    const obj = interpret(args[0], env);
+    const methodName = args[1];
+
+    if (methodName.type !== 'symbol') {
+      throw new Error('. requires a symbol as method name');
+    }
+
+    const methodArgs = args.slice(2).map(arg => {
+      const evaluated = interpret(arg, env);
+      return toJSValue(evaluated);
+    });
+
+    console.log('[DEBUG] Before JS interop - obj:', obj);
+    console.log('[DEBUG] Before JS interop - methodName:', methodName.value);
+    console.log('[DEBUG] Before JS interop - methodArgs:', methodArgs);
+
+    const jsObj = toJSValue(obj);
+
+    console.log('[DEBUG] Checking if obj has nodejs context:', obj && typeof obj === 'object');
+    console.log('[DEBUG] obj.__nodejs_context__:', obj && obj.__nodejs_context__);
+    console.log('[DEBUG] obj.__original_object__:', obj && obj.__original_object__);
+
+    if (obj && typeof obj === 'object' && obj.__nodejs_context__ && obj.__original_object__) {
+      const originalObj = obj.__original_object__;
+      const method = (originalObj as Record<string, any>)[methodName.value];
+      if (typeof method === 'function') {
+        console.log('[DEBUG] Using original object for method call:', methodName.value);
+        if (methodName.value === 'listen') {
+          console.log('[DEBUG] Listen method args before conversion:', methodArgs);
+          console.log('[DEBUG] Original server object:', originalObj);
+          console.log('[DEBUG] Original server _handle:', originalObj._handle);
+          console.log('[DEBUG] Original server listen function:', typeof originalObj.listen);
+          if (methodArgs.length > 0) {
+            const lastArg = args[args.length - 1];
+            if (lastArg.type === 'function') {
+              methodArgs[methodArgs.length - 1] = (...cbArgs: any[]) => lastArg.value();
+            } else if (lastArg.type === 'closure') {
+              methodArgs[methodArgs.length - 1] = (...cbArgs: any[]) => callFunction(lastArg, [], env, nsManager);
+            }
+          }
+          try {
+            console.log('[DEBUG] Calling listen directly on original server');
+            console.log('[DEBUG] Method args:', methodArgs);
+            const result = originalObj.listen(...methodArgs);
+            console.log('[DEBUG] Listen result:', result);
+            return jsonToHcValue(result);
+          } catch (err) {
+            console.log('[DEBUG] Direct listen failed:', err);
+            console.log('[DEBUG] Error stack:', (err as Error).stack);
+            throw err;
+          }
+        }
+        try {
+          const boundMethod = method.bind(originalObj);
+          return jsonToHcValue(boundMethod(...methodArgs));
+        } catch (err) {
+          if (methodName.value === 'listen' && methodArgs.length > 0) {
+            const argsNoCallback = methodArgs.slice(0, -1);
+            const boundMethod = method.bind(originalObj);
+            return jsonToHcValue(boundMethod(...argsNoCallback));
+          }
+          throw err;
+        }
+      }
+    }
+
+    if (jsObj && typeof jsObj === 'object' && methodName.value in jsObj) {
+      const method = (jsObj as Record<string, any>)[methodName.value];
+      if (typeof method === 'function') {
+        if (methodName.value === 'listen' && methodArgs.length > 0) {
+          const lastArg = args[args.length - 1];
+          if (lastArg.type === 'function') {
+            methodArgs[methodArgs.length - 1] = (...cbArgs: any[]) => lastArg.value();
+          } else if (lastArg.type === 'closure') {
+            methodArgs[methodArgs.length - 1] = (...cbArgs: any[]) => callFunction(lastArg, [], env, nsManager);
+          }
+        }
+        try {
+          return jsonToHcValue(method.apply(jsObj, methodArgs));
+        } catch (err) {
+          if (methodName.value === 'listen' && methodArgs.length > 0) {
+            const argsNoCallback = methodArgs.slice(0, -1);
+            return jsonToHcValue(method.apply(jsObj, argsNoCallback));
+          }
+          throw err;
+        }
+      }
+    }
+
+    throw new Error(`Method ${methodName.value} not found on object`);
+  },
+
+  '.-': (args: HCValue[], env: Environment, interpret: any, nsManager?: NamespaceManager): HCValue => {
+    if (args.length !== 2) {
+      throw new Error('.- requires exactly 2 arguments');
+    }
+
+    const obj = interpret(args[0], env);
+    const propName = args[1];
+
+    if (propName.type !== 'symbol') {
+      throw new Error('.- requires a symbol as property name');
+    }
+
+    const jsObj = toJSValue(obj);
+    if (jsObj && typeof jsObj === 'object' && propName.value in jsObj) {
+      const prop = (jsObj as Record<string, any>)[propName.value];
+      return jsonToHcValue(prop as JSONValue);
+    }
+
+    return { type: 'nil', value: null };
   }
 };
 
