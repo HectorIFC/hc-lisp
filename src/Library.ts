@@ -493,9 +493,34 @@ Now you know the way. 😉
 export function createGlobalEnvironment(): Environment {
   const globalEnv = new Environment();
 
-
   Object.entries(coreFunctions).forEach(([name, fn]) => {
     globalEnv.define(name, { type: 'function', value: fn });
+  });
+
+  globalEnv.define('parseInt', {
+    type: 'function',
+    value: (str: HCValue, radix?: HCValue): HCValue => {
+      const jsStr = toJSValue(str);
+      const jsRadix = radix ? toJSValue(radix) : undefined;
+      const result = parseInt(jsStr as string, jsRadix as number);
+      return { type: 'number', value: result };
+    }
+  });
+
+  globalEnv.define('JSON', {
+    type: 'object',
+    value: {
+      stringify: (obj: any): HCValue => {
+        const jsObj = toJSValue(obj);
+        const jsResult = JSON.stringify(jsObj);
+        return { type: 'string', value: jsResult };
+      },
+      parse: (str: any): HCValue => {
+        const jsStr = toJSValue(str);
+        const jsResult = JSON.parse(jsStr as string);
+        return jsonToHcValue(jsResult as JSONValue);
+      }
+    }
   });
 
   return globalEnv;

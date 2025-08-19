@@ -63,7 +63,20 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
     }
 
     if (first.type === 'symbol') {
-      if (first.value.startsWith('.') && first.value.length > 1) {
+      if (first.value.startsWith('.-') && first.value.length > 2) {
+        const propName = first.value.slice(2);
+        if (rest.length === 1) {
+          const obj = evaluateExpression(rest[0], env, nsManager);
+          const jsObj = toJSValue(obj);
+          if (jsObj && typeof jsObj === 'object' && propName in jsObj) {
+            const prop = (jsObj as Record<string, any>)[propName];
+            return jsonToHcValue(prop as JSONValue);
+          }
+          return { type: 'nil', value: null };
+        }
+      }
+
+      if (first.value.startsWith('.') && first.value.length > 1 && !first.value.startsWith('.-')) {
         const methodName = first.value.slice(1);
         if (rest.length >= 1) {
           const obj = evaluateExpression(rest[0], env, nsManager);
@@ -128,19 +141,6 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
             }
           }
           throw new Error(`Method ${methodName} not found on object`);
-        }
-      }
-
-      if (first.value.startsWith('.-') && first.value.length > 2) {
-        const propName = first.value.slice(2);
-        if (rest.length === 1) {
-          const obj = evaluateExpression(rest[0], env, nsManager);
-          const jsObj = toJSValue(obj);
-          if (jsObj && typeof jsObj === 'object' && propName in jsObj) {
-            const prop = (jsObj as Record<string, any>)[propName];
-            return jsonToHcValue(prop as JSONValue);
-          }
-          return { type: 'nil', value: null };
         }
       }
 

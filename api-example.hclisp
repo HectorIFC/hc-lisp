@@ -1,22 +1,22 @@
-(ns api-server (:require [node.http node.url]))
+(ns api-server (:require [node.http] [node.url]))
 
 (def users (atom [{:id 1 :name "João" :email "joao@test.com"}
                   {:id 2 :name "Maria" :email "maria@test.com"}]))
 
 (defn handle-get-users [req res]
-  (let [response-data (json/stringify @users)]
+  (let [response-data (.stringify JSON @users)]
     (.writeHead res 200 {:Content-Type "application/json"})
     (.end res response-data)))
 
 (defn handle-get-user [req res id]
-  (let [user (first (filter #(= (:id %) (js/parseInt id)) @users))]
+  (let [user (first (filter #(= (:id %) (parseInt id)) @users))]
     (if user
       (do
         (.writeHead res 200 {:Content-Type "application/json"})
-        (.end res (json/stringify user)))
+        (.end res (.stringify JSON user)))
       (do
         (.writeHead res 404 {:Content-Type "application/json"})
-        (.end res (json/stringify {:error "User not found"}))))))
+        (.end res (.stringify JSON {:error "User not found"}))))))
 
 (defn parse-request-body [req callback]
   (let [body (atom "")]
@@ -26,12 +26,12 @@
 (defn handle-post-user [req res]
   (parse-request-body req
     (fn [body]
-      (let [user-data (json/parse body)
+      (let [user-data (.parse JSON body)
             new-id (+ 1 (apply max (map :id @users)))
             new-user (assoc user-data :id new-id)]
         (swap! users conj new-user)
         (.writeHead res 201 {:Content-Type "application/json"})
-        (.end res (json/stringify new-user))))))
+        (.end res (.stringify JSON new-user))))))
 
 (defn route-handler [req res]
   (let [url (node.url/parse (.-url req) true)
@@ -51,7 +51,7 @@
       :else
       (do
         (.writeHead res 404 {:Content-Type "application/json"})
-        (.end res (json/stringify {:error "Route not found"}))))))
+        (.end res (.stringify JSON {:error "Route not found"}))))))
 
 (def server (node.http/createServer route-handler))
 (println "[DEBUG] server object:" server)

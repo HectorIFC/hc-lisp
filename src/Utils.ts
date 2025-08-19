@@ -32,14 +32,22 @@ export function toJSValue(value: HCValue): JSValue {
   case 'list':
   case 'vector':
     return value.value.map(toJSValue);
-  case 'function':
-    return value.value;
   case 'object':
     if ((value as any).__nodejs_context__ && (value as any).__original_object__) {
       return (value as any).__original_object__;
     }
     if (value.value && typeof value.value === 'object' && value.value.constructor && value.value.constructor.name === 'Server') {
       return value.value;
+    }
+    if (value.value && typeof value.value === 'object' && value.value !== null) {
+      if (Array.isArray(value.value)) {
+        return value.value.map(toJSValue);
+      }
+      const jsObj: Record<string, any> = {};
+      Object.entries(value.value).forEach(([key, val]) => {
+        jsObj[key] = val && typeof val === 'object' && 'type' in val ? toJSValue(val as HCValue) : val;
+      });
+      return jsObj;
     }
     return value.value;
   case 'closure':
