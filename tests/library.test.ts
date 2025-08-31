@@ -14,7 +14,7 @@ describe('Library Functions', () => {
       const cwdFn = env.get('process/cwd');
       expect(cwdFn).toBeDefined();
       expect(cwdFn.type).toBe('function');
-      
+
       const result = (cwdFn as any).value();
       expect(result.type).toBe('string');
       expect(typeof result.value).toBe('string');
@@ -25,8 +25,8 @@ describe('Library Functions', () => {
       const envFn = env.get('process/env');
       expect(envFn).toBeDefined();
       expect(envFn.type).toBe('function');
-      
-      // Test with PATH environment variable (should exist)
+
+
       const result = (envFn as any).value({ type: 'string', value: 'PATH' });
       expect(result.type).toBe('string');
       expect(typeof result.value).toBe('string');
@@ -51,7 +51,7 @@ describe('Library Functions', () => {
       const dateFn = env.get('Date/now');
       expect(dateFn).toBeDefined();
       expect(dateFn.type).toBe('function');
-      
+
       const result = (dateFn as any).value();
       expect(result.type).toBe('number');
       expect(typeof result.value).toBe('number');
@@ -62,11 +62,11 @@ describe('Library Functions', () => {
       const dateFn = env.get('Date');
       expect(dateFn).toBeDefined();
       expect(dateFn.type).toBe('function');
-      
+
       const result = (dateFn as any).value();
       expect(result.type).toBe('string');
       expect(typeof result.value).toBe('string');
-      expect(result.value).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/); // ISO date format
+      expect(result.value).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
     });
   });
 
@@ -75,12 +75,12 @@ describe('Library Functions', () => {
       const jsonStringifyFn = env.get('json/stringify');
       expect(jsonStringifyFn).toBeDefined();
       expect(jsonStringifyFn.type).toBe('function');
-      
+
       const input: HCValue = {
         type: 'object',
         value: { name: 'test', value: 42 }
       };
-      
+
       const result = (jsonStringifyFn as any).value(input);
       expect(result.type).toBe('string');
       expect(result.value).toBe('{"name":"test","value":42}');
@@ -98,12 +98,12 @@ describe('Library Functions', () => {
       const jsonParseFn = env.get('json/parse');
       expect(jsonParseFn).toBeDefined();
       expect(jsonParseFn.type).toBe('function');
-      
+
       const input: HCValue = {
         type: 'string',
         value: '{"name":"test","value":42}'
       };
-      
+
       const result = (jsonParseFn as any).value(input);
       expect(result.type).toBe('object');
       expect(result.value).toEqual({
@@ -118,7 +118,7 @@ describe('Library Functions', () => {
         type: 'string',
         value: '"{\\"test\\": true}"'
       };
-      
+
       const result = (jsonParseFn as any).value(input);
       expect(result.type).toBe('object');
       expect(result.value).toEqual({
@@ -144,7 +144,7 @@ describe('Library Functions', () => {
       const strFn = env.get('str');
       expect(strFn).toBeDefined();
       expect(strFn.type).toBe('function');
-      
+
       const result = (strFn as any).value(
         { type: 'string', value: 'hello' },
         { type: 'number', value: 42 },
@@ -152,7 +152,7 @@ describe('Library Functions', () => {
         { type: 'nil', value: null },
         { type: 'keyword', value: 'test' }
       );
-      
+
       expect(result.type).toBe('string');
       expect(result.value).toBe('hello42true:test');
     });
@@ -163,7 +163,7 @@ describe('Library Functions', () => {
         type: 'object',
         value: { name: 'test' }
       });
-      
+
       expect(result.type).toBe('string');
       expect(result.value).toBe('{"name":"test"}');
     });
@@ -172,7 +172,7 @@ describe('Library Functions', () => {
       const upperFn = env.get('str/upper-case');
       expect(upperFn).toBeDefined();
       expect(upperFn.type).toBe('function');
-      
+
       const result = (upperFn as any).value({ type: 'string', value: 'hello world' });
       expect(result.type).toBe('string');
       expect(result.value).toBe('HELLO WORLD');
@@ -188,7 +188,7 @@ describe('Library Functions', () => {
       const lowerFn = env.get('str/lower-case');
       expect(lowerFn).toBeDefined();
       expect(lowerFn.type).toBe('function');
-      
+
       const result = (lowerFn as any).value({ type: 'string', value: 'HELLO WORLD' });
       expect(result.type).toBe('string');
       expect(result.value).toBe('hello world');
@@ -204,7 +204,7 @@ describe('Library Functions', () => {
       const trimFn = env.get('str/trim');
       expect(trimFn).toBeDefined();
       expect(trimFn.type).toBe('function');
-      
+
       const result = (trimFn as any).value({ type: 'string', value: '  hello world  ' });
       expect(result.type).toBe('string');
       expect(result.value).toBe('hello world');
@@ -220,14 +220,14 @@ describe('Library Functions', () => {
       const startsWithFn = env.get('str/startsWith');
       expect(startsWithFn).toBeDefined();
       expect(startsWithFn.type).toBe('function');
-      
+
       const result1 = (startsWithFn as any).value(
         { type: 'string', value: 'hello world' },
         { type: 'string', value: 'hello' }
       );
       expect(result1.type).toBe('boolean');
       expect(result1.value).toBe(true);
-      
+
       const result2 = (startsWithFn as any).value(
         { type: 'string', value: 'hello world' },
         { type: 'string', value: 'world' }
@@ -242,7 +242,7 @@ describe('Library Functions', () => {
         { type: 'number', value: 123 },
         { type: 'string', value: 'test' }
       )).toThrow('str/startsWith requires two strings');
-      
+
       expect(() => (startsWithFn as any).value(
         { type: 'string', value: 'test' },
         { type: 'number', value: 123 }
@@ -253,7 +253,7 @@ describe('Library Functions', () => {
       const sliceFn = env.get('str/slice');
       expect(sliceFn).toBeDefined();
       expect(sliceFn.type).toBe('function');
-      
+
       const result = (sliceFn as any).value(
         { type: 'string', value: 'hello world' },
         { type: 'number', value: 6 }
@@ -279,7 +279,7 @@ describe('Library Functions', () => {
         { type: 'number', value: 123 },
         { type: 'number', value: 0 }
       )).toThrow('str/slice requires a string and a number');
-      
+
       expect(() => (sliceFn as any).value(
         { type: 'string', value: 'test' },
         { type: 'string', value: 'invalid' }
@@ -292,7 +292,7 @@ describe('Library Functions', () => {
       const parseIntFn = env.get('js/parseInt');
       expect(parseIntFn).toBeDefined();
       expect(parseIntFn.type).toBe('function');
-      
+
       const result = (parseIntFn as any).value({ type: 'string', value: '42' });
       expect(result.type).toBe('number');
       expect(result.value).toBe(42);
@@ -315,7 +315,7 @@ describe('Library Functions', () => {
       const maxFn = env.get('max');
       expect(maxFn).toBeDefined();
       expect(maxFn.type).toBe('function');
-      
+
       const result = (maxFn as any).value(
         { type: 'number', value: 5 },
         { type: 'number', value: 10 },
@@ -346,13 +346,13 @@ describe('Library Functions', () => {
       const mergeFn = env.get('merge');
       expect(mergeFn).toBeDefined();
       expect(mergeFn.type).toBe('function');
-      
+
       const result = (mergeFn as any).value(
         { type: 'object', value: { a: 1, b: 2 } },
         { type: 'object', value: { b: 3, c: 4 } },
         { type: 'object', value: { d: 5 } }
       );
-      
+
       expect(result.type).toBe('object');
       expect(result.value).toEqual({ a: 1, b: 3, c: 4, d: 5 });
     });
@@ -364,7 +364,7 @@ describe('Library Functions', () => {
         { type: 'string', value: 'not an object' },
         { type: 'object', value: { b: 2 } }
       );
-      
+
       expect(result.type).toBe('object');
       expect(result.value).toEqual({ a: 1, b: 2 });
     });
@@ -373,12 +373,12 @@ describe('Library Functions', () => {
       const getFn = env.get('get');
       expect(getFn).toBeDefined();
       expect(getFn.type).toBe('function');
-      
+
       const result = (getFn as any).value(
         { type: 'object', value: { name: 'test' } },
         { type: 'keyword', value: 'name' }
       );
-      
+
       expect(result.type).toBe('string');
       expect(result.value).toBe('test');
     });
@@ -389,7 +389,7 @@ describe('Library Functions', () => {
         { type: 'object', value: { name: 'test' } },
         { type: 'string', value: 'name' }
       );
-      
+
       expect(result.type).toBe('string');
       expect(result.value).toBe('test');
     });
@@ -401,7 +401,7 @@ describe('Library Functions', () => {
         { type: 'keyword', value: 'nonexistent' },
         { type: 'string', value: 'default' }
       );
-      
+
       expect(result.type).toBe('string');
       expect(result.value).toBe('default');
     });
@@ -412,7 +412,7 @@ describe('Library Functions', () => {
         { type: 'object', value: {} },
         { type: 'keyword', value: 'nonexistent' }
       );
-      
+
       expect(result.type).toBe('nil');
       expect(result.value).toBe(null);
     });
@@ -428,7 +428,7 @@ describe('Library Functions', () => {
         ]},
         { type: 'keyword', value: 'name' }
       );
-      
+
       expect(result.type).toBe('string');
       expect(result.value).toBe('test');
     });
@@ -442,7 +442,7 @@ describe('Library Functions', () => {
         ]},
         { type: 'string', value: 'name' }
       );
-      
+
       expect(result.type).toBe('string');
       expect(result.value).toBe('test');
     });
@@ -453,21 +453,21 @@ describe('Library Functions', () => {
       const printlnFn = env.get('println');
       expect(printlnFn).toBeDefined();
       expect(printlnFn.type).toBe('function');
-      
-      // Mock console.log to test output
+
+
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-      
+
       const result = (printlnFn as any).value(
         { type: 'string', value: 'Hello' },
         { type: 'number', value: 42 },
         { type: 'nil', value: null },
         { type: 'keyword', value: 'test' }
       );
-      
+
       expect(result.type).toBe('nil');
       expect(result.value).toBe(null);
       expect(consoleSpy).toHaveBeenCalledWith('Hello 42 nil :test');
-      
+
       consoleSpy.mockRestore();
     });
 
@@ -475,19 +475,19 @@ describe('Library Functions', () => {
       const printFn = env.get('print');
       expect(printFn).toBeDefined();
       expect(printFn.type).toBe('function');
-      
-      // Mock process.stdout.write to test output
+
+
       const stdoutSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
-      
+
       const result = (printFn as any).value(
         { type: 'string', value: 'Hello' },
         { type: 'number', value: 42 }
       );
-      
+
       expect(result.type).toBe('nil');
       expect(result.value).toBe(null);
       expect(stdoutSpy).toHaveBeenCalledWith('Hello 42');
-      
+
       stdoutSpy.mockRestore();
     });
 
@@ -495,17 +495,17 @@ describe('Library Functions', () => {
       const principlesFn = env.get('principles');
       expect(principlesFn).toBeDefined();
       expect(principlesFn.type).toBe('function');
-      
-      // Mock console.log to test output
+
+
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-      
+
       const result = (principlesFn as any).value();
-      
+
       expect(result.type).toBe('nil');
       expect(result.value).toBe(null);
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('The Principles of HC-Lisp'));
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('1. Clarity is better than clever tricks'));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -515,7 +515,7 @@ describe('Library Functions', () => {
       const parseIntFn = env.get('parseInt');
       expect(parseIntFn).toBeDefined();
       expect(parseIntFn.type).toBe('function');
-      
+
       const result = (parseIntFn as any).value(
         { type: 'string', value: '42' },
         { type: 'number', value: 10 }
@@ -530,13 +530,13 @@ describe('Library Functions', () => {
       expect(jsonObj.type).toBe('object');
       expect((jsonObj as any).value).toHaveProperty('stringify');
       expect((jsonObj as any).value).toHaveProperty('parse');
-      
-      // Test stringify
+
+
       const stringifyResult = (jsonObj as any).value.stringify({ type: 'string', value: 'test' });
       expect(stringifyResult.type).toBe('string');
       expect(stringifyResult.value).toBe('"test"');
-      
-      // Test parse
+
+
       const parseResult = (jsonObj as any).value.parse({ type: 'string', value: '"test"' });
       expect(parseResult.type).toBe('string');
       expect(parseResult.value).toBe('test');
@@ -548,10 +548,10 @@ describe('Library Functions', () => {
       const atomFn = env.get('atom');
       expect(atomFn).toBeDefined();
       expect(atomFn.type).toBe('function');
-      
+
       const initialValue = { type: 'number', value: 42 };
       const atomValue = (atomFn as any).value(initialValue);
-      
+
       expect(atomValue.type).toBe('object');
       expect(atomValue.value.__isAtom).toBe(true);
       expect(atomValue.value.value).toEqual(initialValue);
@@ -562,11 +562,11 @@ describe('Library Functions', () => {
       const derefFn = env.get('deref');
       expect(derefFn).toBeDefined();
       expect(derefFn.type).toBe('function');
-      
+
       const initialValue = { type: 'string', value: 'test' };
       const atomValue = (atomFn as any).value(initialValue);
       const derefValue = (derefFn as any).value(atomValue);
-      
+
       expect(derefValue).toEqual(initialValue);
     });
 
@@ -581,11 +581,11 @@ describe('Library Functions', () => {
       const resetFn = env.get('reset!');
       expect(resetFn).toBeDefined();
       expect(resetFn.type).toBe('function');
-      
+
       const initialValue = { type: 'number', value: 42 };
       const atomValue = (atomFn as any).value(initialValue);
       const newValue = { type: 'string', value: 'new' };
-      
+
       const result = (resetFn as any).value(atomValue, newValue);
       expect(result).toEqual(newValue);
       expect(atomValue.value.value).toEqual(newValue);
@@ -602,15 +602,15 @@ describe('Library Functions', () => {
       const swapFn = env.get('swap!');
       expect(swapFn).toBeDefined();
       expect(swapFn.type).toBe('function');
-      
+
       const initialValue = { type: 'number', value: 5 };
       const atomValue = (atomFn as any).value(initialValue);
-      
+
       const incrementFn = {
         type: 'function' as const,
         value: (x: HCValue) => ({ type: 'number' as const, value: (x as any).value + 1 })
       };
-      
+
       const result = (swapFn as any).value(atomValue, incrementFn);
       expect(result.type).toBe('number');
       expect(result.value).toBe(6);
@@ -647,10 +647,10 @@ describe('Library Functions', () => {
       const conjFn = env.get('conj');
       expect(conjFn).toBeDefined();
       expect(conjFn.type).toBe('function');
-      
+
       const seq = { type: 'vector' as const, value: [{ type: 'number', value: 1 }] };
       const newItem = { type: 'number', value: 2 };
-      
+
       const result = (conjFn as any).value(seq, newItem);
       expect(result.type).toBe('vector');
       expect(result.value).toHaveLength(2);
@@ -667,11 +667,11 @@ describe('Library Functions', () => {
       const assocFn = env.get('assoc');
       expect(assocFn).toBeDefined();
       expect(assocFn.type).toBe('function');
-      
+
       const obj = { type: 'object' as const, value: { existing: 'value' } };
       const key = { type: 'keyword' as const, value: 'newKey' };
       const value = { type: 'string' as const, value: 'newValue' };
-      
+
       const result = (assocFn as any).value(obj, key, value);
       expect(result.type).toBe('object');
       expect(result.value.existing).toBe('value');
@@ -697,7 +697,7 @@ describe('Library Functions', () => {
       };
       const newKey = { type: 'keyword' as const, value: 'age' };
       const newValue = { type: 'number' as const, value: 25 };
-      
+
       const result = (assocFn as any).value(vector, newKey, newValue);
       expect(result.type).toBe('object');
       expect(result.value.name).toBe('test');
@@ -710,7 +710,7 @@ describe('Library Functions', () => {
       const filterFn = env.get('filter');
       expect(filterFn).toBeDefined();
       expect(filterFn.type).toBe('function');
-      
+
       const seq = { type: 'vector' as const, value: [{ type: 'number', value: 1 }] };
       const fn = { type: 'closure' as const, value: {} };
       expect(() => (filterFn as any).value(fn, seq))
@@ -735,7 +735,7 @@ describe('Library Functions', () => {
       const applyFn = env.get('apply');
       expect(applyFn).toBeDefined();
       expect(applyFn.type).toBe('function');
-      
+
       const addFn = {
         type: 'function' as const,
         value: (a: HCValue, b: HCValue) => ({ type: 'number' as const, value: (a as any).value + (b as any).value })
@@ -744,7 +744,7 @@ describe('Library Functions', () => {
         type: 'vector' as const,
         value: [{ type: 'number', value: 2 }, { type: 'number', value: 3 }]
       };
-      
+
       const result = (applyFn as any).value(addFn, args);
       expect(result.type).toBe('number');
       expect(result.value).toBe(5);
@@ -776,7 +776,7 @@ describe('Library Functions', () => {
       const mapFn = env.get('map');
       expect(mapFn).toBeDefined();
       expect(mapFn.type).toBe('function');
-      
+
       const seq = { type: 'vector' as const, value: [{ type: 'number', value: 1 }] };
       const fn = { type: 'closure' as const, value: {} };
       expect(() => (mapFn as any).value(fn, seq))
@@ -801,7 +801,7 @@ describe('Library Functions', () => {
       const reduceFn = env.get('reduce');
       expect(reduceFn).toBeDefined();
       expect(reduceFn.type).toBe('function');
-      
+
       const seq = { type: 'vector' as const, value: [{ type: 'number', value: 1 }] };
       const initial = { type: 'number' as const, value: 0 };
       const fn = { type: 'closure' as const, value: {} };
@@ -831,8 +831,12 @@ describe('Library Functions', () => {
       const rangeFn = env.get('range');
       expect(() => (rangeFn as any).value())
         .toThrow('range takes 1-3 arguments');
-      expect(() => (rangeFn as any).value({ type: 'number', value: 1 }, { type: 'number', value: 2 }, { type: 'number', value: 3 }, { type: 'number', value: 4 }))
-        .toThrow('range takes 1-3 arguments');
+      expect(() => (rangeFn as any).value(
+        { type: 'number', value: 1 },
+        { type: 'number', value: 2 },
+        { type: 'number', value: 3 },
+        { type: 'number', value: 4 }
+      )).toThrow('range takes 1-3 arguments');
     });
 
     test('should throw error for non-number arguments in range', () => {
