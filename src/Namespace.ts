@@ -213,22 +213,29 @@ export class NamespaceManager {
               const jsArgs = args.map(arg => this.hcValueToJs(arg));
 
               if (packageName === 'http' && key === 'createServer') {
-                const server = value(...jsArgs);
+                const requestHandlerArg = jsArgs[0];
+                const originalClosure = args[0];
+                console.log('[DEBUG] requestHandlerArg type:', typeof requestHandlerArg);
+                console.log('[DEBUG] originalClosure type:', originalClosure.type);
+                const wrappedHandler = (req: any, res: any) => {
+                  console.log('[DEBUG] Handler called with req:', req.constructor.name, 'url:', req.url);
+                  const hcReq = this.jsValueToHc(req);
+                  const hcRes = this.jsValueToHc(res);
+                  console.log('[DEBUG] Converted req has context:', !!(hcReq as any).__nodejs_context__);
+                  console.log('[DEBUG] hcReq type:', hcReq.type, 'hasJsRef:', !!(hcReq as any).jsRef);
+                  console.log('[DEBUG] hcRes type:', hcRes.type, 'hasJsRef:', !!(hcRes as any).jsRef);
+                  console.log('[DEBUG] About to call originalClosure directly');
 
-                const serverWrapper = {
-                  ...server,
-                  listen: (...listenArgs: any[]) => {
-                    console.log('[DEBUG] Custom listen wrapper called with args:', listenArgs);
-                    try {
-                      return server.listen.call(server, ...listenArgs);
-                    } catch (err) {
-                      console.log('[DEBUG] Listen wrapper error:', err);
-                      throw err;
-                    }
+                  if (originalClosure.type === 'closure') {
+                    const { callFunction } = require('./Interpret');
+                    const currentEnv = this.getCurrentNamespace().environment;
+                    return callFunction(originalClosure, [hcReq, hcRes], currentEnv, this);
+                  } else {
+                    return requestHandlerArg(hcReq, hcRes);
                   }
                 };
-
-                return this.jsValueToHc(serverWrapper);
+                const server = value(wrappedHandler);
+                return this.jsValueToHc(server);
               }
 
               const result = value(...jsArgs);
@@ -293,8 +300,19 @@ export class NamespaceManager {
       };
     }
     if (typeof jsValue === 'object') {
-      if (jsValue && jsValue.constructor && jsValue.constructor.name === 'Server') {
-        return jsValue;
+      if (jsValue && jsValue.constructor) {
+        const constructorName = jsValue.constructor.name;
+        if (constructorName === 'Server' ||
+            constructorName === 'IncomingMessage' ||
+            constructorName === 'ServerResponse' ||
+            constructorName === 'Socket') {
+          console.log(`[DEBUG] Creating direct JS reference for ${constructorName}`);
+          return {
+            type: 'js-object',
+            jsRef: jsValue,
+            __direct_js__: true
+          } as any;
+        }
       }
       return { type: 'object', value: jsValue };
     }

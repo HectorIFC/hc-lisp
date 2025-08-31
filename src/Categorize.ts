@@ -10,7 +10,8 @@ export type HCValue =
     | { type: 'function'; value: (...args: any[]) => any; arity?: number }
     | { type: 'closure'; params: string[]; body: HCValue; env: any }
     | { type: 'recur'; values: HCValue[] }
-    | { type: 'object'; value: any };
+    | { type: 'object'; value: any }
+    | { type: 'js-object'; jsRef: any; __direct_js__: boolean };
 
 export function categorize(token: string): HCValue {
   if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(token)) {

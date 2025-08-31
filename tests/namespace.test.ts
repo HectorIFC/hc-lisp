@@ -646,7 +646,7 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
             namespaceManager.createMockNamespace(moduleName);
           }
 
-          // Just verify that tryLoadNodeModule was called for each module
+
           expect(namespaceManager.tryLoadNodeModule).toHaveBeenCalledTimes(modules.length);
 
           namespaceManager.createMockNamespace('unknown-module');

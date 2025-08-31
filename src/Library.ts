@@ -211,7 +211,13 @@ const coreFunctions = {
       throw new Error('json/parse expects a string argument');
     }
     try {
-      const parsed = JSON.parse(s.value);
+      let jsonStr = s.value;
+      if (jsonStr.startsWith('"') && jsonStr.endsWith('"')) {
+        try {
+          jsonStr = JSON.parse(jsonStr);
+        } catch (e) {}
+      }
+      const parsed = JSON.parse(jsonStr);
       return jsonToHcValue(parsed);
     } catch (error) {
       throw new Error(`Error parsing JSON: ${(error as Error).message}`);
@@ -303,11 +309,17 @@ const coreFunctions = {
   },
 
   'assoc': (obj: HCValue, ...keyValuePairs: HCValue[]): HCValue => {
+    console.log('[DEBUG] assoc-obj:', obj);
+    console.log('[DEBUG] assoc-keyValuePairs:', keyValuePairs);
     if (keyValuePairs.length % 2 !== 0) {
       throw new Error('assoc requires an even number of key-value arguments');
     }
 
     const result: any = {};
+
+    if (obj.type === 'object' && obj.value && typeof obj.value === 'object') {
+      Object.assign(result, obj.value);
+    }
 
     if (obj.type === 'vector' && obj.value.length > 0) {
       for (let i = 0; i < obj.value.length; i += 2) {
@@ -329,12 +341,7 @@ const coreFunctions = {
       }
     }
 
-    const pairs: HCValue[] = [];
-    for (const [k, v] of Object.entries(result)) {
-      pairs.push({ type: 'keyword', value: k });
-      pairs.push(jsonToHcValue(v as JSONValue));
-    }
-    return { type: 'vector', value: pairs };
+    return { type: 'object', value: result };
   },
 
   'conj': (seq: HCValue, ...items: HCValue[]): HCValue => {
@@ -487,6 +494,49 @@ Now you know the way. 😉
     }
 
     return { type: 'list', value: result };
+  },
+
+  'get': (obj: HCValue, key: HCValue, defaultValue?: HCValue): HCValue => {
+    const notFoundValue = defaultValue || { type: 'nil', value: null };
+
+    if (obj.type === 'vector') {
+      for (let i = 0; i < obj.value.length; i += 2) {
+        const k = obj.value[i];
+        const v = obj.value[i + 1];
+        if (k && v && k.type === 'keyword' && key.type === 'keyword' && k.value === key.value) {
+          return v;
+        }
+        if (k && v && k.type === 'string' && key.type === 'string' && k.value === key.value) {
+          return v;
+        }
+      }
+      return notFoundValue;
+    }
+
+    if (obj.type === 'object' && obj.value && typeof obj.value === 'object') {
+      if (key.type === 'keyword') {
+        const value = obj.value[key.value];
+        return value !== undefined ? jsonToHcValue(value) : notFoundValue;
+      }
+      if (key.type === 'string') {
+        const value = obj.value[key.value];
+        return value !== undefined ? jsonToHcValue(value) : notFoundValue;
+      }
+    }
+
+    return notFoundValue;
+  },
+
+  'merge': (...args: HCValue[]): HCValue => {
+    const result: any = {};
+
+    for (const arg of args) {
+      if (arg.type === 'object' && arg.value && typeof arg.value === 'object') {
+        Object.assign(result, arg.value);
+      }
+    }
+
+    return { type: 'object', value: result };
   }
 };
 

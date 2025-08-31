@@ -39,15 +39,15 @@ export const specialForms: { [key: string]: SpecialForm } = {
 
     let docstring = '';
     let paramList: HCValue;
-    let body: HCValue;
+    let bodyExpressions: HCValue[];
 
     if (args[1].type === 'string' && args.length >= 4) {
       docstring = args[1].value as string;
       paramList = args[2];
-      body = args[3];
+      bodyExpressions = args.slice(3);
     } else {
       paramList = args[1];
-      body = args[2];
+      bodyExpressions = args.slice(2);
     }
 
     if (!paramList || (paramList.type !== 'list' && paramList.type !== 'vector')) {
@@ -60,6 +60,13 @@ export const specialForms: { [key: string]: SpecialForm } = {
       }
       return param.value;
     });
+
+    const body: HCValue = bodyExpressions.length === 1
+      ? bodyExpressions[0]
+      : {
+        type: 'list',
+        value: [{ type: 'symbol', value: 'do' }, ...bodyExpressions]
+      };
 
     const closure: HCValue = {
       type: 'closure',
