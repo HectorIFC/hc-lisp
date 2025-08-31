@@ -60,7 +60,7 @@ class HCLisp {
   }
 
   private loadRequiredNamespaces(content: string): void {
-    const nsRegex = /\(ns\s+\S+\s*\(\s*:require\s+([\s\S]*?)\)\s*\)/;
+    const nsRegex = /\(ns\s+\S+\s*\(\s*:require\s+([^)]+)\)\s*\)/;
     const nsMatch = nsRegex.exec(content);
     if (nsMatch) {
       const requiresString = nsMatch[1];
@@ -280,6 +280,7 @@ export default {
   interpret: (expr: HCValue, env?: Environment) => hcLisp.interpret(expr, env),
   eval: (input: string) => hcLisp.eval(input),
   evalFile: (filePath: string) => hcLisp.evalFile(filePath),
+  evalFileContent: (content: string) => hcLisp.evalFileContent(content),
   formatOutput: (value: HCValue) => hcLisp.formatOutput(value),
   resetContext: () => hcLisp.resetContext(),
   getGlobalEnvironment: () => hcLisp.getGlobalEnvironment()

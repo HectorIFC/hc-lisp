@@ -2,42 +2,15 @@ import { NamespaceManager } from '../src/Namespace';
 import { Environment } from '../src/Context';
 import { HCValue } from '../src/Categorize';
 import HcLisp from '../src/hc-lisp';
+import { describe, test, expect } from '@jest/globals';
 
-describe('Namespace Unified Tests - Complete Coverage', () => {
+describe('Namespace', () => {
   let namespaceManager: NamespaceManager;
 
   beforeEach(() => {
     HcLisp.resetContext();
     namespaceManager = new NamespaceManager(HcLisp.getGlobalEnvironment());
   });
-
-  const callHCFunction = (hcValue: HCValue, ...args: HCValue[]): HCValue => {
-    if (hcValue.type === 'function') {
-      return hcValue.value(...args);
-    }
-    throw new Error('Not a function');
-  };
-
-  const getStringValue = (hcValue: HCValue): string => {
-    if (hcValue.type === 'string') {
-      return hcValue.value;
-    }
-    throw new Error('Not a string');
-  };
-
-  const getBooleanValue = (hcValue: HCValue): boolean => {
-    if (hcValue.type === 'boolean') {
-      return hcValue.value;
-    }
-    throw new Error('Not a boolean');
-  };
-
-  const getObjectValue = (hcValue: HCValue): any => {
-    if (hcValue.type === 'object') {
-      return hcValue.value;
-    }
-    throw new Error('Not an object');
-  };
 
   describe('Basic Namespace Operations', () => {
     test('should create and manage namespaces', () => {
@@ -1318,4 +1291,62 @@ describe('Namespace Unified Tests - Complete Coverage', () => {
       });
     });
   });
+
+  describe('Namespace Security Tests', () => {
+    test('should parse namespace requires safely', () => {
+      const testContent = `
+  (ns test-namespace 
+    (:require [some.namespace]
+              [another.namespace]))
+  
+  (def x 42)
+  `;
+
+      expect(() => {
+        HcLisp.evalFileContent(testContent);
+      }).not.toThrow();
+    });
+
+    test('should handle complex namespace requirements safely', () => {
+      const testContent = `
+  (ns complex-test 
+    (:require [namespace.one :as one]
+              [namespace.two :refer [func1 func2]]
+              [namespace.three]))
+  
+  (def result (+ 1 2))
+  `;
+
+      expect(() => {
+        HcLisp.evalFileContent(testContent);
+      }).not.toThrow();
+    });
+
+    test('should handle nested parentheses in namespace safely', () => {
+      const testContent = `
+  (ns nested-test 
+    (:require [ns.one]
+              [ns.two]))
+  
+  (def nested-fn (fn [x] (+ x 1)))
+  `;
+
+      expect(() => {
+        HcLisp.evalFileContent(testContent);
+      }).not.toThrow();
+    });
+
+    test('should handle malformed namespace gracefully', () => {
+      const testContent = `
+  (ns incomplete-ns (:require 
+  
+  (def some-var 123)
+  `;
+
+      expect(() => {
+        HcLisp.evalFileContent(testContent);
+      }).not.toThrow();
+    });
+  });
+
 });
