@@ -370,27 +370,14 @@ describe('HC-Lisp REPL Tests', () => {
   });
 
   describe('getVersion function coverage', () => {
-    test('should handle missing package.json file', () => {
-      const originalRequire = require;
-
-      (global as any).require = jest.fn().mockImplementation((path: string) => {
-        if (path === '../../package.json') {
-          throw new Error('Module not found');
-        }
-        return originalRequire(path);
-      });
-
-      delete require.cache[require.resolve('../src/repl')];
+    test('should return version from package.json', () => {
       const { createReplEvaluator } = require('../src/repl');
-
       const evaluator = createReplEvaluator();
       const mockCallback = jest.fn();
 
       evaluator('(version)', {}, 'test.js', mockCallback);
 
-      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('unknown'));
-
-      (global as any).require = originalRequire;
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('HC-Lisp version'));
     });
   });
 

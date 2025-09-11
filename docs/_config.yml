@@ -1,6 +1,6 @@
 theme: jekyll-theme-minimal
 title: HC-Lisp
-description: A Modern Lisp Dialect inspired by Clojure, built with TypeScript
+description: A modern Lisp dialect implementation in TypeScript, inspired by Clojure and Peter Norvig's Lispy project.
 url: https://hectorifc.github.io/hc-lisp
 baseurl: /hc-lisp
 author: Hector Cardoso
