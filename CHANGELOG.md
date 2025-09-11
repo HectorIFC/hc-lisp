@@ -1,3 +1,14 @@
+## [1.4.1](https://github.com/HectorIFC/hc-lisp/compare/v1.4.0...v1.4.1) (2025-09-11)
+
+
+### Bug Fixes
+
+* adjusts ([b5a185f](https://github.com/HectorIFC/hc-lisp/commit/b5a185fff4656809ded5a4cd458bf2d800b4d49b))
+* api is not working ([4594cd1](https://github.com/HectorIFC/hc-lisp/commit/4594cd1e1257bb72062abdbe8b6bcab01fb0ef8f))
+* lint ([a8e2d14](https://github.com/HectorIFC/hc-lisp/commit/a8e2d148529d2edbaa850a33f5f4141ef1c23d2b))
+* tests and implementation ([a1e8884](https://github.com/HectorIFC/hc-lisp/commit/a1e8884522947a426403f18e8097910997595c8e))
+* vulnerability ([beb4ac1](https://github.com/HectorIFC/hc-lisp/commit/beb4ac127838901e395d1ace6e2dbc61f7553e60))
+
 # [1.4.0](https://github.com/HectorIFC/hc-lisp/compare/v1.3.2...v1.4.0) (2025-08-15)
 
 
