@@ -60,22 +60,34 @@ class HCLisp {
   }
 
   private loadRequiredNamespaces(content: string): void {
-    const nsRegex = /\(ns\s+\S+\s*\(\s*:require\s+\[([\s\S]*?)\]\s*\)/;
+    const nsRegex = /\(ns\s+\S+\s*\(\s*:require\s+([^)]+)\)\s*\)/;
     const nsMatch = nsRegex.exec(content);
     if (nsMatch) {
       const requiresString = nsMatch[1];
-      const requiredNamespaces = requiresString.split(/\s+/).filter(ns => ns.trim());
+
+      const bracketRegex = /\[([^\]]+)\]/g;
+      const requiredNamespaces: string[] = [];
+      let match;
+
+      while ((match = bracketRegex.exec(requiresString)) !== null) {
+        const namespaces = match[1].split(/\s+/).filter(ns => ns.trim());
+        requiredNamespaces.push(...namespaces);
+      }
 
       for (const ns of requiredNamespaces) {
+        if (ns.startsWith('node.')) { continue; }
+
         const nsInfo = this.nsManager.getNamespace(ns);
-
         if (nsInfo) {
-          const contentValue = nsInfo.environment.get('__deferred_content__');
-
+          let contentValue: any = null;
+          try {
+            contentValue = nsInfo.environment.get('__deferred_content__');
+          } catch (e) {
+            continue;
+          }
           if (contentValue && contentValue.type === 'string') {
             const originalNs = this.nsManager.getCurrentNamespace().name;
             this.nsManager.setCurrentNamespace(ns);
-
             try {
               this.evalFileContentInternal(contentValue.value);
               nsInfo.environment.define('__deferred_content__', { type: 'nil', value: null });
@@ -268,6 +280,7 @@ export default {
   interpret: (expr: HCValue, env?: Environment) => hcLisp.interpret(expr, env),
   eval: (input: string) => hcLisp.eval(input),
   evalFile: (filePath: string) => hcLisp.evalFile(filePath),
+  evalFileContent: (content: string) => hcLisp.evalFileContent(content),
   formatOutput: (value: HCValue) => hcLisp.formatOutput(value),
   resetContext: () => hcLisp.resetContext(),
   getGlobalEnvironment: () => hcLisp.getGlobalEnvironment()

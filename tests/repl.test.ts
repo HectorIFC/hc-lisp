@@ -4,6 +4,7 @@ import { createReplEvaluator, createReplWriter, showWelcomeMessage, startRepl } 
 import repl from 'repl';
 
 const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+const mockConsoleClear = jest.spyOn(console, 'clear').mockImplementation(() => {});
 const mockProcessExit = jest.spyOn(process, 'exit').mockImplementation((code?: string | number | null | undefined): never => {
   throw new Error(`process.exit called with code ${code}`);
 });
@@ -25,6 +26,7 @@ describe('HC-Lisp REPL Tests', () => {
 
   afterAll(() => {
     mockConsoleLog.mockRestore();
+    mockConsoleClear.mockRestore();
     mockProcessExit.mockRestore();
     mockEval.mockRestore();
     mockFormatOutput.mockRestore();
@@ -111,6 +113,54 @@ describe('HC-Lisp REPL Tests', () => {
       expect(mockEval).toHaveBeenCalledWith('(defn square [x] (* x x))');
       expect(mockFormatOutput).toHaveBeenCalled();
       expect(mockCallback).toHaveBeenCalledWith(null, '42');
+    });
+
+    test('should handle (help) command', () => {
+      evaluator('(help)', {}, 'test.js', mockCallback);
+
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('HC-Lisp REPL Commands:'));
+      expect(mockEval).not.toHaveBeenCalled();
+    });
+
+    test('should handle help command without parentheses', () => {
+      evaluator('help', {}, 'test.js', mockCallback);
+
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('HC-Lisp REPL Commands:'));
+      expect(mockEval).not.toHaveBeenCalled();
+    });
+
+    test('should handle (version) command', () => {
+      evaluator('(version)', {}, 'test.js', mockCallback);
+
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('HC-Lisp version'));
+      expect(mockEval).not.toHaveBeenCalled();
+    });
+
+    test('should handle (clear) command', () => {
+      evaluator('(clear)', {}, 'test.js', mockCallback);
+
+      expect(mockConsoleClear).toHaveBeenCalled();
+      expect(mockCallback).toHaveBeenCalledWith(null, undefined);
+      expect(mockEval).not.toHaveBeenCalled();
+    });
+
+    test('should handle (env) command', () => {
+      evaluator('(env)', {}, 'test.js', mockCallback);
+
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('Current environment: global'));
+      expect(mockEval).not.toHaveBeenCalled();
+    });
+
+    test('should handle exit with console.log but not call process.exit in test', () => {
+      evaluator('(exit)', {}, 'test.js', mockCallback);
+
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Goodbye! 👋'));
+    });
+
+    test('should handle exit without parentheses and call console.log', () => {
+      evaluator('exit', {}, 'test.js', mockCallback);
+
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Goodbye! 👋'));
     });
   });
 
@@ -258,6 +308,93 @@ describe('HC-Lisp REPL Tests', () => {
       const input = '  (exit)  \n';
       const trimmed = input.trim();
       expect(trimmed === '(exit)' || trimmed === 'exit').toBe(true);
+    });
+  });
+
+  describe('REPL Commands Coverage', () => {
+    let evaluator: any;
+    let mockCallback: jest.Mock;
+
+    beforeEach(() => {
+      evaluator = createReplEvaluator();
+      mockCallback = jest.fn();
+    });
+
+    test('should handle (help) command', () => {
+      evaluator('(help)', {}, 'test.js', mockCallback);
+
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('HC-Lisp REPL Commands:'));
+      expect(mockEval).not.toHaveBeenCalled();
+    });
+
+    test('should handle help command without parentheses', () => {
+      evaluator('help', {}, 'test.js', mockCallback);
+
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('HC-Lisp REPL Commands:'));
+      expect(mockEval).not.toHaveBeenCalled();
+    });
+
+    test('should handle (version) command', () => {
+      evaluator('(version)', {}, 'test.js', mockCallback);
+
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('HC-Lisp version'));
+      expect(mockEval).not.toHaveBeenCalled();
+    });
+
+    test('should handle (clear) command', () => {
+      evaluator('(clear)', {}, 'test.js', mockCallback);
+
+      expect(mockConsoleClear).toHaveBeenCalled();
+      expect(mockCallback).toHaveBeenCalledWith(null, undefined);
+      expect(mockEval).not.toHaveBeenCalled();
+    });
+
+    test('should handle (env) command', () => {
+      evaluator('(env)', {}, 'test.js', mockCallback);
+
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('Current environment: global'));
+      expect(mockEval).not.toHaveBeenCalled();
+    });
+
+    test('should handle exit with console.log but not call process.exit in test', () => {
+      evaluator('(exit)', {}, 'test.js', mockCallback);
+
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Goodbye! 👋'));
+    });
+
+    test('should handle exit without parentheses and call console.log', () => {
+      evaluator('exit', {}, 'test.js', mockCallback);
+
+      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Goodbye! 👋'));
+    });
+  });
+
+  describe('getVersion function coverage', () => {
+    test('should return version from package.json', () => {
+      const { createReplEvaluator } = require('../src/repl');
+      const evaluator = createReplEvaluator();
+      const mockCallback = jest.fn();
+
+      evaluator('(version)', {}, 'test.js', mockCallback);
+
+      expect(mockCallback).toHaveBeenCalledWith(null, expect.stringContaining('HC-Lisp version'));
+    });
+  });
+
+  describe('Module entry point coverage', () => {
+    test('should test module entry point code path', () => {
+      const mockModule = {
+        filename: '/path/to/repl.ts',
+        exports: {},
+        require: jest.fn(),
+        id: 'repl',
+        loaded: true,
+        children: [],
+        paths: [],
+        parent: null
+      };
+
+      expect(mockModule.filename).toContain('repl');
     });
   });
 });

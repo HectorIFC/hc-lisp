@@ -15,6 +15,8 @@ export function tokenizer(input: string): string[] {
           .replace(/\)/g, ' ) ')
           .replace(/\[/g, ' [ ')
           .replace(/\]/g, ' ] ')
+          .replace(/\{/g, ' { ')
+          .replace(/\}/g, ' } ')
           .replace(/'/g, ' \' ');
       } else {
         return x.replace(/ /g, '!whitespace!');

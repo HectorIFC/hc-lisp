@@ -27,10 +27,11 @@ function showReplHelp(): string {
 
 function getVersion(): string {
   try {
-    const packageJson = require('../../package.json');
+    const packageJson = require('../package.json');
     return packageJson.version;
-  } catch {
-    return 'unknown';
+  } catch (error) {
+    console.error('Error getting version:', error);
+    throw error;
   }
 }
 
@@ -91,9 +92,9 @@ export function createReplWriter() {
 export function showWelcomeMessage(): void {
   const version = getVersion();
   console.log(chalk.cyan('╔════════════════════════════════════════════════╗'));
-  console.log(chalk.cyan('║') + chalk.bold.white('          Welcome to HC-Lisp REPL!             ') + chalk.cyan('║'));
-  console.log(chalk.cyan('║') + chalk.white(`          A Modern Lisp Dialect v${version.padEnd(12)}`) + chalk.cyan('║'));
-  console.log(chalk.cyan('║') + chalk.gray('        Inspired by Clojure & Node.js           ') + chalk.cyan('║'));
+  console.log(chalk.cyan('║') + chalk.bold.white('          Welcome to HC-Lisp REPL!              ') + chalk.cyan('║'));
+  console.log(chalk.cyan('║') + chalk.white(`       A Modern Lisp Dialect v${version}             `) + chalk.cyan('║'));
+  console.log(chalk.cyan('║') + chalk.gray('        Inspired by Clojure & Lispy             ') + chalk.cyan('║'));
   console.log(chalk.cyan('╚════════════════════════════════════════════════╝'));
   console.log(chalk.yellow('Type ') + chalk.white('(help)') +
     chalk.yellow(' for available commands or ') + chalk.white('(exit)') + chalk.yellow(' to quit'));

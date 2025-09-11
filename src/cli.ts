@@ -22,7 +22,7 @@ export function showBanner(): void {
     ╔═════════════════════════════════════════╗
     ║       HC-Lisp ${version.padEnd(20)}     ║
     ║     A Modern Lisp Dialect               ║
-    ║   Inspired by Clojure & Node.js         ║
+    ║   Inspired by Clojure & Lispy           ║
     ╚═════════════════════════════════════════╝
   `));
 }
@@ -31,9 +31,9 @@ export function showEnhancedHelp(): string {
   const version = getVersion();
   let help = chalk.cyan(`
     ╔═════════════════════════════════════════╗
-    ║           HC-Lisp ${version.padEnd(20)}  ║
+    ║           HC-Lisp ${version.padEnd(20)} ║
     ║     A Modern Lisp Dialect               ║
-    ║   Inspired by Clojure & Node.js         ║
+    ║   Inspired by Clojure & Lispy           ║
     ╚═════════════════════════════════════════╝
   `);
 

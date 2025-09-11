@@ -14,6 +14,41 @@ export function parenthesize(tokens: string[], list?: HCValue[]): HCValue {
     return { type: 'list', value: list };
   }
 
+  if (token === '{') {
+    const mapEntries: [string, HCValue][] = [];
+    while (tokens.length > 0 && tokens[0] !== '}') {
+      const keyToken = tokens.shift();
+      if (typeof keyToken === 'undefined' || tokens.length === 0) { break; }
+      const valueToken = tokens.shift();
+      if (typeof valueToken === 'undefined') { break; }
+      const key = (keyToken.startsWith(':')) ? keyToken.slice(1) : keyToken;
+      let value: HCValue;
+      if (valueToken === '(' || valueToken === '[' || valueToken === '{') {
+        value = parenthesize([valueToken, ...tokens], []);
+        let depth = 1;
+        let idx = 1;
+        while (depth > 0 && idx < tokens.length) {
+          if (tokens[idx] === valueToken) { depth++; }
+          if (tokens[idx] === (valueToken === '(' ? ')' : valueToken === '[' ? ']' : '}')) { depth--; }
+          idx++;
+        }
+        tokens.splice(0, idx - 1);
+      } else {
+        value = categorize(valueToken);
+      }
+      mapEntries.push([key, value]);
+    }
+    if (tokens.length > 0 && tokens[0] === '}') { tokens.shift(); }
+    const obj: Record<string, HCValue> = {};
+    for (const [k, v] of mapEntries) {
+      obj[k] = v;
+    }
+    if (typeof list !== 'undefined') {
+      list.push({ type: 'object', value: obj });
+    }
+    return parenthesize(tokens, list);
+  }
+
   if (token === '(') {
     const subList = parenthesize(tokens, []);
     list.push(subList);
