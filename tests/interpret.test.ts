@@ -1224,4 +1224,221 @@ describe('Interpret', () => {
       jest.restoreAllMocks();
     });
   });
+
+  describe('Atom symbol resolution (@symbol)', () => {
+
+    test('should resolve atom symbol correctly', () => {
+      const atom: HCValue = {
+        type: 'object',
+        value: {
+          __isAtom: true,
+          value: { type: 'number', value: 42 }
+        }
+      };
+
+      env.define('myAtom', atom);
+
+      const atomSymbol: HCValue = {
+        type: 'symbol',
+        value: '@myAtom'
+      };
+
+      const result = interpret(atomSymbol, env);
+      expect(result).toEqual({ type: 'number', value: 42 });
+    });
+
+    test('should throw error for non-atom symbol with @ prefix', () => {
+      const nonAtom: HCValue = {
+        type: 'object',
+        value: {
+          __isAtom: false,
+          value: { type: 'number', value: 42 }
+        }
+      };
+
+      env.define('notAnAtom', nonAtom);
+
+      const atomSymbol: HCValue = {
+        type: 'symbol',
+        value: '@notAnAtom'
+      };
+
+      expect(() => interpret(atomSymbol, env)).toThrow('Undefined symbol: @notAnAtom');
+    });
+  });
+
+  describe('Node.js context method calls', () => {
+    test('should handle method calls with proper object structure', () => {
+      const jsObj = {
+        testMethod: jest.fn().mockReturnValue('test result')
+      };
+
+      env.define('jsObj', { type: 'object', value: jsObj });
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const methodCall: HCValue = {
+        type: 'list',
+        value: [
+          { type: 'symbol', value: '.testMethod' },
+          { type: 'symbol', value: 'jsObj' }
+        ]
+      };
+
+      const result = interpret(methodCall, env);
+      expect(jsObj.testMethod).toHaveBeenCalled();
+
+      jest.restoreAllMocks();
+    });
+  });
+
+  describe('Method call error handling', () => {
+    test('should handle method call errors with stack trace', () => {
+      const obj = {
+        errorMethod: () => {
+          throw new Error('Method error');
+        }
+      };
+
+      env.define('obj', { type: 'object', value: obj });
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const methodCall: HCValue = {
+        type: 'list',
+        value: [
+          { type: 'symbol', value: '.errorMethod' },
+          { type: 'symbol', value: 'obj' }
+        ]
+      };
+
+      expect(() => interpret(methodCall, env)).toThrow('Method error');
+
+      jest.restoreAllMocks();
+    });
+  });
+
+  describe('Error handling in callFunction', () => {
+    test('should handle division by zero in built-in function', () => {
+      const divFn: HCValue = {
+        type: 'function',
+        value: (a: HCValue, b: HCValue) => {
+          if ((b as any).value === 0) {
+            throw new Error('Division by zero');
+          }
+          return { type: 'number', value: (a as any).value / (b as any).value };
+        }
+      };
+
+      env.define('div', divFn);
+
+      expect(() => callFunction(divFn, [
+        { type: 'number', value: 10 },
+        { type: 'number', value: 0 }
+      ], env)).toThrow('Division by zero');
+    });
+
+    test('should re-throw non-recur errors in closure', () => {
+      const closure: HCValue = {
+        type: 'closure',
+        params: [],
+        body: { type: 'symbol', value: 'nonExistentSymbol' },
+        env: env
+      };
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      expect(() => callFunction(closure, [], env)).toThrow('Undefined symbol: nonExistentSymbol');
+
+      jest.restoreAllMocks();
+    });
+  });  describe('Special symbol handling', () => {
+    test('should log debug info for res symbol', () => {
+      const jsObject = { test: 'value' };
+      const resValue: HCValue = {
+        type: 'js-object',
+        jsRef: jsObject,
+        __direct_js__: true
+      } as any;
+
+      env.define('res', resValue);
+
+      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const resSymbol: HCValue = {
+        type: 'symbol',
+        value: 'res'
+      };
+
+      const result = interpret(resSymbol, env);
+      expect(logSpy).toHaveBeenCalledWith('[DEBUG] Symbol res resolved to:', expect.any(Object));
+      expect(result).toBe(resValue);
+
+      jest.restoreAllMocks();
+    });
+  });
+
+  describe('Method calls with closures and functions as arguments', () => {
+    test('should handle closure as method argument', () => {
+      const mockMethod = jest.fn().mockReturnValue('result');
+      const obj = { testMethod: mockMethod };
+
+      env.define('obj', { type: 'js-object', jsRef: obj, __direct_js__: true } as any);
+
+      const closure: HCValue = {
+        type: 'closure',
+        params: ['x'],
+        body: { type: 'symbol', value: 'x' },
+        env: env
+      };
+
+      env.define('myClosure', closure);
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const methodCall: HCValue = {
+        type: 'list',
+        value: [
+          { type: 'symbol', value: '.testMethod' },
+          { type: 'symbol', value: 'obj' },
+          { type: 'symbol', value: 'myClosure' }
+        ]
+      };
+
+      const result = interpret(methodCall, env);
+      expect(mockMethod).toHaveBeenCalledWith(expect.any(Function));
+
+      jest.restoreAllMocks();
+    });
+
+    test('should handle function as method argument', () => {
+      const mockMethod = jest.fn().mockReturnValue('result');
+      const obj = { testMethod: mockMethod };
+
+      env.define('obj', { type: 'js-object', jsRef: obj, __direct_js__: true } as any);
+
+      const fn: HCValue = {
+        type: 'function',
+        value: (...args: any[]) => args[0]
+      };
+
+      env.define('myFn', fn);
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const methodCall: HCValue = {
+        type: 'list',
+        value: [
+          { type: 'symbol', value: '.testMethod' },
+          { type: 'symbol', value: 'obj' },
+          { type: 'symbol', value: 'myFn' }
+        ]
+      };
+
+      const result = interpret(methodCall, env);
+      expect(mockMethod).toHaveBeenCalledWith(expect.any(Function));
+
+      jest.restoreAllMocks();
+    });
+  });
 });
