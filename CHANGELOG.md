@@ -1,3 +1,10 @@
+## [1.4.4](https://github.com/HectorIFC/hc-lisp/compare/v1.4.3...v1.4.4) (2025-09-12)
+
+
+### Bug Fixes
+
+* family function ([f0f9a48](https://github.com/HectorIFC/hc-lisp/commit/f0f9a48378b5bc64a2d551c9e3b2a7cfa66e75d1))
+
 ## [1.4.3](https://github.com/HectorIFC/hc-lisp/compare/v1.4.2...v1.4.3) (2025-09-12)
 
 
