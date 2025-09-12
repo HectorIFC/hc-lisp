@@ -508,6 +508,24 @@ describe('Library Functions', () => {
 
       consoleSpy.mockRestore();
     });
+
+    test('should print family story', () => {
+      const familyFn = env.get('family');
+      expect(familyFn).toBeDefined();
+      expect(familyFn.type).toBe('function');
+
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const result = (familyFn as any).value();
+
+      expect(result.type).toBe('nil');
+      expect(result.value).toBe(null);
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('The HC-Lisp Family Story'));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Brígida brought love and patience'));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Heitor arrived to multiply the joy'));
+
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('Global environment additional functions', () => {

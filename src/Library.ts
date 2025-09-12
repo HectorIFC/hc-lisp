@@ -442,6 +442,33 @@ Now you know the way. 😉
     return { type: 'nil', value: null };
   },
 
+  'family': (): HCValue => {
+    const familyStory = `
+====================================
+The HC-Lisp Family Story ❤️
+====================================
+
+🌸 Chapter 1:
+Brígida brought love and patience.
+
+👨 Chapter 2:
+Hector, driven by dreams and dedication.
+
+👦 Chapter 3:
+Heitor arrived to multiply the joy.
+
+💖 Chapter 4:
+Together, forming a whole greater than the sum of its parts.
+
+The result of Brígida + Hector is: Heitor
+
+=====================================
+           The End ❤️
+=====================================
+`;
+    console.log(familyStory);
+    return { type: 'nil', value: null };
+  },
 
   'map': (fn: HCValue, seq: HCValue): HCValue => {
     if (fn.type !== 'function' && fn.type !== 'closure') {
