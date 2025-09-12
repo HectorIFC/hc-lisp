@@ -11,6 +11,64 @@ export type SpecialForm = (
     nsManager?: NamespaceManager
 ) => HCValue;
 
+function defineFunction(
+  keyword: string,
+  args: HCValue[],
+  env: Environment,
+  interpret: any,
+  nsManager?: NamespaceManager
+): HCValue {
+  if (args.length < 3) {
+    throw new Error(`${keyword} requires at least 3 arguments`);
+  }
+
+  const nameExpr = args[0];
+  if (nameExpr.type !== 'symbol') {
+    throw new Error(`${keyword} requires a symbol as first argument`);
+  }
+
+  let docstring = '';
+  let paramList: HCValue;
+  let bodyExpressions: HCValue[];
+
+  if (args[1].type === 'string' && args.length >= 4) {
+    docstring = args[1].value as string;
+    paramList = args[2];
+    bodyExpressions = args.slice(3);
+  } else {
+    paramList = args[1];
+    bodyExpressions = args.slice(2);
+  }
+
+  if (!paramList || (paramList.type !== 'list' && paramList.type !== 'vector')) {
+    throw new Error(`${keyword} requires a parameter list`);
+  }
+
+  const params = (paramList.value as HCValue[]).map(param => {
+    if (param.type !== 'symbol') {
+      throw new Error('Parameter names must be symbols');
+    }
+    return param.value;
+  });
+
+  const body: HCValue = bodyExpressions.length === 1
+    ? bodyExpressions[0]
+    : {
+      type: 'list',
+      value: [{ type: 'symbol', value: 'do' }, ...bodyExpressions]
+    };
+
+  const closure: HCValue = {
+    type: 'closure',
+    params,
+    body,
+    env
+  };
+
+  env.define(nameExpr.value, closure);
+  return closure;
+}
+
 export const specialForms: { [key: string]: SpecialForm } = {
   'def': (args: HCValue[], env: Environment, interpret: any, nsManager?: NamespaceManager): HCValue => {
     if (args.length !== 2) {
@@ -28,55 +86,11 @@ export const specialForms: { [key: string]: SpecialForm } = {
   },
 
   'defn': (args: HCValue[], env: Environment, interpret: any, nsManager?: NamespaceManager): HCValue => {
-    if (args.length < 3) {
-      throw new Error('defn requires at least 3 arguments');
-    }
+    return defineFunction('defn', args, env, interpret, nsManager);
+  },
 
-    const nameExpr = args[0];
-    if (nameExpr.type !== 'symbol') {
-      throw new Error('defn requires a symbol as first argument');
-    }
-
-    let docstring = '';
-    let paramList: HCValue;
-    let bodyExpressions: HCValue[];
-
-    if (args[1].type === 'string' && args.length >= 4) {
-      docstring = args[1].value as string;
-      paramList = args[2];
-      bodyExpressions = args.slice(3);
-    } else {
-      paramList = args[1];
-      bodyExpressions = args.slice(2);
-    }
-
-    if (!paramList || (paramList.type !== 'list' && paramList.type !== 'vector')) {
-      throw new Error('defn requires a parameter list');
-    }
-
-    const params = (paramList.value as HCValue[]).map(param => {
-      if (param.type !== 'symbol') {
-        throw new Error('Parameter names must be symbols');
-      }
-      return param.value;
-    });
-
-    const body: HCValue = bodyExpressions.length === 1
-      ? bodyExpressions[0]
-      : {
-        type: 'list',
-        value: [{ type: 'symbol', value: 'do' }, ...bodyExpressions]
-      };
-
-    const closure: HCValue = {
-      type: 'closure',
-      params,
-      body,
-      env
-    };
-
-    env.define(nameExpr.value, closure);
-    return closure;
+  'defun': (args: HCValue[], env: Environment, interpret: any, nsManager?: NamespaceManager): HCValue => {
+    return defineFunction('defun', args, env, interpret, nsManager);
   },
 
   'fn': (args: HCValue[], env: Environment, interpret: any, nsManager?: NamespaceManager): HCValue => {

@@ -16,7 +16,7 @@ HC-Lisp is a functional programming language that supports:
 
 - **Basic data types**: numbers, strings, booleans, nil, keywords, symbols
 - **Data structures**: lists and vectors
-- **Functions**: function definition with `defn` and anonymous functions with `fn`
+- **Functions**: function definition with `defn` or `defun` and anonymous functions with `fn`
 - **Control flow**: `if`, `let`, `loop`/`recur` for tail recursion
 - **Mathematical operations**: +, -, *, /, comparisons, sqrt
 - **List operations**: `first`, `rest`, `count`, `map`, `reduce`, `range`
@@ -156,6 +156,10 @@ For more details, see [SYNTAX-HIGHLIGHTING.md](SYNTAX-HIGHLIGHTING.md)
 ;; Functions
 (defn square [x] (* x x))
 (square 5)     ; => 25
+
+;; Alternative function definition syntax
+(defun cube [x] (* x x x))
+(cube 3)       ; => 27
 
 ;; Functions with docstring
 (defn sum
@@ -408,7 +412,7 @@ The project is structured in modules:
 - `Parenthesize.ts` - Syntactic analysis (parsing)
 - `Interpret.ts` - Main interpreter
 - `Library.ts` - Basic function library and built-in functions
-- `Keywords.ts` - Special forms (def, defn, if, let, ns, import, require, etc.)
+- `Keywords.ts` - Special forms (def, defn/defun, if, let, ns, import, require, etc.)
 - `Context.ts` - Environment/scope management
 - `Namespace.ts` - Namespace management and Node.js module integration
 - `hc-lisp.ts` - Main interface

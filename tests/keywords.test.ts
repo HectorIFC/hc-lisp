@@ -142,6 +142,94 @@ describe('Keywords (Special Forms)', () => {
     });
   });
 
+  describe('defun', () => {
+    it('should define a function without docstring', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'add' },
+        { type: 'vector', value: [{ type: 'symbol', value: 'x' }, { type: 'symbol', value: 'y' }] },
+        { type: 'list', value: [{ type: 'symbol', value: '+' }, { type: 'symbol', value: 'x' }, { type: 'symbol', value: 'y' }] }
+      ];
+
+      const result = specialForms['defun'](args, env, mockInterpret, nsManager);
+
+      expect(result.type).toBe('closure');
+      expect((result as any).params).toEqual(['x', 'y']);
+      expect(env.get('add')).toBe(result);
+    });
+
+    it('should define a function with docstring', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'add' },
+        { type: 'string', value: 'Adds two numbers' },
+        { type: 'vector', value: [{ type: 'symbol', value: 'x' }, { type: 'symbol', value: 'y' }] },
+        { type: 'list', value: [{ type: 'symbol', value: '+' }, { type: 'symbol', value: 'x' }, { type: 'symbol', value: 'y' }] }
+      ];
+
+      const result = specialForms['defun'](args, env, mockInterpret, nsManager);
+
+      expect(result.type).toBe('closure');
+      expect((result as any).params).toEqual(['x', 'y']);
+    });
+
+    it('should handle multiple body expressions', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'multiBody' },
+        { type: 'vector', value: [{ type: 'symbol', value: 'x' }] },
+        { type: 'list', value: [{ type: 'symbol', value: 'println' }, { type: 'symbol', value: 'x' }] },
+        { type: 'symbol', value: 'x' }
+      ];
+
+      const result = specialForms['defun'](args, env, mockInterpret, nsManager);
+
+      expect(result.type).toBe('closure');
+      expect((result as any).body.type).toBe('list');
+      expect(((result as any).body.value as HCValue[])[0]).toEqual({ type: 'symbol', value: 'do' });
+    });
+
+    it('should throw error for insufficient arguments', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'add' },
+        { type: 'vector', value: [] }
+      ];
+
+      expect(() => specialForms['defun'](args, env, mockInterpret, nsManager))
+        .toThrow('defun requires at least 3 arguments');
+    });
+
+    it('should throw error for non-symbol function name', () => {
+      const args: HCValue[] = [
+        { type: 'number', value: 42 },
+        { type: 'vector', value: [] },
+        { type: 'symbol', value: 'x' }
+      ];
+
+      expect(() => specialForms['defun'](args, env, mockInterpret, nsManager))
+        .toThrow('defun requires a symbol as first argument');
+    });
+
+    it('should throw error for invalid parameter list', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'add' },
+        { type: 'number', value: 42 },
+        { type: 'symbol', value: 'x' }
+      ];
+
+      expect(() => specialForms['defun'](args, env, mockInterpret, nsManager))
+        .toThrow('defun requires a parameter list');
+    });
+
+    it('should throw error for non-symbol parameters', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'add' },
+        { type: 'vector', value: [{ type: 'number', value: 42 }] },
+        { type: 'symbol', value: 'x' }
+      ];
+
+      expect(() => specialForms['defun'](args, env, mockInterpret, nsManager))
+        .toThrow('Parameter names must be symbols');
+    });
+  });
+
   describe('fn', () => {
     it('should create an anonymous function', () => {
       const args: HCValue[] = [
