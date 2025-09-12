@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/HectorIFC/hc-lisp/compare/v1.4.2...v1.4.3) (2025-09-12)
+
+
+### Bug Fixes
+
+* list implementation ([76a0c37](https://github.com/HectorIFC/hc-lisp/commit/76a0c37c63c759c769313323bc992150b5c4af64))
+
 ## [1.4.2](https://github.com/HectorIFC/hc-lisp/compare/v1.4.1...v1.4.2) (2025-09-12)
 
 
