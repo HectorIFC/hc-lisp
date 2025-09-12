@@ -643,6 +643,32 @@ describe('Library Functions', () => {
   });
 
   describe('Collection functions', () => {
+    test('should create list from arguments', () => {
+      const listFn = env.get('list');
+      expect(listFn).toBeDefined();
+      expect(listFn.type).toBe('function');
+
+      const emptyResult = (listFn as any).value();
+      expect(emptyResult.type).toBe('list');
+      expect(emptyResult.value).toEqual([]);
+
+      const singleResult = (listFn as any).value({ type: 'number', value: 42 });
+      expect(singleResult.type).toBe('list');
+      expect(singleResult.value).toEqual([{ type: 'number', value: 42 }]);
+
+      const multiResult = (listFn as any).value(
+        { type: 'number', value: 1 },
+        { type: 'string', value: 'hello' },
+        { type: 'boolean', value: true }
+      );
+      expect(multiResult.type).toBe('list');
+      expect(multiResult.value).toEqual([
+        { type: 'number', value: 1 },
+        { type: 'string', value: 'hello' },
+        { type: 'boolean', value: true }
+      ]);
+    });
+
     test('should conjoin items to sequence', () => {
       const conjFn = env.get('conj');
       expect(conjFn).toBeDefined();
