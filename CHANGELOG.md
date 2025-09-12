@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/HectorIFC/hc-lisp/compare/v1.4.1...v1.4.2) (2025-09-12)
+
+
+### Bug Fixes
+
+* keyword defun ([d43a3bf](https://github.com/HectorIFC/hc-lisp/commit/d43a3bfa5c801215bb8f7bd624f93a495f80ab19))
+
 ## [1.4.1](https://github.com/HectorIFC/hc-lisp/compare/v1.4.0...v1.4.1) (2025-09-11)
 
 
