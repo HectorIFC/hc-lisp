@@ -115,6 +115,10 @@ const coreFunctions = {
     return { type: 'number', value: seq.value.length };
   },
 
+  'list': (...args: HCValue[]): HCValue => {
+    return { type: 'list', value: args };
+  },
+
 
   'nil?': (value: HCValue): HCValue => {
     return { type: 'boolean', value: value.type === 'nil' };
