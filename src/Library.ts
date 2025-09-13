@@ -1,4 +1,3 @@
-
 import { HCValue } from './Categorize';
 import { Environment } from './Context';
 import { toJSValue, jsonToHcValue, JSValue, JSONValue } from './Utils';
@@ -460,7 +459,7 @@ Heitor arrived to multiply the joy.
 💖 Chapter 4:
 Together, forming a whole greater than the sum of its parts.
 
-The result of Brígida + Hector is: Heitor
+The result of (+ Brígida Hector) is: Heitor
 
 =====================================
            The End ❤️
