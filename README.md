@@ -8,8 +8,14 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/node/v/hc-lisp.svg)](https://www.npmjs.com/package/hc-lisp)
 [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=HectorIFC_hc-lisp&metric=alert_status)](https://sonarcloud.io/project/overview?id=HectorIFC_hc-lisp)
+[![Test Coverage](https://sonarcloud.io/api/project_badges/measure?project=HectorIFC_hc-lisp&metric=coverage)](https://sonarcloud.io/project/overview?id=HectorIFC_hc-lisp)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=HectorIFC_hc-lisp&metric=sqale_rating)](https://sonarcloud.io/project/overview?id=HectorIFC_hc-lisp)
 [![GitHub Issues](https://img.shields.io/github/issues/HectorIFC/hc-lisp.svg)](https://github.com/HectorIFC/hc-lisp/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/HectorIFC/hc-lisp.svg)](https://github.com/HectorIFC/hc-lisp/commits/main)
 [![GitHub Stars](https://img.shields.io/github/stars/HectorIFC/hc-lisp.svg?style=social)](https://github.com/HectorIFC/hc-lisp/stargazers)
+[![REPL](https://img.shields.io/badge/REPL-Interactive-purple.svg)](#interactive-repl)
+[![Lisp](https://img.shields.io/badge/Language-Lisp-orange.svg)](#features)
+[![Educational](https://img.shields.io/badge/Purpose-Educational-green.svg)](#project-goals)
 
 A modern Lisp dialect implementation in TypeScript, inspired by Clojure and Peter Norvig's Lispy project.
 
