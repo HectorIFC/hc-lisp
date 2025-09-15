@@ -62,15 +62,45 @@ HC-Lisp is a functional programming language that supports:
 *"Code with curiosity, debug with determination, and always stay curious like a quati!" - Quati 🦝*
 
 ## Installation
+
+### Global Installation (Recommended)
 ```bash
-npm i hc-lisp
+# Install globally to use hclisp from anywhere
+npm install -g hc-lisp
+```
+
+### Local Installation
+```bash
+# Install locally in a project
+npm install hc-lisp
 ```
 
 ## Execution
+
+### After Global Installation
 ```bash
+# Start REPL from anywhere
 hclisp 
 # or
 hc-lisp
+
+# Run a file
+hclisp script.hclisp
+
+# Evaluate expression
+hclisp -e "(+ 1 2 3)"
+
+# Show help
+hclisp --help
+```
+
+### After Local Installation
+```bash
+# Use with npx
+npx hclisp
+
+# Or with npm scripts in package.json
+npm run hclisp
 ```
 
 ## Install from Github
