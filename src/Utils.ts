@@ -33,40 +33,28 @@ export function toJSValue(value: HCValue): JSValue {
   case 'vector':
     return value.value.map(toJSValue);
   case 'js-object':
-    console.log('[DEBUG] toJSValue direct JS object:', (value as any).jsRef?.constructor?.name);
     return (value as any).jsRef;
   case 'object':
-    console.log('[DEBUG] toJSValue object:', {
-      hasNodejsContext: !!(value as any).__nodejs_context__,
-      hasOriginalObject: !!(value as any).__original_object__,
-      constructorName: value.value?.constructor?.name,
-      keys: Object.keys(value.value || {}).slice(0, 5)
-    });
     if ((value as any).__nodejs_context__ && (value as any).__original_object__) {
-      console.log('[DEBUG] Returning original Node.js object');
       return (value as any).__original_object__;
     }
     if (value.value && typeof value.value === 'object' && value.value.constructor && value.value.constructor.name === 'Server') {
       return value.value;
     }
     if (value.value && typeof value.value === 'object' && value.value.constructor && value.value.constructor.name === 'Buffer') {
-      console.log('[DEBUG] toJSValue converting Buffer to string');
       return value.value.toString();
     }
     if (value.value && typeof value.value === 'object' && value.value !== null) {
       const keys = Object.keys(value.value);
       const isBufferLike = keys.length > 0 && keys.every(key => /^\d+$/.test(key));
       if (isBufferLike) {
-        console.log('[DEBUG] toJSValue converting Buffer-like object to string');
         const buffer = Buffer.from(Object.values(value.value) as number[]);
         return buffer.toString();
       }
     }
     if (value.value && typeof value.value === 'object' && value.value !== null) {
       if ((value.value as any).type && (value.value as any).value !== undefined) {
-        console.log('[DEBUG] toJSValue found nested HCValue structure with type:', (value.value as any).type);
         if ((value.value as any).type === 'string') {
-          console.log('[DEBUG] toJSValue extracting string from nested structure:', (value.value as any).value);
           return (value.value as any).value;
         }
         if ((value.value as any).type === 'number') {

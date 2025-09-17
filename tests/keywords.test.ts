@@ -805,6 +805,109 @@ describe('Keywords (Special Forms)', () => {
 
       expect(result).toEqual({ type: 'nil', value: null });
     });
+
+    it('should access property from object successfully', () => {
+      const testObj = { name: 'test', value: 42 };
+      const args: HCValue[] = [
+        { type: 'object', value: testObj },
+        { type: 'symbol', value: 'name' }
+      ];
+
+      mockInterpret.mockImplementation((expr: HCValue) => expr);
+
+      const result = specialForms['.-'](args, env, mockInterpret, nsManager);
+
+      expect(result).toEqual({ type: 'string', value: 'test' });
+    });
+
+    it('should access numeric property from object', () => {
+      const testObj = { count: 123, active: true };
+      const args: HCValue[] = [
+        { type: 'object', value: testObj },
+        { type: 'symbol', value: 'count' }
+      ];
+
+      mockInterpret.mockImplementation((expr: HCValue) => expr);
+
+      const result = specialForms['.-'](args, env, mockInterpret, nsManager);
+
+      expect(result).toEqual({ type: 'number', value: 123 });
+    });
+
+    it('should access boolean property from object', () => {
+      const testObj = { active: true, disabled: false };
+      const args: HCValue[] = [
+        { type: 'object', value: testObj },
+        { type: 'symbol', value: 'active' }
+      ];
+
+      mockInterpret.mockImplementation((expr: HCValue) => expr);
+
+      const result = specialForms['.-'](args, env, mockInterpret, nsManager);
+
+      expect(result).toEqual({ type: 'boolean', value: true });
+    });
+
+    it('should return nil when jsObj is null', () => {
+      const args: HCValue[] = [
+        { type: 'nil', value: null },
+        { type: 'symbol', value: 'property' }
+      ];
+
+      mockInterpret.mockImplementation((expr: HCValue) => expr);
+
+      const result = specialForms['.-'](args, env, mockInterpret, nsManager);
+
+      expect(result).toEqual({ type: 'nil', value: null });
+    });
+
+    it('should return nil when jsObj is not an object', () => {
+      const args: HCValue[] = [
+        { type: 'string', value: 'not an object' },
+        { type: 'symbol', value: 'property' }
+      ];
+
+      mockInterpret.mockImplementation((expr: HCValue) => expr);
+
+      const result = specialForms['.-'](args, env, mockInterpret, nsManager);
+
+      expect(result).toEqual({ type: 'nil', value: null });
+    });
+
+    it('should access nested object property', () => {
+      const testObj = { nested: { deep: { value: 'found' } } };
+      const args: HCValue[] = [
+        { type: 'object', value: testObj },
+        { type: 'symbol', value: 'nested' }
+      ];
+
+      mockInterpret.mockImplementation((expr: HCValue) => expr);
+
+      const result = specialForms['.-'](args, env, mockInterpret, nsManager);
+
+      expect(result).toEqual({ type: 'object', value: { deep: { value: 'found' } } });
+    });
+
+    it('should access array property from object', () => {
+      const testObj = { items: [1, 2, 3], tags: ['a', 'b'] };
+      const args: HCValue[] = [
+        { type: 'object', value: testObj },
+        { type: 'symbol', value: 'items' }
+      ];
+
+      mockInterpret.mockImplementation((expr: HCValue) => expr);
+
+      const result = specialForms['.-'](args, env, mockInterpret, nsManager);
+
+      expect(result).toEqual({
+        type: 'vector',
+        value: [
+          { type: 'number', value: 1 },
+          { type: 'number', value: 2 },
+          { type: 'number', value: 3 }
+        ]
+      });
+    });
   });
 
   describe('processImport and processRequire functions (via ns)', () => {

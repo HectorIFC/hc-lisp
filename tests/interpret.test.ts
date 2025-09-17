@@ -1352,30 +1352,6 @@ describe('Interpret', () => {
 
       jest.restoreAllMocks();
     });
-  });  describe('Special symbol handling', () => {
-    test('should log debug info for res symbol', () => {
-      const jsObject = { test: 'value' };
-      const resValue: HCValue = {
-        type: 'js-object',
-        jsRef: jsObject,
-        __direct_js__: true
-      } as any;
-
-      env.define('res', resValue);
-
-      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-
-      const resSymbol: HCValue = {
-        type: 'symbol',
-        value: 'res'
-      };
-
-      const result = interpret(resSymbol, env);
-      expect(logSpy).toHaveBeenCalledWith('[DEBUG] Symbol res resolved to:', expect.any(Object));
-      expect(result).toBe(resValue);
-
-      jest.restoreAllMocks();
-    });
   });
 
   describe('Method calls with closures and functions as arguments', () => {
@@ -1439,6 +1415,214 @@ describe('Interpret', () => {
       expect(mockMethod).toHaveBeenCalledWith(expect.any(Function));
 
       jest.restoreAllMocks();
+    });
+
+    test('should convert function argument and execute it properly', () => {
+      const mockMethod = jest.fn((callback: Function) => {
+        return callback(42, 'test');
+      });
+      const obj = { processCallback: mockMethod };
+
+      env.define('obj', { type: 'js-object', jsRef: obj, __direct_js__: true } as any);
+
+      const fn: HCValue = {
+        type: 'function',
+        value: (a: HCValue, b: HCValue) => ({
+          type: 'string',
+          value: `${(a as any).value}-${(b as any).value}`
+        })
+      };
+
+      env.define('myFn', fn);
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const methodCall: HCValue = {
+        type: 'list',
+        value: [
+          { type: 'symbol', value: '.processCallback' },
+          { type: 'symbol', value: 'obj' },
+          { type: 'symbol', value: 'myFn' }
+        ]
+      };
+
+      const result = interpret(methodCall, env);
+
+      expect(mockMethod).toHaveBeenCalled();
+      expect(result).toEqual({
+        type: 'object',
+        value: { type: 'string', value: '42-test' }
+      });
+
+      jest.restoreAllMocks();
+    });
+
+    test('should convert closure argument and execute it properly', () => {
+      const mockMethod = jest.fn((callback: Function) => {
+        return callback(10, 20);
+      });
+      const obj = { processCallback: mockMethod };
+
+      env.define('obj', { type: 'js-object', jsRef: obj, __direct_js__: true } as any);
+
+      env.define('+', {
+        type: 'function',
+        value: (a: HCValue, b: HCValue) => ({
+          type: 'number',
+          value: (a as any).value + (b as any).value
+        })
+      });
+
+      const closure: HCValue = {
+        type: 'closure',
+        params: ['x', 'y'],
+        body: {
+          type: 'list',
+          value: [
+            { type: 'symbol', value: '+' },
+            { type: 'symbol', value: 'x' },
+            { type: 'symbol', value: 'y' }
+          ]
+        },
+        env: env
+      };
+
+      env.define('myClosure', closure);
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const methodCall: HCValue = {
+        type: 'list',
+        value: [
+          { type: 'symbol', value: '.processCallback' },
+          { type: 'symbol', value: 'obj' },
+          { type: 'symbol', value: 'myClosure' }
+        ]
+      };
+
+      const result = interpret(methodCall, env);
+
+      expect(mockMethod).toHaveBeenCalled();
+      expect(result).toEqual({
+        type: 'object',
+        value: { type: 'number', value: 30 }
+      });
+
+      jest.restoreAllMocks();
+    });
+
+    test('should handle js-object method call with direct execution path', () => {
+      const mockMethod = jest.fn().mockReturnValue({ success: true, data: 'test' });
+      const obj = {
+        directMethod: mockMethod,
+        anotherProp: 'value'
+      };
+
+      env.define('obj', {
+        type: 'js-object',
+        jsRef: obj,
+        __direct_js__: true
+      } as any);
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const methodCall: HCValue = {
+        type: 'list',
+        value: [
+          { type: 'symbol', value: '.directMethod' },
+          { type: 'symbol', value: 'obj' },
+          { type: 'string', value: 'arg1' },
+          { type: 'number', value: 123 }
+        ]
+      };
+
+      const result = interpret(methodCall, env);
+
+      expect(mockMethod).toHaveBeenCalledWith('arg1', 123);
+      expect(result).toEqual({
+        type: 'object',
+        value: { success: true, data: 'test' }
+      });
+
+      jest.restoreAllMocks();
+    });
+
+    test('should handle method call error in direct js object', () => {
+      const mockMethod = jest.fn(() => {
+        throw new Error('Method execution failed');
+      });
+      const obj = { failingMethod: mockMethod };
+
+      env.define('obj', {
+        type: 'js-object',
+        jsRef: obj,
+        __direct_js__: true
+      } as any);
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const methodCall: HCValue = {
+        type: 'list',
+        value: [
+          { type: 'symbol', value: '.failingMethod' },
+          { type: 'symbol', value: 'obj' }
+        ]
+      };
+
+      expect(() => interpret(methodCall, env)).toThrow('Method execution failed');
+
+      jest.restoreAllMocks();
+    });
+  });
+
+  describe('Default environment creation', () => {
+    test('should create global environment when env is not provided', () => {
+      const simpleExpression: HCValue = {
+        type: 'number',
+        value: 42
+      };
+
+      const result = interpret(simpleExpression);
+      expect(result).toEqual({ type: 'number', value: 42 });
+    });
+
+    test('should create global environment when env is undefined', () => {
+      const simpleExpression: HCValue = {
+        type: 'string',
+        value: 'test'
+      };
+
+      const result = interpret(simpleExpression, undefined);
+      expect(result).toEqual({ type: 'string', value: 'test' });
+    });
+
+    test('should work with basic expressions when using default environment', () => {
+      const booleanExpression: HCValue = {
+        type: 'boolean',
+        value: true
+      };
+
+      const result = interpret(booleanExpression);
+      expect(result).toEqual({ type: 'boolean', value: true });
+    });
+
+    test('should create global environment for vector evaluation', () => {
+      const vectorExpression: HCValue = {
+        type: 'vector',
+        value: [
+          { type: 'number', value: 1 },
+          { type: 'string', value: 'hello' }
+        ]
+      };
+
+      const result = interpret(vectorExpression);
+      expect(result).toEqual({
+        type: 'vector',
+        value: [
+          { type: 'number', value: 1 },
+          { type: 'string', value: 'hello' }
+        ]
+      });
     });
   });
 });

@@ -24,15 +24,22 @@ export function parenthesize(tokens: string[], list?: HCValue[]): HCValue {
       const key = (keyToken.startsWith(':')) ? keyToken.slice(1) : keyToken;
       let value: HCValue;
       if (valueToken === '(' || valueToken === '[' || valueToken === '{') {
-        value = parenthesize([valueToken, ...tokens], []);
+        const nestedTokens = [valueToken];
         let depth = 1;
-        let idx = 1;
+        let idx = 0;
+        const closingToken = valueToken === '(' ? ')' : valueToken === '[' ? ']' : '}';
+
         while (depth > 0 && idx < tokens.length) {
-          if (tokens[idx] === valueToken) { depth++; }
-          if (tokens[idx] === (valueToken === '(' ? ')' : valueToken === '[' ? ']' : '}')) { depth--; }
+          const currentToken = tokens[idx];
+          nestedTokens.push(currentToken);
+          if (currentToken === valueToken) { depth++; }
+          if (currentToken === closingToken) { depth--; }
           idx++;
         }
-        tokens.splice(0, idx - 1);
+
+        tokens.splice(0, idx);
+
+        value = parenthesize(nestedTokens, []);
       } else {
         value = categorize(valueToken);
       }

@@ -3,7 +3,7 @@ import { Environment } from './Context';
 import { createGlobalEnvironment } from './Library';
 import { specialForms } from './Keywords';
 import { NamespaceManager } from './Namespace';
-import { toJSValue, jsonToHcValue, JSValue, JSONValue } from './Utils';
+import { toJSValue, jsonToHcValue, JSONValue } from './Utils';
 
 export function interpret(input: HCValue, env?: Environment, nsManager?: NamespaceManager): HCValue {
   if (!env) {
@@ -35,14 +35,6 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
       }
 
       const result = nsManager ? nsManager.resolveSymbol(expr.value, env) : env.get(expr.value);
-      if (expr.value === 'res') {
-        console.log('[DEBUG] Symbol res resolved to:', {
-          type: result.type,
-          hasJsRef: !!(result as any).jsRef,
-          hasDirectJs: !!(result as any).__direct_js__,
-          constructorName: (result as any).jsRef?.constructor?.name
-        });
-      }
       return result;
     } catch (error) {
       throw new Error(`Undefined symbol: ${expr.value}`);
@@ -73,50 +65,29 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
         const propName = first.value.slice(2);
         if (rest.length === 1) {
           const obj = evaluateExpression(rest[0], env, nsManager);
-          console.log(`[DEBUG] Property access .-${propName} - obj type:`, obj?.type);
 
           if (obj && obj.type === 'js-object' && (obj as any).__direct_js__) {
             const jsRef = (obj as any).jsRef;
-            console.log(`[DEBUG] Direct JS property access .-${propName} on ${jsRef?.constructor?.name}`);
-            console.log('[DEBUG] Available properties:', Object.getOwnPropertyNames(jsRef));
             if (jsRef && typeof jsRef === 'object' && propName in jsRef) {
               const prop = (jsRef as Record<string, any>)[propName];
-              console.log(`[DEBUG] Found direct property ${propName}:`, prop);
               return jsonToHcValue(prop as JSONValue);
             } else {
-              console.log(`[DEBUG] Property ${propName} not found in direct JS object`);
               return { type: 'nil', value: null };
             }
           }
 
-          console.log('[DEBUG] Property access obj before toJSValue:', {
-            type: obj?.type,
-            hasNodejsContext: !!(obj as any).__nodejs_context__,
-            hasOriginalObject: !!(obj as any).__original_object__,
-            constructorName: (obj as any)?.value?.constructor?.name
-          });
           const jsObj = toJSValue(obj);
 
           if (obj && typeof obj === 'object' && (obj as any).__nodejs_context__) {
             const originalObj = (obj as any).__original_object__;
             if (originalObj && typeof originalObj === 'object') {
-              console.log(`[DEBUG] Node.js property access .-${propName} on`, originalObj.constructor.name);
               if (propName in originalObj) {
                 const prop = (originalObj as Record<string, any>)[propName];
-                console.log(`[DEBUG] Found property ${propName}:`, prop);
                 return jsonToHcValue(prop as JSONValue);
               } else {
-                console.log(`[DEBUG] Property ${propName} not found. Available properties:`, Object.getOwnPropertyNames(originalObj));
               }
             }
           }
-
-          console.log(`[DEBUG] Property access .-${propName}:`, {
-            obj: obj?.type,
-            jsObj: typeof jsObj,
-            hasProperty: jsObj && typeof jsObj === 'object' && propName in jsObj,
-            propValue: jsObj && typeof jsObj === 'object' ? (jsObj as any)[propName] : 'N/A'
-          });
 
           if (jsObj && typeof jsObj === 'object' && propName in jsObj) {
             const prop = (jsObj as Record<string, any>)[propName];
@@ -133,7 +104,6 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
 
           if (obj && obj.type === 'js-object' && (obj as any).__direct_js__) {
             const jsRef = (obj as any).jsRef;
-            console.log(`[DEBUG] Direct JS method call .${methodName} on ${jsRef?.constructor?.name}`);
 
             const methodArgs = rest.slice(1).map(arg => {
               const evaluated = evaluateExpression(arg, env, nsManager);
@@ -153,12 +123,10 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
             if (jsRef && typeof jsRef === 'object' && methodName in jsRef) {
               const method = (jsRef as Record<string, any>)[methodName];
               if (typeof method === 'function') {
-                console.log(`[DEBUG] Calling direct method ${methodName} with args:`, methodArgs);
                 const result = method.apply(jsRef, methodArgs);
                 return jsonToHcValue(result as JSONValue);
               }
             }
-            console.log(`[DEBUG] Method ${methodName} not found on direct JS object`);
             return { type: 'nil', value: null };
           }
 
@@ -177,34 +145,15 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
             return toJSValue(evaluated);
           });
 
-          console.log('[DEBUG] Method call analysis:', {
-            objType: typeof obj,
-            hasType: obj && (obj as any).type,
-            hasJsRef: obj && (obj as any).jsRef,
-            hasDirectJs: obj && (obj as any).__direct_js__,
-            methodName,
-            objKeys: obj && typeof obj === 'object' ? Object.keys(obj) : 'not-object',
-            objConstructor: obj && (obj as any).constructor?.name,
-            objFullStructure: obj
-          });
-
           if (obj && typeof obj === 'object' && (obj as any).type === 'js-object' && (obj as any).jsRef && (obj as any).__direct_js__) {
             const directObj = (obj as any).jsRef;
-            console.log('[DEBUG] Using direct JS object reference');
-            console.log('[DEBUG] DirectObj type:', typeof directObj);
-            console.log('[DEBUG] DirectObj constructor:', directObj?.constructor?.name);
-            console.log('[DEBUG] Method in directObj:', methodName in directObj);
             if (directObj && typeof directObj === 'object' && methodName in directObj) {
               const method = (directObj as Record<string, any>)[methodName];
-              console.log('[DEBUG] Found method on direct object:', { methodName, type: typeof method });
               if (typeof method === 'function') {
-                console.log('[DEBUG] Calling direct method with args:', methodArgs);
                 try {
                   const result = method.apply(directObj, methodArgs);
-                  console.log('[DEBUG] Direct method result:', result);
                   return jsonToHcValue(result as JSONValue);
                 } catch (err) {
-                  console.log('[DEBUG] Direct method call failed with error:', err);
                   throw err;
                 }
               }
@@ -212,24 +161,16 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
           }
 
           const jsObj = toJSValue(obj);
-          console.log('[DEBUG] JS interop:', { methodName, jsObj });
-          console.log('[DEBUG] JS interop - obj type:', typeof obj);
-          console.log('[DEBUG] JS interop - obj.__nodejs_context__:', obj && (obj as any).__nodejs_context__);
-          console.log('[DEBUG] JS interop - obj.__original_object__:', obj && (obj as any).__original_object__);
 
           if (obj && typeof obj === 'object' && (obj as any).__nodejs_context__ && (obj as any).__original_object__) {
             const originalObj = (obj as any).__original_object__;
             const method = (originalObj as Record<string, any>)[methodName];
             if (typeof method === 'function') {
-              console.log('[DEBUG] Using context-aware Node.js method call');
               if (methodName === 'listen') {
-                console.log('[DEBUG] Special handling for listen method');
                 try {
                   const result = originalObj.listen(...methodArgs);
-                  console.log('[DEBUG] Listen result:', result);
                   return jsonToHcValue(result as JSONValue);
                 } catch (err) {
-                  console.log('[DEBUG] Listen method failed:', err);
                   throw err;
                 }
               } else {
@@ -241,17 +182,11 @@ function evaluateExpression(expr: HCValue, env: Environment, nsManager?: Namespa
 
           if (jsObj && typeof jsObj === 'object' && methodName in jsObj) {
             const method = (jsObj as Record<string, any>)[methodName];
-            console.log('[DEBUG] Found method:', { methodName, type: typeof method });
             if (typeof method === 'function') {
-              console.log('[DEBUG] Calling method with args:', methodArgs);
               try {
                 const result = method(...methodArgs);
-                console.log('[DEBUG] Method result:', result);
                 return jsonToHcValue(result as JSONValue);
               } catch (err) {
-                console.log('[DEBUG] Method call failed with error:', err);
-                console.log('[DEBUG] Error stack:', (err as Error).stack);
-                console.log('[DEBUG] JSObj:', jsObj);
                 throw err;
               }
             }
@@ -320,15 +255,6 @@ export function callFunction(fn: HCValue, args: HCValue[], env: Environment, nsM
     }
 
     const callEnv = closureEnv.extend(params, args);
-
-    console.log('[DEBUG] Function call params:', params);
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i];
-      const param = params[i];
-      const hasJsRef = !!(arg as any).jsRef;
-      const hasDirectJs = !!(arg as any).__direct_js__;
-      console.log(`[DEBUG] Param ${param}: type=${arg.type}, hasJsRef=${hasJsRef}, hasDirectJs=${hasDirectJs}`);
-    }
 
     try {
       return evaluateExpression(body, callEnv, nsManager);
