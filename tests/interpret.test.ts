@@ -1416,6 +1416,163 @@ describe('Interpret', () => {
 
       jest.restoreAllMocks();
     });
+
+    test('should convert function argument and execute it properly', () => {
+      const mockMethod = jest.fn((callback: Function) => {
+        return callback(42, 'test');
+      });
+      const obj = { processCallback: mockMethod };
+
+      env.define('obj', { type: 'js-object', jsRef: obj, __direct_js__: true } as any);
+
+      const fn: HCValue = {
+        type: 'function',
+        value: (a: HCValue, b: HCValue) => ({
+          type: 'string',
+          value: `${(a as any).value}-${(b as any).value}`
+        })
+      };
+
+      env.define('myFn', fn);
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const methodCall: HCValue = {
+        type: 'list',
+        value: [
+          { type: 'symbol', value: '.processCallback' },
+          { type: 'symbol', value: 'obj' },
+          { type: 'symbol', value: 'myFn' }
+        ]
+      };
+
+      const result = interpret(methodCall, env);
+
+      expect(mockMethod).toHaveBeenCalled();
+      expect(result).toEqual({
+        type: 'object',
+        value: { type: 'string', value: '42-test' }
+      });
+
+      jest.restoreAllMocks();
+    });
+
+    test('should convert closure argument and execute it properly', () => {
+      const mockMethod = jest.fn((callback: Function) => {
+        return callback(10, 20);
+      });
+      const obj = { processCallback: mockMethod };
+
+      env.define('obj', { type: 'js-object', jsRef: obj, __direct_js__: true } as any);
+
+      env.define('+', {
+        type: 'function',
+        value: (a: HCValue, b: HCValue) => ({
+          type: 'number',
+          value: (a as any).value + (b as any).value
+        })
+      });
+
+      const closure: HCValue = {
+        type: 'closure',
+        params: ['x', 'y'],
+        body: {
+          type: 'list',
+          value: [
+            { type: 'symbol', value: '+' },
+            { type: 'symbol', value: 'x' },
+            { type: 'symbol', value: 'y' }
+          ]
+        },
+        env: env
+      };
+
+      env.define('myClosure', closure);
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const methodCall: HCValue = {
+        type: 'list',
+        value: [
+          { type: 'symbol', value: '.processCallback' },
+          { type: 'symbol', value: 'obj' },
+          { type: 'symbol', value: 'myClosure' }
+        ]
+      };
+
+      const result = interpret(methodCall, env);
+
+      expect(mockMethod).toHaveBeenCalled();
+      expect(result).toEqual({
+        type: 'object',
+        value: { type: 'number', value: 30 }
+      });
+
+      jest.restoreAllMocks();
+    });
+
+    test('should handle js-object method call with direct execution path', () => {
+      const mockMethod = jest.fn().mockReturnValue({ success: true, data: 'test' });
+      const obj = {
+        directMethod: mockMethod,
+        anotherProp: 'value'
+      };
+
+      env.define('obj', {
+        type: 'js-object',
+        jsRef: obj,
+        __direct_js__: true
+      } as any);
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const methodCall: HCValue = {
+        type: 'list',
+        value: [
+          { type: 'symbol', value: '.directMethod' },
+          { type: 'symbol', value: 'obj' },
+          { type: 'string', value: 'arg1' },
+          { type: 'number', value: 123 }
+        ]
+      };
+
+      const result = interpret(methodCall, env);
+
+      expect(mockMethod).toHaveBeenCalledWith('arg1', 123);
+      expect(result).toEqual({
+        type: 'object',
+        value: { success: true, data: 'test' }
+      });
+
+      jest.restoreAllMocks();
+    });
+
+    test('should handle method call error in direct js object', () => {
+      const mockMethod = jest.fn(() => {
+        throw new Error('Method execution failed');
+      });
+      const obj = { failingMethod: mockMethod };
+
+      env.define('obj', {
+        type: 'js-object',
+        jsRef: obj,
+        __direct_js__: true
+      } as any);
+
+      jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      const methodCall: HCValue = {
+        type: 'list',
+        value: [
+          { type: 'symbol', value: '.failingMethod' },
+          { type: 'symbol', value: 'obj' }
+        ]
+      };
+
+      expect(() => interpret(methodCall, env)).toThrow('Method execution failed');
+
+      jest.restoreAllMocks();
+    });
   });
 
   describe('Default environment creation', () => {

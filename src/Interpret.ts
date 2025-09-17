@@ -3,7 +3,7 @@ import { Environment } from './Context';
 import { createGlobalEnvironment } from './Library';
 import { specialForms } from './Keywords';
 import { NamespaceManager } from './Namespace';
-import { toJSValue, jsonToHcValue, JSValue, JSONValue } from './Utils';
+import { toJSValue, jsonToHcValue, JSONValue } from './Utils';
 
 export function interpret(input: HCValue, env?: Environment, nsManager?: NamespaceManager): HCValue {
   if (!env) {
