@@ -1417,4 +1417,55 @@ describe('Interpret', () => {
       jest.restoreAllMocks();
     });
   });
+
+  describe('Default environment creation', () => {
+    test('should create global environment when env is not provided', () => {
+      const simpleExpression: HCValue = {
+        type: 'number',
+        value: 42
+      };
+
+      const result = interpret(simpleExpression);
+      expect(result).toEqual({ type: 'number', value: 42 });
+    });
+
+    test('should create global environment when env is undefined', () => {
+      const simpleExpression: HCValue = {
+        type: 'string',
+        value: 'test'
+      };
+
+      const result = interpret(simpleExpression, undefined);
+      expect(result).toEqual({ type: 'string', value: 'test' });
+    });
+
+    test('should work with basic expressions when using default environment', () => {
+      const booleanExpression: HCValue = {
+        type: 'boolean',
+        value: true
+      };
+
+      const result = interpret(booleanExpression);
+      expect(result).toEqual({ type: 'boolean', value: true });
+    });
+
+    test('should create global environment for vector evaluation', () => {
+      const vectorExpression: HCValue = {
+        type: 'vector',
+        value: [
+          { type: 'number', value: 1 },
+          { type: 'string', value: 'hello' }
+        ]
+      };
+
+      const result = interpret(vectorExpression);
+      expect(result).toEqual({
+        type: 'vector',
+        value: [
+          { type: 'number', value: 1 },
+          { type: 'string', value: 'hello' }
+        ]
+      });
+    });
+  });
 });
