@@ -60,49 +60,128 @@ class HCLisp {
   }
 
   private loadRequiredNamespaces(content: string): void {
-    const nsRegex = /\(ns\s+[^\s()]+(?:\s*\(\s*:require\s+([^)]*)\)\s*\))?/;
-    const nsMatch = nsRegex.exec(content);
-    if (nsMatch && nsMatch[1]) {
-      const requiresString = nsMatch[1];
+    const requiresString = this.extractRequireSection(content);
+    if (!requiresString) {
+      return;
+    }
 
-      const bracketRegex = /\[([^\]]+)\]/g;
-      const requiredNamespaces: string[] = [];
-      let match;
+    const requiredNamespaces = this.parseRequiredNamespaces(requiresString);
 
-      while ((match = bracketRegex.exec(requiresString)) !== null) {
-        const namespaces = match[1].split(/\s+/).filter(ns => ns.trim());
-        requiredNamespaces.push(...namespaces);
-      }
+    for (const ns of requiredNamespaces) {
+      if (ns.startsWith('node.')) { continue; }
 
-      for (const ns of requiredNamespaces) {
-        if (ns.startsWith('node.')) { continue; }
-
-        const nsInfo = this.nsManager.getNamespace(ns);
-        if (nsInfo) {
-          let contentValue: any = null;
+      const nsInfo = this.nsManager.getNamespace(ns);
+      if (nsInfo) {
+        let contentValue: any = null;
+        try {
+          contentValue = nsInfo.environment.get('__deferred_content__');
+        } catch (e) {
+          continue;
+        }
+        if (contentValue && contentValue.type === 'string') {
+          const originalNs = this.nsManager.getCurrentNamespace().name;
+          this.nsManager.setCurrentNamespace(ns);
           try {
-            contentValue = nsInfo.environment.get('__deferred_content__');
-          } catch (e) {
-            continue;
-          }
-          if (contentValue && contentValue.type === 'string') {
-            const originalNs = this.nsManager.getCurrentNamespace().name;
-            this.nsManager.setCurrentNamespace(ns);
-            try {
-              this.evalFileContentInternal(contentValue.value);
-              nsInfo.environment.define('__deferred_content__', { type: 'nil', value: null });
-              nsInfo.environment.define('__deferred_filepath__', { type: 'nil', value: null });
-            } catch (error) {
-              console.error(`Error evaluating namespace '${ns}':`, error);
-            } finally {
-              if (this.nsManager.getNamespace(originalNs)) {
-                this.nsManager.setCurrentNamespace(originalNs);
-              }
+            this.evalFileContentInternal(contentValue.value);
+            nsInfo.environment.define('__deferred_content__', { type: 'nil', value: null });
+            nsInfo.environment.define('__deferred_filepath__', { type: 'nil', value: null });
+          } catch (error) {
+            console.error(`Error evaluating namespace '${ns}':`, error);
+          } finally {
+            if (this.nsManager.getNamespace(originalNs)) {
+              this.nsManager.setCurrentNamespace(originalNs);
             }
           }
         }
       }
     }
+  }
+
+  private extractRequireSection(content: string): string | null {
+    const nsStart = content.indexOf('(ns ');
+    if (nsStart === -1) {
+      return null;
+    }
+
+    const requireStart = content.indexOf(':require', nsStart);
+    if (requireStart === -1) {
+      return null;
+    }
+
+    let parenCount = 0;
+    let inString = false;
+    let requireContent = '';
+    let foundStart = false;
+
+    for (let i = requireStart; i < content.length; i++) {
+      const char = content[i];
+
+      if (char === '"' && (i === 0 || content[i - 1] !== '\\')) {
+        inString = !inString;
+      }
+
+      if (!inString) {
+        if (char === '(') {
+          parenCount++;
+        } else if (char === ')') {
+          parenCount--;
+          if (foundStart && parenCount === 0) {
+            break;
+          }
+        }
+      }
+
+      if (!foundStart && char === ' ' && content.substring(i).trim().startsWith('[')) {
+        foundStart = true;
+        continue;
+      }
+
+      if (foundStart) {
+        requireContent += char;
+      }
+    }
+
+    return requireContent.trim();
+  }
+
+  private parseRequiredNamespaces(requiresString: string): string[] {
+    const namespaces: string[] = [];
+    let currentNamespace = '';
+    let inBrackets = false;
+    let inString = false;
+
+    for (let i = 0; i < requiresString.length; i++) {
+      const char = requiresString[i];
+
+      if (char === '"' && (i === 0 || requiresString[i - 1] !== '\\')) {
+        inString = !inString;
+        continue;
+      }
+
+      if (inString) {
+        continue;
+      }
+
+      if (char === '[') {
+        inBrackets = true;
+        currentNamespace = '';
+      } else if (char === ']') {
+        if (currentNamespace.trim()) {
+          const nsNames = currentNamespace.trim().split(/\s+/).filter(ns => ns.trim());
+          namespaces.push(...nsNames);
+        }
+        inBrackets = false;
+        currentNamespace = '';
+      } else if (inBrackets && char !== ' ' && char !== '\n' && char !== '\t') {
+        currentNamespace += char;
+      } else if (inBrackets && (char === ' ' || char === '\n' || char === '\t')) {
+        if (currentNamespace.trim()) {
+          currentNamespace += ' ';
+        }
+      }
+    }
+
+    return namespaces;
   }
 
   public evalFileContent(content: string): HCValue {
