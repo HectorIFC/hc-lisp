@@ -312,8 +312,6 @@ const coreFunctions = {
   },
 
   'assoc': (obj: HCValue, ...keyValuePairs: HCValue[]): HCValue => {
-    console.log('[DEBUG] assoc-obj:', obj);
-    console.log('[DEBUG] assoc-keyValuePairs:', keyValuePairs);
     if (keyValuePairs.length % 2 !== 0) {
       throw new Error('assoc requires an even number of key-value arguments');
     }

@@ -1352,30 +1352,6 @@ describe('Interpret', () => {
 
       jest.restoreAllMocks();
     });
-  });  describe('Special symbol handling', () => {
-    test('should log debug info for res symbol', () => {
-      const jsObject = { test: 'value' };
-      const resValue: HCValue = {
-        type: 'js-object',
-        jsRef: jsObject,
-        __direct_js__: true
-      } as any;
-
-      env.define('res', resValue);
-
-      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-
-      const resSymbol: HCValue = {
-        type: 'symbol',
-        value: 'res'
-      };
-
-      const result = interpret(resSymbol, env);
-      expect(logSpy).toHaveBeenCalledWith('[DEBUG] Symbol res resolved to:', expect.any(Object));
-      expect(result).toBe(resValue);
-
-      jest.restoreAllMocks();
-    });
   });
 
   describe('Method calls with closures and functions as arguments', () => {

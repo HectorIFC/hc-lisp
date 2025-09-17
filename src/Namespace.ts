@@ -75,8 +75,6 @@ export class NamespaceManager {
     if (this.tryLoadNodeModule(name, mockNs)) {
       return;
     }
-
-    console.log(`Created empty namespace: ${name}`);
   }
 
   tryLoadHCLispFile(namespaceName: string, ns: NamespaceInfo): boolean {
@@ -101,7 +99,6 @@ export class NamespaceManager {
 
       return false;
     } catch (error) {
-      console.log(`Failed to load HC-Lisp file for namespace '${namespaceName}': ${error}`);
       return false;
     }
   }
@@ -131,8 +128,6 @@ export class NamespaceManager {
       contentValue = ns.environment.get('__deferred_content__');
       filepathValue = ns.environment.get('__deferred_filepath__');
     } catch (error) {
-      console.debug(`No deferred content found in namespace '${namespaceName}': 
-        ${error instanceof Error ? error.message : 'Unknown error'}`);
       return;
     }
 
@@ -143,13 +138,9 @@ export class NamespaceManager {
       this.currentNamespace = namespaceName;
 
       try {
-        console.log(`Evaluating deferred namespace '${namespaceName}' from ${filepathValue.value}`);
         hcLispInstance.evalFileContent(contentValue.value);
-
         ns.environment.define('__deferred_content__', { type: 'nil', value: null });
         ns.environment.define('__deferred_filepath__', { type: 'nil', value: null });
-
-        console.log(`Successfully loaded namespace '${namespaceName}' from ${filepathValue.value}`);
       } catch (error) {
         console.error(`Error evaluating namespace '${namespaceName}':`, error);
       } finally {
@@ -175,9 +166,9 @@ export class NamespaceManager {
       this.wrapNodeModule(nodeModule, ns, packageName);
       return true;
     } catch (error) {
-      console.log(`Module '${moduleName}' not found in node_modules`);
+      console.error(`Module '${moduleName}' not found in node_modules`);
       if (error instanceof Error) {
-        console.debug(`Module loading error: ${error.message}`);
+        console.error(`Module loading error: ${error.message}`);
       }
       return false;
     }
@@ -215,16 +206,9 @@ export class NamespaceManager {
               if (packageName === 'http' && key === 'createServer') {
                 const requestHandlerArg = jsArgs[0];
                 const originalClosure = args[0];
-                console.log('[DEBUG] requestHandlerArg type:', typeof requestHandlerArg);
-                console.log('[DEBUG] originalClosure type:', originalClosure.type);
                 const wrappedHandler = (req: any, res: any) => {
-                  console.log('[DEBUG] Handler called with req:', req.constructor.name, 'url:', req.url);
                   const hcReq = this.jsValueToHc(req);
                   const hcRes = this.jsValueToHc(res);
-                  console.log('[DEBUG] Converted req has context:', !!(hcReq as any).__nodejs_context__);
-                  console.log('[DEBUG] hcReq type:', hcReq.type, 'hasJsRef:', !!(hcReq as any).jsRef);
-                  console.log('[DEBUG] hcRes type:', hcRes.type, 'hasJsRef:', !!(hcRes as any).jsRef);
-                  console.log('[DEBUG] About to call originalClosure directly');
 
                   if (originalClosure.type === 'closure') {
                     const { callFunction } = require('./Interpret');
@@ -306,7 +290,6 @@ export class NamespaceManager {
             constructorName === 'IncomingMessage' ||
             constructorName === 'ServerResponse' ||
             constructorName === 'Socket') {
-          console.log(`[DEBUG] Creating direct JS reference for ${constructorName}`);
           return {
             type: 'js-object',
             jsRef: jsValue,
@@ -347,34 +330,28 @@ export class NamespaceManager {
     try {
       return searchEnv.get(symbol);
     } catch (error) {
-      console.debug(`Symbol '${symbol}' not found in local environment: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error(`Symbol '${symbol}' not found in local environment: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return null;
     }
   }
 
   resolveNamespacedSymbol(symbol: string, searchNamespace: any): HCValue {
     const [nsAlias, fnName] = symbol.split('/');
-    console.log(`[DEBUG] resolveNamespacedSymbol: symbol=${symbol}, nsAlias=${nsAlias}, fnName=${fnName}`);
 
     let foundRealNs: string | null = null;
     searchNamespace.requires.forEach((value: string, key: string) => {
-      console.log(`[DEBUG] requires: key=${key}, value=${value}`);
       if (value === nsAlias) {
         foundRealNs = key;
       }
     });
 
     if (foundRealNs) {
-      console.log(`[DEBUG] Found real namespace: ${foundRealNs}`);
       const targetNs = this.getNamespace(foundRealNs);
       if (targetNs) {
-        console.log(`[DEBUG] Found targetNs, looking for symbol: ${fnName}`);
         return this.getSymbolFromNamespace(fnName, foundRealNs, targetNs);
       } else {
-        console.log(`[DEBUG] targetNs not found for: ${foundRealNs}`);
       }
     } else {
-      console.log(`[DEBUG] Namespace alias '${nsAlias}' not found in requires.`);
     }
 
     throw new Error(`Namespace alias '${nsAlias}' not found`);
@@ -385,7 +362,7 @@ export class NamespaceManager {
       return targetNs.environment.get(fnName);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.debug(`Failed to get symbol '${fnName}' from namespace '${realNs}': ${errorMessage}`);
+      console.error(`Failed to get symbol '${fnName}' from namespace '${realNs}': ${errorMessage}`);
       throw new Error(`Function '${fnName}' not found in namespace '${realNs}'`);
     }
   }

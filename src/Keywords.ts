@@ -347,26 +347,13 @@ export const specialForms: { [key: string]: SpecialForm } = {
       return toJSValue(evaluated);
     });
 
-    console.log('[DEBUG] Before JS interop - obj:', obj);
-    console.log('[DEBUG] Before JS interop - methodName:', methodName.value);
-    console.log('[DEBUG] Before JS interop - methodArgs:', methodArgs);
-
     const jsObj = toJSValue(obj);
-
-    console.log('[DEBUG] Checking if obj has nodejs context:', obj && typeof obj === 'object');
-    console.log('[DEBUG] obj.__nodejs_context__:', obj && obj.__nodejs_context__);
-    console.log('[DEBUG] obj.__original_object__:', obj && obj.__original_object__);
 
     if (obj && typeof obj === 'object' && obj.__nodejs_context__ && obj.__original_object__) {
       const originalObj = obj.__original_object__;
       const method = (originalObj as Record<string, any>)[methodName.value];
       if (typeof method === 'function') {
-        console.log('[DEBUG] Using original object for method call:', methodName.value);
         if (methodName.value === 'listen') {
-          console.log('[DEBUG] Listen method args before conversion:', methodArgs);
-          console.log('[DEBUG] Original server object:', originalObj);
-          console.log('[DEBUG] Original server _handle:', originalObj._handle);
-          console.log('[DEBUG] Original server listen function:', typeof originalObj.listen);
           if (methodArgs.length > 0) {
             const lastArg = args[args.length - 1];
             if (lastArg.type === 'function') {
@@ -376,14 +363,9 @@ export const specialForms: { [key: string]: SpecialForm } = {
             }
           }
           try {
-            console.log('[DEBUG] Calling listen directly on original server');
-            console.log('[DEBUG] Method args:', methodArgs);
             const result = originalObj.listen(...methodArgs);
-            console.log('[DEBUG] Listen result:', result);
             return jsonToHcValue(result);
           } catch (err) {
-            console.log('[DEBUG] Direct listen failed:', err);
-            console.log('[DEBUG] Error stack:', (err as Error).stack);
             throw err;
           }
         }

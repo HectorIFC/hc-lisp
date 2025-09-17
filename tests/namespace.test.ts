@@ -741,8 +741,7 @@ describe('Namespace', () => {
 
         const originalMethod = namespaceManager.tryLoadNodeModule;
 
-        const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
-        const consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation();
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
         namespaceManager.tryLoadNodeModule = function(this: any, moduleName: string, ns: any): boolean {
           try {
@@ -751,9 +750,9 @@ describe('Namespace', () => {
             }
             return originalMethod.call(this, moduleName, ns);
           } catch (error) {
-            console.log(`Module '${moduleName}' not found in node_modules`);
+            console.error(`Module '${moduleName}' not found in node_modules`);
             if (error instanceof Error) {
-              console.debug(`Module loading error: ${error.message}`);
+              console.error(`Module loading error: ${error.message}`);
             }
             return false;
           }
@@ -763,13 +762,12 @@ describe('Namespace', () => {
           const result = namespaceManager.tryLoadNodeModule('module-throwing-error-instance', testNs);
 
           expect(result).toBe(false);
-          expect(consoleLogSpy).toHaveBeenCalledWith('Module \'module-throwing-error-instance\' not found in node_modules');
-          expect(consoleDebugSpy).toHaveBeenCalledWith('Module loading error: This is an actual Error instance');
+          expect(consoleErrorSpy).toHaveBeenCalledWith('Module \'module-throwing-error-instance\' not found in node_modules');
+          expect(consoleErrorSpy).toHaveBeenCalledWith('Module loading error: This is an actual Error instance');
 
         } finally {
           namespaceManager.tryLoadNodeModule = originalMethod;
-          consoleLogSpy.mockRestore();
-          consoleDebugSpy.mockRestore();
+          consoleErrorSpy.mockRestore();
         }
       });
 
@@ -778,8 +776,7 @@ describe('Namespace', () => {
 
         const originalMethod = namespaceManager.tryLoadNodeModule;
 
-        const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
-        const consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation();
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
         namespaceManager.tryLoadNodeModule = function(this: any, moduleName: string, ns: any): boolean {
           try {
@@ -788,9 +785,9 @@ describe('Namespace', () => {
             }
             return originalMethod.call(this, moduleName, ns);
           } catch (error) {
-            console.log(`Module '${moduleName}' not found in node_modules`);
+            console.error(`Module '${moduleName}' not found in node_modules`);
             if (error instanceof Error) {
-              console.debug(`Module loading error: ${error.message}`);
+              console.error(`Module loading error: ${error.message}`);
             }
             return false;
           }
@@ -800,13 +797,12 @@ describe('Namespace', () => {
           const result = namespaceManager.tryLoadNodeModule('module-throwing-string', testNs);
 
           expect(result).toBe(false);
-          expect(consoleLogSpy).toHaveBeenCalledWith('Module \'module-throwing-string\' not found in node_modules');
-          expect(consoleDebugSpy).not.toHaveBeenCalled();
+          expect(consoleErrorSpy).toHaveBeenCalledWith('Module \'module-throwing-string\' not found in node_modules');
+          expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
 
         } finally {
           namespaceManager.tryLoadNodeModule = originalMethod;
-          consoleLogSpy.mockRestore();
-          consoleDebugSpy.mockRestore();
+          consoleErrorSpy.mockRestore();
         }
       });
     });
