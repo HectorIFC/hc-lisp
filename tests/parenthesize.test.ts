@@ -137,6 +137,84 @@ describe('Parenthesize', () => {
         ]
       });
     });
+
+    test('should handle object with nested list as value', () => {
+      const result = parenthesize(['{', 'data', '(', '1', '2', '3', ')', '}']);
+      expect(result).toEqual({
+        type: 'object',
+        value: {
+          data: {
+            type: 'list',
+            value: [
+              { type: 'number', value: 1 },
+              { type: 'number', value: 2 },
+              { type: 'number', value: 3 }
+            ]
+          }
+        }
+      });
+    });
+
+    test('should handle object with nested vector as value', () => {
+      const result = parenthesize(['{', 'items', '[', '"a"', '"b"', '"c"', ']', '}']);
+      expect(result).toEqual({
+        type: 'object',
+        value: {
+          items: {
+            type: 'vector',
+            value: [
+              { type: 'string', value: 'a' },
+              { type: 'string', value: 'b' },
+              { type: 'string', value: 'c' }
+            ]
+          }
+        }
+      });
+    });
+
+    test('should handle object with nested object as value', () => {
+      const result = parenthesize(['{', 'config', '{', 'port', '8080', 'host', '"localhost"', '}', '}']);
+      expect(result).toEqual({
+        type: 'object',
+        value: {
+          config: {
+            type: 'object',
+            value: {
+              port: { type: 'number', value: 8080 },
+              host: { type: 'string', value: 'localhost' }
+            }
+          }
+        }
+      });
+    });
+
+    test('should handle object with deeply nested structures', () => {
+      const result = parenthesize(['{', 'complex', '(', 'fn', '[', '1', '2', ']', '{', 'x', '10', '}', ')', '}']);
+      expect(result).toEqual({
+        type: 'object',
+        value: {
+          complex: {
+            type: 'list',
+            value: [
+              { type: 'symbol', value: 'fn' },
+              {
+                type: 'vector',
+                value: [
+                  { type: 'number', value: 1 },
+                  { type: 'number', value: 2 }
+                ]
+              },
+              {
+                type: 'object',
+                value: {
+                  x: { type: 'number', value: 10 }
+                }
+              }
+            ]
+          }
+        }
+      });
+    });
   });
 
   describe('Other parenthesize functionality', () => {
@@ -200,6 +278,90 @@ describe('Parenthesize', () => {
             }
           }
         ]
+      });
+    });
+
+    test('should handle object with tokens.length === 0 after keyToken', () => {
+      const result = parenthesize(['{', 'key']);
+      expect(result).toEqual({
+        type: 'object',
+        value: {}
+      });
+    });
+
+    test('should handle nested structures of same type - nested objects', () => {
+      const result = parenthesize(['{', 'outer', '{', 'inner', '{', 'deep', '42', '}', '}', '}']);
+      expect(result).toEqual({
+        type: 'object',
+        value: {
+          outer: {
+            type: 'object',
+            value: {
+              inner: {
+                type: 'object',
+                value: {
+                  deep: { type: 'number', value: 42 }
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+
+    test('should handle nested structures of same type - nested lists', () => {
+      const result = parenthesize(['{', 'data', '(', '(', '1', '2', ')', '(', '3', '4', ')', ')', '}']);
+      expect(result).toEqual({
+        type: 'object',
+        value: {
+          data: {
+            type: 'list',
+            value: [
+              {
+                type: 'list',
+                value: [
+                  { type: 'number', value: 1 },
+                  { type: 'number', value: 2 }
+                ]
+              },
+              {
+                type: 'list',
+                value: [
+                  { type: 'number', value: 3 },
+                  { type: 'number', value: 4 }
+                ]
+              }
+            ]
+          }
+        }
+      });
+    });
+
+    test('should handle nested structures of same type - nested vectors', () => {
+      const result = parenthesize(['{', 'matrix', '[', '[', '1', '2', ']', '[', '3', '4', ']', ']', '}']);
+      expect(result).toEqual({
+        type: 'object',
+        value: {
+          matrix: {
+            type: 'vector',
+            value: [
+              {
+                type: 'vector',
+                value: [
+                  { type: 'number', value: 1 },
+                  { type: 'number', value: 2 }
+                ]
+              },
+              {
+                type: 'vector',
+                value: [
+                  { type: 'number', value: 3 },
+                  { type: 'number', value: 4 }
+                ]
+              }
+            ]
+          }
+        }
       });
     });
   });
