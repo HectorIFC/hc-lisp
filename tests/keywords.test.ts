@@ -1,4 +1,4 @@
-import { specialForms, SpecialForm } from '../src/Keywords';
+import { specialForms } from '../src/Keywords';
 import { Environment } from '../src/Context';
 import { NamespaceManager } from '../src/Namespace';
 import { HCValue } from '../src/Categorize';
@@ -227,6 +227,196 @@ describe('Keywords (Special Forms)', () => {
 
       expect(() => specialForms['defun'](args, env, mockInterpret, nsManager))
         .toThrow('Parameter names must be symbols');
+    });
+  });
+
+  describe('define', () => {
+    it('should define a function without docstring', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'multiply' },
+        { type: 'vector', value: [{ type: 'symbol', value: 'x' }, { type: 'symbol', value: 'y' }] },
+        { type: 'list', value: [{ type: 'symbol', value: '*' }, { type: 'symbol', value: 'x' }, { type: 'symbol', value: 'y' }] }
+      ];
+
+      const result = specialForms['define'](args, env, mockInterpret, nsManager);
+
+      expect(result.type).toBe('closure');
+      expect((result as any).params).toEqual(['x', 'y']);
+      expect(env.get('multiply')).toBe(result);
+    });
+
+    it('should define a function with docstring', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'divide' },
+        { type: 'string', value: 'Divides two numbers' },
+        { type: 'vector', value: [{ type: 'symbol', value: 'x' }, { type: 'symbol', value: 'y' }] },
+        { type: 'list', value: [{ type: 'symbol', value: '/' }, { type: 'symbol', value: 'x' }, { type: 'symbol', value: 'y' }] }
+      ];
+
+      const result = specialForms['define'](args, env, mockInterpret, nsManager);
+
+      expect(result.type).toBe('closure');
+      expect((result as any).params).toEqual(['x', 'y']);
+      expect(env.get('divide')).toBe(result);
+    });
+
+    it('should handle multiple body expressions', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'complexFunction' },
+        { type: 'vector', value: [{ type: 'symbol', value: 'x' }] },
+        { type: 'list', value: [{ type: 'symbol', value: 'println' }, { type: 'string', value: 'Processing...' }] },
+        { type: 'list', value: [{ type: 'symbol', value: '*' }, { type: 'symbol', value: 'x' }, { type: 'number', value: 2 }] }
+      ];
+
+      const result = specialForms['define'](args, env, mockInterpret, nsManager);
+
+      expect(result.type).toBe('closure');
+      expect((result as any).body.type).toBe('list');
+      expect(((result as any).body.value as HCValue[])[0]).toEqual({ type: 'symbol', value: 'do' });
+      expect(((result as any).body.value as HCValue[]).length).toBe(3);
+    });
+
+    it('should handle function with no parameters', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'getConstant' },
+        { type: 'vector', value: [] },
+        { type: 'number', value: 42 }
+      ];
+
+      const result = specialForms['define'](args, env, mockInterpret, nsManager);
+
+      expect(result.type).toBe('closure');
+      expect((result as any).params).toEqual([]);
+      expect(env.get('getConstant')).toBe(result);
+    });
+
+    it('should handle function with single parameter', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'square' },
+        { type: 'vector', value: [{ type: 'symbol', value: 'n' }] },
+        { type: 'list', value: [{ type: 'symbol', value: '*' }, { type: 'symbol', value: 'n' }, { type: 'symbol', value: 'n' }] }
+      ];
+
+      const result = specialForms['define'](args, env, mockInterpret, nsManager);
+
+      expect(result.type).toBe('closure');
+      expect((result as any).params).toEqual(['n']);
+      expect(env.get('square')).toBe(result);
+    });
+
+    it('should handle function with list parameter syntax', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'subtract' },
+        { type: 'list', value: [{ type: 'symbol', value: 'a' }, { type: 'symbol', value: 'b' }] },
+        { type: 'list', value: [{ type: 'symbol', value: '-' }, { type: 'symbol', value: 'a' }, { type: 'symbol', value: 'b' }] }
+      ];
+
+      const result = specialForms['define'](args, env, mockInterpret, nsManager);
+
+      expect(result.type).toBe('closure');
+      expect((result as any).params).toEqual(['a', 'b']);
+      expect(env.get('subtract')).toBe(result);
+    });
+
+    it('should throw error for insufficient arguments', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'incomplete' },
+        { type: 'vector', value: [] }
+      ];
+
+      expect(() => specialForms['define'](args, env, mockInterpret, nsManager))
+        .toThrow('define requires at least 3 arguments');
+    });
+
+    it('should throw error for non-symbol function name', () => {
+      const args: HCValue[] = [
+        { type: 'number', value: 123 },
+        { type: 'vector', value: [] },
+        { type: 'symbol', value: 'body' }
+      ];
+
+      expect(() => specialForms['define'](args, env, mockInterpret, nsManager))
+        .toThrow('define requires a symbol as first argument');
+    });
+
+    it('should throw error for invalid parameter list', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'badParams' },
+        { type: 'string', value: 'not a param list' },
+        { type: 'symbol', value: 'body' }
+      ];
+
+      expect(() => specialForms['define'](args, env, mockInterpret, nsManager))
+        .toThrow('define requires a parameter list');
+    });
+
+    it('should throw error for non-symbol parameters', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'badParamTypes' },
+        { type: 'vector', value: [{ type: 'number', value: 1 }, { type: 'string', value: 'param' }] },
+        { type: 'symbol', value: 'body' }
+      ];
+
+      expect(() => specialForms['define'](args, env, mockInterpret, nsManager))
+        .toThrow('Parameter names must be symbols');
+    });
+
+    it('should handle docstring with complex function definition', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'factorial' },
+        { type: 'string', value: 'Calculates factorial of n' },
+        { type: 'vector', value: [{ type: 'symbol', value: 'n' }] },
+        { type: 'list', value: [
+          { type: 'symbol', value: 'if' },
+          { type: 'list', value: [{ type: 'symbol', value: '<=' }, { type: 'symbol', value: 'n' }, { type: 'number', value: 1 }] },
+          { type: 'number', value: 1 },
+          { type: 'list', value: [
+            { type: 'symbol', value: '*' },
+            { type: 'symbol', value: 'n' },
+            { type: 'list', value: [
+              { type: 'symbol', value: 'factorial' },
+              { type: 'list', value: [{ type: 'symbol', value: '-' }, { type: 'symbol', value: 'n' }, { type: 'number', value: 1 }] }
+            ] }
+          ]}
+        ]}
+      ];
+
+      const result = specialForms['define'](args, env, mockInterpret, nsManager);
+
+      expect(result.type).toBe('closure');
+      expect((result as any).params).toEqual(['n']);
+      expect(env.get('factorial')).toBe(result);
+    });
+
+    it('should correctly wrap single body expression', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'identity' },
+        { type: 'vector', value: [{ type: 'symbol', value: 'x' }] },
+        { type: 'symbol', value: 'x' }
+      ];
+
+      const result = specialForms['define'](args, env, mockInterpret, nsManager);
+
+      expect(result.type).toBe('closure');
+      expect((result as any).body).toEqual({ type: 'symbol', value: 'x' });
+    });
+
+    it('should correctly wrap multiple body expressions in do block', () => {
+      const args: HCValue[] = [
+        { type: 'symbol', value: 'multiStep' },
+        { type: 'vector', value: [{ type: 'symbol', value: 'x' }] },
+        { type: 'list', value: [{ type: 'symbol', value: 'println' }, { type: 'symbol', value: 'x' }] },
+        { type: 'list', value: [{ type: 'symbol', value: '+' }, { type: 'symbol', value: 'x' }, { type: 'number', value: 1 }] },
+        { type: 'list', value: [{ type: 'symbol', value: '*' }, { type: 'symbol', value: 'x' }, { type: 'number', value: 2 }] }
+      ];
+
+      const result = specialForms['define'](args, env, mockInterpret, nsManager);
+
+      expect(result.type).toBe('closure');
+      expect((result as any).body.type).toBe('list');
+      const bodyList = (result as any).body.value as HCValue[];
+      expect(bodyList[0]).toEqual({ type: 'symbol', value: 'do' });
+      expect(bodyList.length).toBe(4);
     });
   });
 

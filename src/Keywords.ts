@@ -1,7 +1,7 @@
 import { HCValue } from './Categorize';
 import { Environment } from './Context';
 import { NamespaceManager } from './Namespace';
-import { toJSValue, jsonToHcValue, JSValue, JSONValue } from './Utils';
+import { toJSValue, jsonToHcValue, JSONValue } from './Utils';
 import { callFunction } from './Interpret';
 
 export type SpecialForm = (
@@ -91,6 +91,10 @@ export const specialForms: { [key: string]: SpecialForm } = {
 
   'defun': (args: HCValue[], env: Environment, interpret: any, nsManager?: NamespaceManager): HCValue => {
     return defineFunction('defun', args, env, interpret, nsManager);
+  },
+
+  'define': (args: HCValue[], env: Environment, interpret: any, nsManager?: NamespaceManager): HCValue => {
+    return defineFunction('define', args, env, interpret, nsManager);
   },
 
   'fn': (args: HCValue[], env: Environment, interpret: any, nsManager?: NamespaceManager): HCValue => {
