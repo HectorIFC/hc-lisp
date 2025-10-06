@@ -1,3 +1,16 @@
+# [1.5.0](https://github.com/HectorIFC/hc-lisp/compare/v1.4.4...v1.5.0) (2025-10-06)
+
+
+### Bug Fixes
+
+* remove branch.name for sonar ([44a450c](https://github.com/HectorIFC/hc-lisp/commit/44a450c61ab76cabe40991edf426f24d804b965c))
+
+
+### Features
+
+* Allow defining functions with keyword define like Scheme ([3a3bfe0](https://github.com/HectorIFC/hc-lisp/commit/3a3bfe086c6daaf2acf07402491f351488c3b9ff))
+* Allow defining functions with keyword define like Scheme ([#45](https://github.com/HectorIFC/hc-lisp/issues/45)) ([666c86d](https://github.com/HectorIFC/hc-lisp/commit/666c86d82a55322b5e333ad04eaadc0f97285769))
+
 ## [1.4.4](https://github.com/HectorIFC/hc-lisp/compare/v1.4.3...v1.4.4) (2025-09-12)
 
 
