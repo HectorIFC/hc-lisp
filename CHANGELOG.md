@@ -11,6 +11,14 @@
 * Allow defining functions with keyword define like Scheme ([3a3bfe0](https://github.com/HectorIFC/hc-lisp/commit/3a3bfe086c6daaf2acf07402491f351488c3b9ff))
 * Allow defining functions with keyword define like Scheme ([#45](https://github.com/HectorIFC/hc-lisp/issues/45)) ([666c86d](https://github.com/HectorIFC/hc-lisp/commit/666c86d82a55322b5e333ad04eaadc0f97285769))
 
+## [1.5.1](https://github.com/HectorIFC/hc-lisp/compare/v1.5.0...v1.5.1) (2026-01-18)
+
+
+### Bug Fixes
+
+* dependabot ([d753079](https://github.com/HectorIFC/hc-lisp/commit/d753079c3f44cbc1050b3bc208b85dcf8a139362))
+* dependabot ([#47](https://github.com/HectorIFC/hc-lisp/issues/47)) ([de9a146](https://github.com/HectorIFC/hc-lisp/commit/de9a14649d1b792dbfbed7fe1a31011f29c45ddd))
+
 ## [1.4.4](https://github.com/HectorIFC/hc-lisp/compare/v1.4.3...v1.4.4) (2025-09-12)
 
 
