@@ -64,8 +64,8 @@
   },
   "homepage": "https://github.com/HectorIFC/hc-lisp#readme",
   "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
+    "node": ">=22.14.0",
+    "npm": ">=10.0.0"
   },
   "publishConfig": {
     "access": "public",
@@ -87,8 +87,8 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-no-comments": "^1.1.10",
     "jest": "^29.7.0",
-    "rimraf": "^6.0.1",
-    "semantic-release": "^24.2.7",
+    "rimraf": "^6.1.2",
+    "semantic-release": "^25.0.2",
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
@@ -102,5 +102,25 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "commander": "^14.0.0"
+  },
+  "overrides": {
+    "diff": "^8.0.3",
+    "tar": "^7.6.0",
+    "tmp": "^0.2.4",
+    "undici": "^6.23.0",
+    "npm": {
+      "tar": "^7.6.0",
+      "diff": "^8.0.3"
+    },
+    "node-gyp": {
+      "tar": "^7.6.0"
+    },
+    "pacote": {
+      "tar": "^7.6.0"
+    },
+    "libnpmdiff": {
+      "tar": "^7.6.0",
+      "diff": "^8.0.3"
+    }
   }
 }
