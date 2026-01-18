@@ -11,6 +11,14 @@
 * Allow defining functions with keyword define like Scheme ([3a3bfe0](https://github.com/HectorIFC/hc-lisp/commit/3a3bfe086c6daaf2acf07402491f351488c3b9ff))
 * Allow defining functions with keyword define like Scheme ([#45](https://github.com/HectorIFC/hc-lisp/issues/45)) ([666c86d](https://github.com/HectorIFC/hc-lisp/commit/666c86d82a55322b5e333ad04eaadc0f97285769))
 
+## [1.5.3](https://github.com/HectorIFC/hc-lisp/compare/v1.5.2...v1.5.3) (2026-01-18)
+
+
+### Bug Fixes
+
+* update publish workflow to trigger on releases instead of tags ([56fd71f](https://github.com/HectorIFC/hc-lisp/commit/56fd71f15987d49cc57c9a9a8633a480f15b55e0))
+* update publish workflow to trigger on releases instead of tags ([#51](https://github.com/HectorIFC/hc-lisp/issues/51)) ([f043281](https://github.com/HectorIFC/hc-lisp/commit/f043281b78912df6f56e770290aada2df64360f7))
+
 ## [1.5.2](https://github.com/HectorIFC/hc-lisp/compare/v1.5.1...v1.5.2) (2026-01-18)
 
 
