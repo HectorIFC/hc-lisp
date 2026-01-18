@@ -267,6 +267,10 @@ npm run hclisp tests/basic-node-test.hclisp
 npm run hclisp tests/simple-ns-test.hclisp
 ```
 
+## Test Feature
+
+This is a test feature added to verify the release workflow.
+
 ## License
 [MIT License](./LICENSE)
 # Test feature
