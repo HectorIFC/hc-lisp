@@ -4,13 +4,11 @@ Este projeto utiliza [Conventional Commits](https://www.conventionalcommits.org/
 
 ## Como fazer commits
 
-Use o comando `npm run commit` em vez de `git commit` para criar commits padronizados:
+Use commits manuais seguindo o formato padrão:
 
 ```bash
-npm run commit
+git commit -m "tipo: descrição breve"
 ```
-
-Isso irá abrir um assistente interativo que te guiará através dos tipos de commit:
 
 ### Tipos de commit:
 
@@ -31,7 +29,7 @@ Isso irá abrir um assistente interativo que te guiará através dos tipos de co
 
 ## Workflow de Release
 
-1. Faça commits usando `npm run commit`
+1. Faça commits seguindo o formato conventional
 2. Faça merge para a branch `master`
 3. O GitHub Actions automaticamente:
    - Analisa os commits
