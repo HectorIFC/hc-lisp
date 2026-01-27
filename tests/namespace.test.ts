@@ -1195,7 +1195,7 @@ describe('Namespace', () => {
       test('should handle errors during evaluation and restore namespace in finally block', () => {
         const testNs = namespaceManager.createNamespace('test-deferred-error');
         const mockHcLispInstance = {
-          evalFileContent: jest.fn(() => {
+          evalFileContent: jest.fn<any, any>(() => {
             throw new Error('Evaluation failed');
           })
         };

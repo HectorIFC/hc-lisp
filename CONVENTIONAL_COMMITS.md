@@ -1,43 +1,41 @@
-# Conventional Commits para HC-Lisp
+# Conventional Commits for HC-Lisp
 
-Este projeto utiliza [Conventional Commits](https://www.conventionalcommits.org/) para padronizar as mensagens de commit e automatizar o versionamento.
+This project uses [Conventional Commits](https://www.conventionalcommits.org/) to standardize commit messages and automate versioning.
 
-## Como fazer commits
+## How to make commits
 
-Use o comando `npm run commit` em vez de `git commit` para criar commits padronizados:
+Use manual commits following the standard format:
 
 ```bash
-npm run commit
+git commit -m "type: brief description"
 ```
 
-Isso irá abrir um assistente interativo que te guiará através dos tipos de commit:
+### Commit types:
 
-### Tipos de commit:
+- **feat**: New feature
+- **fix**: Bug fix
+- **docs**: Documentation changes
+- **style**: Changes that do not affect the code's meaning (spaces, formatting, etc.)
+- **refactor**: Code change that does not fix a bug nor add functionality
+- **perf**: Code change that improves performance
+- **test**: Addition or correction of tests
+- **chore**: Changes to build tools, configurations, etc.
 
-- **feat**: Nova funcionalidade
-- **fix**: Correção de bug
-- **docs**: Mudanças na documentação
-- **style**: Mudanças que não afetam o significado do código (espaços, formatação, etc.)
-- **refactor**: Mudança de código que não corrige bug nem adiciona funcionalidade
-- **perf**: Mudança de código que melhora performance
-- **test**: Adição ou correção de testes
-- **chore**: Mudanças nas ferramentas de build, configurações, etc.
+### Automatic versioning:
 
-### Versionamento automático:
+- `feat`: Increments **minor** version (1.0.0 → 1.1.0)
+- `fix`: Increments **patch** version (1.0.0 → 1.0.1)
+- `feat!` or `BREAKING CHANGE`: Increments **major** version (1.0.0 → 2.0.0)
 
-- `feat`: Incrementa versão **minor** (1.0.0 → 1.1.0)
-- `fix`: Incrementa versão **patch** (1.0.0 → 1.0.1)
-- `feat!` ou `BREAKING CHANGE`: Incrementa versão **major** (1.0.0 → 2.0.0)
+## Release Workflow
 
-## Workflow de Release
+1. Make commits following the conventional format
+2. Merge to the `master` branch
+3. GitHub Actions automatically:
+   - Analyzes commits
+   - Determines the new version
+   - Generates changelog
+   - Creates release on GitHub
+   - Publishes to npm
 
-1. Faça commits usando `npm run commit`
-2. Faça merge para a branch `master`
-3. O GitHub Actions automaticamente:
-   - Analisa os commits
-   - Determina a nova versão
-   - Gera changelog
-   - Cria release no GitHub
-   - Publica no npm
-
-Não é necessário intervenção manual para versionamento ou publicação!
+No manual intervention is required for versioning or publishing!
