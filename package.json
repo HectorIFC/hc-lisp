@@ -1,6 +1,6 @@
 {
   "name": "hc-lisp",
-  "version": "1.6.2",
+  "version": "1.0.0",
   "description": "A modern Lisp dialect implementation in TypeScript, inspired by Clojure and Peter Norvig's Lispy project.",
   "main": "dist/hc-lisp.js",
   "types": "dist/hc-lisp.d.ts",
