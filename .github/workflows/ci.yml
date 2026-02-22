@@ -1,0 +1,128 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-22.04
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Check commit message
+      if: github.event_name == 'push'
+      run: |
+        # Make script executable and run it
+        chmod +x scripts/check-commit.sh
+        ./scripts/check-commit.sh
+
+    - name: Run TypeScript linting
+      run: |
+        echo "Running TypeScript linting..."
+        npm run lint
+        echo "✅ TypeScript linting passed"
+
+    - name: Type checking
+      run: |
+        echo "Running TypeScript type checking..."
+        npm run type-check
+        echo "✅ TypeScript type checking passed"
+
+    - name: Run tests
+      run: |
+        echo "Running all tests..."
+        npm test -- --verbose --coverage --coverageReporters=text --coverageReporters=json-summary --coverageReporters=lcov
+        echo "✅ All tests passed"
+
+    - name: Test coverage check
+      run: |
+        echo "Checking test coverage..."
+        COVERAGE=$(node -p "JSON.parse(require('fs').readFileSync('coverage/coverage-summary.json', 'utf8')).total.lines.pct")
+        echo "Current coverage: ${COVERAGE}%"
+        
+        if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
+          echo "✅ Coverage is acceptable (${COVERAGE}% >= 80%)"
+        else
+          echo "❌ Coverage is too low (${COVERAGE}% < 80%)"
+          exit 1
+        fi
+
+    - name: Generate test report
+      if: always()
+      run: |
+        echo "Generating test report..."
+        npm test -- --verbose --json --outputFile=test-results.json --coverage --coverageReporters=json || true
+        
+        if [ -f test-results.json ]; then
+          echo "📊 Test Report Generated"
+          echo "Test results saved to test-results.json"
+        fi
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-node-${{ matrix.node-version }}
+        path: |
+          test-results.json
+          coverage/
+        retention-days: 30
+
+  security-check:
+    runs-on: ubuntu-22.04
+    needs: quality-check
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run security audit
+      run: |
+        echo "Running security audit..."
+        npm audit --audit-level moderate
+        echo "✅ Security audit passed"
+
+  deploy-docs:
+    runs-on: ubuntu-22.04
+    needs: [quality-check, security-check]
+    if: github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
+        cname: hc-lisp.dev

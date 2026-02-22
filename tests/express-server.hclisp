@@ -1,0 +1,47 @@
+;; express-server.hclisp - Dynamic Express server example
+(ns web.server
+  (:import
+    (express)))
+
+;; Create Express app - 'express' module will be loaded dynamically
+(def app (express))
+(def PORT 3000)
+
+;; Middleware example: logger
+(app/use (fn [req res next]
+  (println (str "[" (Date/now) "] " (req/method) " " (req/url)))
+  (next)))
+
+;; Route: Home
+(app/get "/" (fn [req res]
+  (res/send "Hello from HC-Lisp Express server! 🚀")))
+
+;; Route: About  
+(app/get "/about" (fn [req res]
+  (res/send "About page - powered by HC-Lisp with dynamic Node.js integration")))
+
+;; Route: API endpoint
+(app/get "/api/status" (fn [req res]
+  (res/json {:status "ok"
+             :language "HC-Lisp"
+             :timestamp (Date/now)
+             :message "Dynamic Node.js module loading works!"})))
+
+;; Route: Health check
+(app/get "/health" (fn [req res]
+  (res/status 200)
+  (res/send "OK")))
+
+;; 404 handler
+(app/use (fn [req res]
+  (res/status 404)
+  (res/send "Page not found - HC-Lisp server")))
+
+;; Start server
+(app/listen PORT (fn []
+  (println (str "🚀 HC-Lisp Express server running at http://localhost:" PORT "/"))
+  (println "Routes available:")
+  (println "  GET /          - Home page")
+  (println "  GET /about     - About page")
+  (println "  GET /api/status - API status")
+  (println "  GET /health    - Health check")))

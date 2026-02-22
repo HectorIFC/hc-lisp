@@ -1,0 +1,8 @@
+;; Teste simples de namespace
+(ns test.simple)
+
+(println "Hello from namespace test.simple!")
+
+;; Teste básico
+(def x 42)
+(println "x =" x)

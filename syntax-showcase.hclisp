@@ -1,0 +1,196 @@
+;; ===========================================
+;; HC-LISP - Complex Syntax Highlighting Example
+;; ===========================================
+
+;; This file demonstrates various language elements
+;; that should have different colors in the editor
+
+;; -------------------------------------------
+;; 1. COMMENTS
+;; -------------------------------------------
+;; Single-line comments start with ;;
+;; They should appear in a lighter color (green/gray)
+
+;; -------------------------------------------
+;; 2. FUNCTION DEFINITIONS
+;; -------------------------------------------
+
+(defn fibonacci
+  "Calculates the nth Fibonacci number using recursion"
+  [n]
+  (if (<= n 1)
+    n
+    (+ (fibonacci (- n 1))
+       (fibonacci (- n 2)))))
+
+(defn factorial
+  "Calculates the factorial of a number"
+  [n]
+  (loop [i n acc 1]
+    (if (<= i 1)
+      acc
+      (recur (- i 1) (* acc i)))))
+
+;; -------------------------------------------
+;; 3. DATA TYPES
+;; -------------------------------------------
+
+;; Numbers (should appear in blue)
+123
+-456
+78.90
+1e-10
+3.14159
+
+;; Strings (should appear in red/orange)
+"Hello, world!"
+"This is a string with spaces"
+"String with 'single quotes' inside"
+
+;; Booleans (should have special color)
+true
+false
+
+;; Nil (should have special color)
+nil
+
+;; Keywords (should appear in purple/blue)
+:name
+:age
+:active
+:user-type
+
+;; Symbol examples (as part of definitions)
+(def x 42)
+(def y 100)
+(def counter 0)
+(def result "computed value")
+
+;; -------------------------------------------
+;; 4. DATA STRUCTURES
+;; -------------------------------------------
+
+;; Lists and vectors examples
+(def sample-list '(1 2 3 4 5))
+(def sample-vector [1 2 3 4 5])
+
+;; Vectors (brackets should have different colors)
+(def vector1 [1 2 3 4 5])
+(def vector2 [:a :b :c])
+(def vector3 ["string1" "string2" "string3"])
+
+;; -------------------------------------------
+;; 5. OPERATIONS AND BUILT-IN FUNCTIONS
+;; -------------------------------------------
+
+;; Mathematical operations
+(def sum-result (+ 1 2 3 4 5))
+(def diff-result (- 100 25))
+(def mult-result (* 2 3 4))
+(def div-result (/ 12 3))
+
+;; Comparisons
+(def equal-test (= 3 3))
+(def less-test (< 5 10))
+(def greater-test (> 15 10))
+(def lte-test (<= 5 5))
+(def gte-test (>= 10 9))
+
+;; List operations
+(def first-elem (first [1 2 3]))
+(def rest-elems (rest [1 2 3]))
+(def count-elems (count [1 2 3 4]))
+(def mapped-result (map (fn [x] (* x 2)) [1 2 3 4]))
+(def reduced-result (reduce + 0 [1 2 3 4 5]))
+
+;; -------------------------------------------
+;; 6. CONTROL STRUCTURES
+;; -------------------------------------------
+
+;; If statements
+(if (> 5 3)
+  "greater"
+  "less or equal")
+
+;; Let bindings
+(let [x 10
+      y 20
+      sum (+ x y)]
+  (println "The sum is:" sum))
+
+;; Loop with recur
+(def loop-result 
+  (loop [i 0
+         result []]
+    (if (< i 5)
+      (recur (+ i 1) (cons i result))
+      result)))
+
+;; -------------------------------------------
+;; 7. ANONYMOUS FUNCTIONS
+;; -------------------------------------------
+
+;; Simple lambda function
+(fn [x] (* x x))
+
+;; Lambda function with multiple parameters
+(fn [a b c] (+ a b c))
+
+;; Anonymous function application
+((fn [x y] (+ x y)) 10 20)
+
+;; -------------------------------------------
+;; 8. COMPLEX EXAMPLE - QUICKSORT
+;; -------------------------------------------
+
+(defn quicksort
+  "Implementation of the quicksort algorithm"
+  [lst]
+  (if (empty? lst)
+    []
+    (let [pivot (first lst)
+          rest-list (rest lst)]
+      ;; Simplified version without filter - just demonstrate syntax
+      (if (nil? rest-list)
+        [pivot]
+        (cons pivot rest-list)))))
+
+;; -------------------------------------------
+;; 9. TESTS AND DEMONSTRATIONS
+;; -------------------------------------------
+
+;; Fibonacci test
+(println "Fibonacci(10):" (fibonacci 10))
+
+;; Factorial test
+(println "Factorial(5):" (factorial 5))
+
+;; Simple arithmetic test
+(println "Sum result:" sum-result)
+(println "First element:" first-elem)
+
+;; Example using keywords and definitions
+(def person-name "John")
+(def person-age 30)
+(println "Person:" person-name "Age:" person-age)
+
+;; -------------------------------------------
+;; 10. NESTED PARENTHESES (colorization test)
+;; -------------------------------------------
+
+(defn nested-example []
+  (let [result (+ (* 2 3) 
+                  (- 10 5)
+                  (/ 20 4))]
+    (if (> result 10)
+      (do
+        (println "Result greater than 10")
+        (println "Result value:" result))
+      (println "Result less than or equal to 10"))))
+
+;; Execute the nested example
+(nested-example)
+
+;; ===========================================
+;; END OF DEMONSTRATION FILE
+;; ===========================================

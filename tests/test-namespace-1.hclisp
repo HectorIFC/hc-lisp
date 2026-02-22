@@ -1,0 +1,15 @@
+(ns test-namespace-1
+  (:require [test-namespace-2]))
+
+(defn calculate [a b]
+  (test-namespace-2/add a b))
+
+(defn result []
+  (test-namespace-2/multiply 5 3))
+
+;; Testing the functions
+(println "=== Testing dependencies between files ===")
+(println "Calculating 10 + 20 =" (calculate 10 20))
+(println "Result 5 * 3 =" (result))
+(println "Calling test-namespace-2/add directly:" (test-namespace-2/add 15 25))
+(println "=== Test completed ===")

@@ -1,0 +1,38 @@
+;; Test of namespace system with Node.js
+(ns example.import
+  ;; Import Node.js modules
+  (:import
+    (node.crypto randomUUID randomBytes createHash)
+    (node.fs readFileSync existsSync)
+    (node.path join basename dirname))
+  )
+
+;; Example function using Node.js imports
+(defn example-import []
+  ;; Creating a UUID using Node.js crypto
+  (let [id (crypto/randomUUID)
+        timestamp (Date/now)]
+    (println "Generated UUID:" id)
+    (println "Timestamp:" timestamp)
+    ;; Using HC-Lisp built-in functions for strings
+    (println "Uppercase:" (str/upper-case "node.js is cool!"))
+    ;; Testing crypto
+    (println "MD5 Hash:" (crypto/createHash "md5" "test"))
+    ;; Testing path
+    (println "Current dir:" (process/cwd))
+    (println "Joined path:" (path/join "src" "test" "file.txt"))))
+
+;; Function call
+(example-import)
+
+;; More tests with string functions
+(println "Trim test:" (str/trim "  spaces  "))
+(println "Lowercase test:" (str/lower-case "UPPERCASE"))
+
+;; Path operations test
+(println "Basename:" (path/basename "/home/user/file.txt"))
+(println "Dirname:" (path/dirname "/home/user/file.txt"))
+
+;; Crypto functions test
+(println "Random bytes:" (crypto/randomBytes 8))
+(println "SHA256 hash:" (crypto/createHash "sha256" "Hello World"))

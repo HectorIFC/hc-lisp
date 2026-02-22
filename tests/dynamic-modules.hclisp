@@ -1,0 +1,25 @@
+;; dynamic-modules.hclisp - Test dynamic module loading
+(ns test.dynamic
+  (:import
+    (crypto)
+    (fs)
+    (path)))
+
+;; Test crypto module
+(println "Testing crypto module:")
+(println (str "Random UUID: " (crypto/randomUUID)))
+(println (str "Random bytes: " (crypto/randomBytes 8)))
+
+;; Test fs module  
+(println "\nTesting fs module:")
+(def file-exists (fs/existsSync "package.json"))
+(println (str "package.json exists: " file-exists))
+
+;; Test path module
+(println "\nTesting path module:")
+(def joined-path (path/join "src" "main.ts"))
+(println (str "Joined path: " joined-path))
+(def base-name (path/basename "/Users/test/file.txt"))
+(println (str "Base name: " base-name))
+
+(println "\n✅ Dynamic module loading test completed!")
