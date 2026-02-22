@@ -1,6 +1,18 @@
 const typescript = require('@typescript-eslint/eslint-plugin');
 const typescriptParser = require('@typescript-eslint/parser');
-const noComments = require('eslint-plugin-no-comments');
+
+const disallowComments = {
+    create(context) {
+        return {
+            Program() {
+                const comments = context.sourceCode.getAllComments();
+                comments.forEach(comment => {
+                    context.report({ node: comment, message: 'Comments are not allowed.' });
+                });
+            }
+        };
+    }
+};
 
 module.exports = [
     {
@@ -25,58 +37,27 @@ module.exports = [
         },
         plugins: {
             '@typescript-eslint': typescript,
-            'no-comments': noComments
+            'local': { rules: { 'disallow-comments': disallowComments } }
         },
         rules: {
-            // Disable console warnings (equivalent to tslint no-console: false)
             'no-console': 'off',
-            
-            // Quotes (equivalent to tslint quotemark: single)
             'quotes': ['error', 'single'],
-            
-            // Semicolons (equivalent to tslint semicolon: always)
             'semi': ['error', 'always'],
-            
-            // No trailing comma (equivalent to tslint trailing-comma: never)
             'comma-dangle': ['error', 'never'],
-            
-            // Max line length (equivalent to tslint max-line-length: 140)
             'max-len': ['error', { code: 140 }],
-            
-            // Allow empty blocks (equivalent to tslint no-empty: false)
             'no-empty': 'off',
-            
-            // Allow variable shadowing (equivalent to tslint no-shadowed-variable: false)
             'no-shadow': 'off',
-            
-            // Prefer const (equivalent to tslint prefer-const: true)
             'prefer-const': 'error',
-            
-            // No var keyword (equivalent to tslint no-var-keyword: true)
             'no-var': 'error',
-            
-            // Require curly braces (equivalent to tslint curly: true)
             'curly': 'error',
-            
-            // End of line (equivalent to tslint eofline: true)
             'eol-last': 'error',
-            
-            // Indentation with 2 spaces
             'indent': ['error', 2],
-            
-            // No trailing whitespace (equivalent to tslint no-trailing-whitespace: true)
             'no-trailing-spaces': 'error',
-            
-            // Brace style (equivalent to tslint one-line)
             'brace-style': ['error', '1tbs', { allowSingleLine: true }],
-            
-            // Space before blocks (equivalent to tslint whitespace)
             'space-before-blocks': 'error',
             'keyword-spacing': 'error',
             'space-infix-ops': 'error',
             'comma-spacing': 'error',
-            
-            // TypeScript specific rules
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-empty-interface': 'off',
             '@typescript-eslint/no-non-null-assertion': 'off',
@@ -84,13 +65,8 @@ module.exports = [
             '@typescript-eslint/no-var-requires': 'off',
             '@typescript-eslint/no-require-imports': 'off',
             '@typescript-eslint/no-unused-expressions': 'off',
-            
-            // Allow undef since TypeScript handles this
             'no-undef': 'off',
-            
-            // Disable all comments using plugin (but allow shebangs)
-            // Disable all comments using plugin
-            'no-comments/disallowComments': 'error'
+            'local/disallow-comments': 'error'
         }
     },
     // Special rules for CLI executables (allow shebangs)
