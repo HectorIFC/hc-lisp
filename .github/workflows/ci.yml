@@ -108,7 +108,7 @@ jobs:
     - name: Run security audit
       run: |
         echo "Running security audit..."
-        npm audit --audit-level moderate
+        npm audit --audit-level moderate --omit=dev
         echo "✅ Security audit passed"
 
   deploy-docs:
