@@ -1,0 +1,110 @@
+{
+  "name": "hc-lisp",
+  "version": "1.6.2",
+  "description": "A modern Lisp dialect implementation in TypeScript, inspired by Clojure and Peter Norvig's Lispy project.",
+  "main": "dist/hc-lisp.js",
+  "types": "dist/hc-lisp.d.ts",
+  "bin": {
+    "hc-lisp": "dist/cli.js",
+    "hclisp": "dist/cli.js"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "lisp",
+    "clojure",
+    "interpreter",
+    "functional-programming",
+    "repl",
+    "typescript",
+    "nodejs",
+    "programming-language",
+    "compiler",
+    "scripting"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "build:watch": "tsc --project tsconfig.build.json --watch",
+    "prebuild": "rimraf dist",
+    "prepublishOnly": "npm run build && npm run quality",
+    "postbuild": "echo '#!/usr/bin/env node' | cat - dist/cli.js > temp && mv temp dist/cli.js && chmod +x dist/cli.js",
+    "start": "ts-node src/repl.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/repl.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:verbose": "jest --verbose",
+    "hclisp": "ts-node src/hc-runner.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit",
+    "quality": "npm run lint && npm run type-check && npm test",
+    "quality:fix": "npm run lint:fix && npm run type-check && npm test",
+    "ci": "npm run quality && npm run test:coverage",
+    "pack": "npm pack",
+    "publish:dry": "npm publish --dry-run"
+  },
+  "author": "Hector Cardoso",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HectorIFC/hc-lisp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/HectorIFC/hc-lisp/issues"
+  },
+  "homepage": "https://github.com/HectorIFC/hc-lisp#readme",
+  "engines": {
+    "node": ">=22.14.0",
+    "npm": ">=10.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.0.10",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^10.0.1",
+    "eslint-config-prettier": "^10.1.8",
+    "jest": "^29.7.0",
+    "npm-check-updates": "^19.3.2",
+    "rimraf": "^6.1.2",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^14.0.2"
+  },
+  "overrides": {
+    "diff": "^8.0.3",
+    "tar": "^7.6.0",
+    "tmp": "^0.2.4",
+    "undici": "^6.23.0",
+    "qs": "^6.13.0",
+    "braces": "^3.0.3",
+    "npm": {
+      "tar": "^7.6.0",
+      "diff": "^8.0.3"
+    },
+    "node-gyp": {
+      "tar": "^7.6.0"
+    },
+    "pacote": {
+      "tar": "^7.6.0"
+    },
+    "libnpmdiff": {
+      "tar": "^7.6.0",
+      "diff": "^8.0.3"
+    }
+  }
+}

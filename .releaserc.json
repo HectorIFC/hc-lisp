@@ -1,0 +1,24 @@
+{
+  "branches": ["master"],
+  "repositoryUrl": "https://github.com/HectorIFC/hc-lisp.git",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "npm version ${nextRelease.version} --no-git-tag-version",
+        "publishCmd": "npm publish --access public"
+      }
+    ],
+    "@semantic-release/github",
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["package.json", "CHANGELOG.md"],
+        "message": "release:${nextRelease.version}\n\n${nextRelease.notes}"
+      }
+    ]
+  ]
+}

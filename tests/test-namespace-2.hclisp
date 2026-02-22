@@ -1,0 +1,7 @@
+(ns test-namespace-2)
+
+(defn add [a b]
+  (+ a b))
+
+(defn multiply [x y]
+  (* x y))

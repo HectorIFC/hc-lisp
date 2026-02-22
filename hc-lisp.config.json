@@ -1,0 +1,22 @@
+{
+  "verbose": false,
+  "debug": false,
+  "repl": {
+    "showBanner": true,
+    "prompt": "hc-lisp> ",
+    "history": true
+  },
+  "interpreter": {
+    "stackSize": 1000,
+    "maxRecursionDepth": 500
+  },
+  "namespaces": {
+    "autoLoad": ["core", "str", "json"],
+    "defaultImports": ["crypto", "fs", "path"]
+  },
+  "output": {
+    "colors": true,
+    "prettyPrint": true,
+    "maxDepth": 10
+  }
+}

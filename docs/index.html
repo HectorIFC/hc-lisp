@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HC-Lisp - A modern Lisp dialect implementation in TypeScript, inspired by Clojure and Peter Norvig's Lispy project.</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="./">
+                    <picture>
+                      <source srcset="assets/logo/hclisp-logo-horizontal-dark.svg" media="(prefers-color-scheme: dark)">
+                      <img src="assets/logo/hclisp-logo-horizontal-light.svg" alt="HCLisp Logo" width="100">
+                    </picture>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#examples">Examples</a>
+                <a href="#docs">Documentation</a>
+                <a href="#testing">Testing</a>
+                <a href="https://www.npmjs.com/package/hc-lisp" target="_blank" class="npm-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.977 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0H1.763zM5.13 5.323l13.837.019-.009 13.836h-3.464l.01-10.382h-3.456L12.04 19.17H5.113l.017-13.847z"/>
+                    </svg>
+                    npm
+                </a>
+                <a href="https://github.com/HectorIFC/hc-lisp" target="_blank" class="github-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        HC-Lisp
+                        <span class="gradient-text">A Modern Lisp Dialect</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                      A modern Lisp dialect implementation in TypeScript, inspired by Clojure and Peter Norvig's Lispy project.
+                    </p>
+                    <div class="badges">
+                        <img src="https://img.shields.io/npm/dm/hc-lisp" alt="npm downloads">
+                    </div>
+                    <div class="development-notice">
+                        <div class="notice-icon">⚠️</div>
+                        <div class="notice-content">
+                            <strong>Development Status:</strong> HC-Lisp is currently in active development and is <strong>not ready for production use</strong>. This is an experimental project for educational purposes and learning how Lisp interpreters work.
+                        </div>
+                    </div>
+                    <div class="hero-buttons">
+                        <a href="#examples" class="btn btn-primary">Try Examples</a>
+                        <a href="https://www.npmjs.com/package/hc-lisp" target="_blank" class="btn btn-npm">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.977 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0H1.763zM5.13 5.323l13.837.019-.009 13.836h-3.464l.01-10.382h-3.456L12.04 19.17H5.113l.017-13.847z"/>
+                            </svg>
+                            npm Package
+                        </a>
+                        <a href="https://github.com/HectorIFC/hc-lisp" target="_blank" class="btn btn-secondary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.30.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                            View Source
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-demo">
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <div class="terminal-buttons">
+                                <span class="btn-close"></span>
+                                <span class="btn-minimize"></span>
+                                <span class="btn-maximize"></span>
+                            </div>
+                            <span class="terminal-title">HC-Lisp REPL</span>
+                        </div>
+                        <div class="terminal-body">
+                            <div class="terminal-line">
+                                <span class="prompt">hc-lisp></span>
+                                <span class="code">(+ 1 2 3)</span>
+                            </div>
+                            <div class="terminal-output">6</div>
+                            <div class="terminal-line">
+                                <span class="prompt">hc-lisp></span>
+                                <span class="code">(ns demo (:import (node.crypto randomUUID)))</span>
+                            </div>
+                            <div class="terminal-output">Importing node.crypto.randomUUID
+                            </div>
+                            <div class="terminal-output">:demo
+                            </div>
+                            <div class="terminal-line">
+                                <span class="prompt">hc-lisp></span>
+                                <span class="code">(crypto/randomUUID)</span>
+                            </div>
+                            <div class="terminal-output">"a1b2c3d4-e5f6-7890-abcd-ef1234567890"</div>
+                            <div class="terminal-line">
+                                <span class="prompt">hc-lisp></span>
+                                <span class="code">(str/upper-case "node.js rocks!")</span>
+                            </div>
+                            <div class="terminal-output">"NODE.JS ROCKS!"</div>
+                            <div class="terminal-cursor">_</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2 class="section-title">Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Fast & Modern</h3>
+                        <p>Built with TypeScript for type safety and modern JavaScript performance</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Node.js Integration</h3>
+                        <p>Built-in namespace system with import/require for Node.js modules</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🧪</div>
+                        <h3>Thoroughly Tested</h3>
+                        <p>Comprehensive test suite with Jest, including individual isolated tests for each .hclisp file</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Rich Data Types</h3>
+                        <p>Lists, vectors, maps, keywords, and more built-in data structures</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔧</div>
+                        <h3>Functional Programming</h3>
+                        <p>First-class functions, closures, and higher-order function support</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🚀</div>
+                        <h3>Easy to Use</h3>
+                        <p>Simple REPL interface and straightforward API for integration</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="examples" class="examples">
+            <div class="container">
+                <h2 class="section-title">Examples</h2>
+                <div class="examples-grid">
+                    <div class="example-card">
+                        <h3>Basic Arithmetic</h3>
+                        <div class="code-block">
+                            <pre><code class="language-lisp">;; Basic operations
+(+ 1 2 3)        ; => 6
+(* 2 3 4)        ; => 24
+(/ 12 3)         ; => 4
+(< 3 5)          ; => true</code></pre>
+                        </div>
+                    </div>
+                    <div class="example-card">
+                        <h3>Functions & Variables</h3>
+                        <div class="code-block">
+                            <pre><code class="language-lisp">;; Define variables
+(def x 42)
+
+;; Define functions
+(defn square [x] (* x x))
+(square 5)       ; => 25
+
+;; With let bindings
+(let [a 10 b 20] (+ a b))  ; => 30</code></pre>
+                        </div>
+                    </div>
+                    <div class="example-card">
+                        <h3>Lists & Collections</h3>
+                        <div class="code-block">
+                            <pre><code class="language-lisp">;; Working with lists
+(first [1 2 3])    ; => 1
+(count [1 2 3 4])  ; => 4
+(cons 0 [1 2 3])   ; => (0 1 2 3)
+
+;; Check predicates
+(even? 4)          ; => true
+(empty? [])        ; => true</code></pre>
+                        </div>
+                    </div>
+                    <div class="example-card">
+                        <h3>Advanced Features</h3>
+                        <div class="code-block">
+                            <pre><code class="language-lisp">;; Higher-order functions
+(map square [1 2 3 4])      ; => (1 4 9 16)
+(reduce + 0 [1 2 3 4])      ; => 10
+
+;; Mathematical functions
+(sqrt 16)                   ; => 4
+(abs -5)                    ; => 5</code></pre>
+                        </div>
+                    </div>
+                    <div class="example-card">
+                        <h3>Namespace & Node.js</h3>
+                        <div class="code-block">
+                            <pre><code class="language-lisp">;; Create namespace and import modules
+(ns my-app
+  (:import
+    (node.crypto randomUUID)
+    (node.fs existsSync)
+    (node.path join)))
+
+;; Use Node.js modules
+(crypto/randomUUID)           ; => Generate UUID
+(fs/existsSync "file.txt")    ; => Check file
+(path/join "src" "main.ts")   ; => Join paths
+
+;; Built-in functions
+(str/upper-case "hello")      ; => "HELLO"
+(json/stringify {:key "val"}) ; => JSON string</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="docs" class="documentation">
+            <div class="container">
+                <h2 class="section-title">Getting Started</h2>
+                <div class="docs-content">
+                    <div class="quick-start">
+                        <div class="install-section">
+                            <h3>Installation</h3>
+                            <div class="code-block">
+                                <pre><code class="language-bash">$ npm install -g hc-lisp</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="run-section">
+                            <h3>Run</h3>
+                            <div class="code-block">
+                                <pre><code class="language-bash">$ hc-lisp
+# or
+$ hclisp</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="usage-section">
+                        <h3>Basic Usage</h3>
+                        <div class="code-block">
+                            <pre><code class="language-lisp">;; Start with simple expressions
+(println "Hello, HC-Lisp!")
+
+;; Define and use functions
+(defn greet [name]
+  (println "Hello," name))
+
+(greet "World")</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="namespace-section">
+                        <h3>Namespace System</h3>
+                        <div class="code-block">
+                            <pre><code class="language-lisp">;; Create namespace with Node.js integration
+(ns my-app
+  (:import
+    (node.crypto randomUUID)
+    (node.fs existsSync)
+    (node.path join)))
+
+;; Use imported modules
+(println "UUID:" (crypto/randomUUID))
+(println "File exists:" (fs/existsSync "package.json"))
+
+;; Built-in string functions
+(println (str/upper-case "hello world"))  ; => "HELLO WORLD"
+(println (json/stringify {:name "HC-Lisp"}))  ; => JSON</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="testing" class="testing">
+            <div class="container">
+                <h2 class="section-title">Testing & Quality</h2>
+                <div class="testing-grid">
+                    <div class="test-info">
+                        <h3>Comprehensive Testing</h3>
+                        <ul>
+                            <li>Unit tests for all language features</li>
+                            <li>Individual isolated tests for each .hclisp file</li>
+                            <li>Namespace and Node.js integration tests</li>
+                            <li>Error handling validation</li>
+                            <li>Type safety with TypeScript</li>
+                            <li>Jest framework for modern testing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <span class="logo">🚀</span>
+                    <span>HC-Lisp</span>
+                </div>
+                <div class="footer-right">
+                    <p>Built with ❤️ by <a href="https://github.com/HectorIFC" target="_blank">Hector Cardoso</a></p>
+                    <p>Licensed under MIT</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

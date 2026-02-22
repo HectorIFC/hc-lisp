@@ -1,0 +1,17 @@
+;; Basic Node.js namespace test
+(ns test.node
+  (:import
+    (node.crypto randomUUID)))
+
+(println "=== Basic Node.js Test ===")
+
+;; UUID
+(def id (crypto/randomUUID))
+(println "UUID:" id)
+
+;; Simple string test
+(def text "hello world")
+(println "Original:" text)
+(println "Uppercase:" (str/upper-case text))
+
+(println "=== End ===")

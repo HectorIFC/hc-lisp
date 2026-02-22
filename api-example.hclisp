@@ -1,0 +1,60 @@
+(ns api-server (:require [node.http] [node.url]))
+
+(def users (atom [{:id 1 :name "João" :email "joao@test.com"}
+                  {:id 2 :name "Maria" :email "maria@test.com"}]))
+
+(defn handle-get-users [req res]
+  (.writeHead res 200 {:Content-Type "application/json"})
+  (.end res (.stringify JSON @users)))
+
+(defn handle-get-user [req res id]
+  (let [user (first (filter (fn [u] (= (str (get u :id)) (str id))) @users))]
+    (if user
+      (do
+        (.writeHead res 200 {:Content-Type "application/json"})
+        (.end res (.stringify JSON user)))
+      (do
+        (.writeHead res 404 {:Content-Type "application/json"})
+        (.end res (.stringify JSON {:error "User not found"}))))))
+
+(defn parse-request-body [req callback]
+  (let [body (atom "")]
+    (.on req "data" (fn [chunk] 
+      (swap! body str chunk)))
+    (.on req "end" (fn [] (callback @body)))))
+
+(defn handle-post-user [req res]
+  (parse-request-body req
+    (fn [body]
+      (let [parseddata (json/parse body)
+            name (get parseddata "name")
+            email (get parseddata "email")
+            newid (+ (count @users) 1)
+            newuser (assoc {} :id newid :name name :email email)]
+        (do
+          (swap! users conj newuser)
+          (.writeHead res 201 {:Content-Type "application/json"})
+          (.end res (.stringify JSON newuser)))))))
+
+(defn route-handler [req res]
+  (let [url (node.url/parse (.-url req) true)
+        path (.-pathname url)
+        method (.-method req)]
+    (cond
+      (and (= method "GET") (= path "/api/users"))
+      (handle-get-users req res)
+      
+      (and (= method "GET") (str/startsWith path "/api/users/"))
+      (let [id (str/slice path 11)]
+        (handle-get-user req res id))
+      
+      (and (= method "POST") (= path "/api/users"))
+      (handle-post-user req res)
+      
+      :else
+      (do
+        (.writeHead res 404 {:Content-Type "application/json"})
+        (.end res (.stringify JSON {:error "Route not found"}))))))
+
+(def server (node.http/createServer route-handler))
+(.listen server 3000)

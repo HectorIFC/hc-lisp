@@ -1,0 +1,19 @@
+{
+    "contributes": {
+        "languages": [
+            {
+                "id": "hc-lisp",
+                "aliases": ["HC-Lisp", "hc-lisp"],
+                "extensions": [".hclisp"],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "hc-lisp",
+                "scopeName": "source.lisp",
+                "path": "./syntaxes/lisp.tmGrammar.json"
+            }
+        ]
+    }
+}
